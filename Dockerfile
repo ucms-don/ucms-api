@@ -29,7 +29,7 @@ WORKDIR /app
 RUN adduser --disabled-password --gecos "" appuser
 USER appuser
 
-COPY --from=build /app/publish .
+COPY --from=build --chown=appuser:appuser /app/publish .
 
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
