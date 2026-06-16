@@ -714,12 +714,11 @@ public class UcmsDbContextSeed
             Name      = "IXTIYOR PUDRAT",
             TaxId     = "3057891240",
             Address   = "Toshkent shahri, Yashnobod tumani",
-            Phone     = "+998901112233",
+            Phone     = "+79015227700",
             Email     = "ixtiyor.pudrat@gmail.com",
             Type      = OrganizationType.Tenant,
-            IsTest    = true,
-            IsDeleted = false,
-            CreatedAt = now, UpdatedAt = now,
+            CreatedAt = now, 
+            UpdatedAt = now,
             CreatedBy = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
         });
         await db.SaveChangesAsync();
@@ -782,9 +781,11 @@ public class UcmsDbContextSeed
                 Position       = "Direktor",
                 UserId         = IhtiyorDirectorUserId,
                 BrigadeId      = null,
-                IsActive       = true, IsDeleted = false,
-                CreatedAt      = now, UpdatedAt = now,
-                CreatedBy      = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+                IsActive       = true,
+                CreatedAt      = now, 
+                UpdatedAt = now,
+                CreatedBy      = IhtiyorDirectorUserId, 
+                UpdatedBy = IhtiyorDirectorUserId,
             },
             // Ishchi — shuvoqchi, ayni paytda brigada boshlig'i (alohida User talab qilinmaydi)
             new Employee
@@ -795,9 +796,11 @@ public class UcmsDbContextSeed
                 Position       = "Shtukatorchi (shuvoqchi) / Brigada boshlig'i",
                 UserId         = null,
                 BrigadeId      = IhtiyorBrigadeId,
-                IsActive       = true, IsDeleted = false,
-                CreatedAt      = now, UpdatedAt = now,
-                CreatedBy      = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+                IsActive       = true,
+                CreatedAt      = now, 
+                UpdatedAt = now,
+                CreatedBy      = IhtiyorDirectorUserId, 
+                UpdatedBy = IhtiyorDirectorUserId,
             }
         );
         await db.SaveChangesAsync();
