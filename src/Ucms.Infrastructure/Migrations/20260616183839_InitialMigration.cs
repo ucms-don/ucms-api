@@ -824,6 +824,8 @@ namespace Ucms.Infrastructure.Migrations
                     Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: true),
                     Note = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    SourceType = table.Column<int>(type: "integer", nullable: true),
+                    SourceId = table.Column<Guid>(type: "uuid", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -1317,6 +1319,11 @@ namespace Ucms.Infrastructure.Migrations
                 name: "IX_CashTransactions_ProjectId",
                 table: "CashTransactions",
                 column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_SourceType_SourceId",
+                table: "CashTransactions",
+                columns: new[] { "SourceType", "SourceId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ClientActItems_ActId",

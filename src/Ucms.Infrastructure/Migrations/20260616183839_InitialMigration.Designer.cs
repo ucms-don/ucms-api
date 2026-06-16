@@ -12,7 +12,7 @@ using Ucms.Infrastructure.Persistence;
 namespace Ucms.Infrastructure.Migrations
 {
     [DbContext(typeof(UcmsDbContext))]
-    [Migration("20260616170230_InitialMigration")]
+    [Migration("20260616183839_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -218,6 +218,12 @@ namespace Ucms.Infrastructure.Migrations
                     b.Property<Guid?>("ProjectId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("SourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("SourceType")
+                        .HasColumnType("integer");
+
                     b.Property<int>("TransactionType")
                         .HasColumnType("integer");
 
@@ -238,6 +244,8 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasIndex("ProjectId");
 
                     b.HasIndex("PartnerType", "PartnerId");
+
+                    b.HasIndex("SourceType", "SourceId");
 
                     b.ToTable("CashTransactions");
                 });

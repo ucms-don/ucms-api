@@ -22,11 +22,11 @@ public class ProjectExpenseController(
 {
     public record CreateExpenseRequest(
         DateTimeOffset Date, string Category, decimal Amount,
-        string? Description, string? PaymentMethod, string? Note);
+        string? Description, string? PaymentMethod, string? Note, Guid? CashAccountId);
 
     public record UpdateExpenseRequest(
         DateTimeOffset Date, string Category, decimal Amount,
-        string? Description, string? PaymentMethod, string? Note);
+        string? Description, string? PaymentMethod, string? Note, Guid? CashAccountId);
 
     /// <summary>
     /// Loyiha xarajatlari ro'yxati (filtr va sahifalash bilan).
@@ -78,11 +78,12 @@ public class ProjectExpenseController(
     public async Task<IActionResult> Create(
         Guid projectId, [FromBody] CreateExpenseRequest req, CancellationToken ct)
     {
-        var (data, notFound, forbidden) = await create.HandleAsync(
+        var (data, notFound, forbidden, cashAccountNotFound) = await create.HandleAsync(
             new(projectId, req.Date, req.Category, req.Amount,
-                req.Description, req.PaymentMethod, req.Note), ct);
+                req.Description, req.PaymentMethod, req.Note, req.CashAccountId), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         return StatusCode(201, data);
     }
 
@@ -93,15 +94,17 @@ public class ProjectExpenseController(
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> Update(
         Guid projectId, Guid id, [FromBody] UpdateExpenseRequest req, CancellationToken ct)
     {
-        var (notFound, forbidden) = await update.HandleAsync(
+        var (notFound, forbidden, cashAccountNotFound) = await update.HandleAsync(
             new(projectId, id, req.Date, req.Category, req.Amount,
-                req.Description, req.PaymentMethod, req.Note), ct);
+                req.Description, req.PaymentMethod, req.Note, req.CashAccountId), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         return NoContent();
     }
 

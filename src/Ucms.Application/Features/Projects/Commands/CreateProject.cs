@@ -1,5 +1,6 @@
 namespace Ucms.Application.Features.Projects.Commands;
 
+using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Entities;
@@ -11,7 +12,7 @@ public static class CreateProject
         string Name, string? ClientName, string? Address, string? Description,
         string? ContractNumber, DateTimeOffset? ContractDate,
         DateTimeOffset? StartDate, DateTimeOffset? EndDate,
-        decimal? ContractValue);
+        decimal? ContractValue, Guid? CustomerId);
 
     public record Result(Guid Id, string Name);
 
@@ -22,6 +23,13 @@ public static class CreateProject
             var orgId = ctx.IsOwner ? (Guid?)null : ctx.OrganizationId;
             if (!orgId.HasValue) return null;
 
+            if (cmd.CustomerId.HasValue)
+            {
+                var customerExists = await db.Customers
+                    .AnyAsync(c => c.Id == cmd.CustomerId.Value && !c.IsDeleted && c.OrganizationId == orgId.Value, ct);
+                if (!customerExists) return null;
+            }
+
             var now    = DateTimeOffset.UtcNow;
             var userId = ctx.UserId ?? Guid.Empty;
 
@@ -31,6 +39,7 @@ public static class CreateProject
                 OrganizationId = orgId.Value,
                 Name           = cmd.Name,
                 ClientName     = cmd.ClientName,
+                CustomerId     = cmd.CustomerId,
                 Address        = cmd.Address,
                 Description    = cmd.Description,
                 ContractNumber = cmd.ContractNumber,

@@ -21,10 +21,10 @@ public class SalaryController(
     DeleteSalary.Handler   delete) : ControllerBase
 {
     public record CreateSalaryRequest(
-        Guid EmployeeId, string Month, decimal Amount, string? Notes);
+        Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid? CashAccountId);
 
     public record UpdateSalaryRequest(
-        Guid EmployeeId, string Month, decimal Amount, string? Notes);
+        Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid? CashAccountId);
 
     /// <summary>
     /// Maoshlar ro'yxati (oy va xodim filtri bilan).
@@ -69,10 +69,11 @@ public class SalaryController(
     [ProducesResponseType(404)]
     public async Task<IActionResult> Create([FromBody] CreateSalaryRequest req, CancellationToken ct)
     {
-        var (data, notFound, forbidden) = await create.HandleAsync(
-            new(req.EmployeeId, req.Month, req.Amount, req.Notes), ct);
+        var (data, notFound, forbidden, cashAccountNotFound) = await create.HandleAsync(
+            new(req.EmployeeId, req.Month, req.Amount, req.Notes, req.CashAccountId), ct);
         if (notFound)  return NotFound(new { message = "Xodim topilmadi. / Сотрудник не найден." });
         if (forbidden) return Forbid();
+        if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         return CreatedAtAction(nameof(GetById), new { id = data!.Id }, data);
     }
 
@@ -87,11 +88,12 @@ public class SalaryController(
     [ProducesResponseType(404)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateSalaryRequest req, CancellationToken ct)
     {
-        var (notFound, forbidden, error) = await update.HandleAsync(
-            new(id, req.EmployeeId, req.Month, req.Amount, req.Notes), ct);
+        var (notFound, forbidden, error, cashAccountNotFound) = await update.HandleAsync(
+            new(id, req.EmployeeId, req.Month, req.Amount, req.Notes, req.CashAccountId), ct);
         if (notFound)          return NotFound();
         if (forbidden)         return Forbid();
         if (error is not null) return BadRequest(new { message = error });
+        if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         return NoContent();
     }
 

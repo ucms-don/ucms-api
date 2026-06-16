@@ -2,7 +2,9 @@ namespace Ucms.Application.Features.ProjectExpenses.Commands;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
+using Ucms.Domain.Enums;
 
 public static class DeleteProjectExpense
 {
@@ -23,6 +25,9 @@ public static class DeleteProjectExpense
             expense.UpdatedBy = ctx.UserId ?? Guid.Empty;
 
             db.ProjectExpenses.Update(expense);
+
+            await CashTransactionLinker.RemoveAsync(db, CashTransactionSourceType.ProjectExpense, expense.Id, expense.UpdatedBy, ct);
+
             await db.SaveChangesAsync(ct);
             return (false, false);
         }

@@ -215,6 +215,12 @@ namespace Ucms.Infrastructure.Migrations
                     b.Property<Guid?>("ProjectId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("SourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("SourceType")
+                        .HasColumnType("integer");
+
                     b.Property<int>("TransactionType")
                         .HasColumnType("integer");
 
@@ -235,6 +241,8 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasIndex("ProjectId");
 
                     b.HasIndex("PartnerType", "PartnerId");
+
+                    b.HasIndex("SourceType", "SourceId");
 
                     b.ToTable("CashTransactions");
                 });

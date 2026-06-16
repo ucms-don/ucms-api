@@ -1,7 +1,9 @@
 namespace Ucms.Application.Features.Salaries.Commands;
 
 using Ucms.Application.Abstractions;
+using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
+using Ucms.Domain.Enums;
 
 public static class DeleteSalary
 {
@@ -20,6 +22,9 @@ public static class DeleteSalary
             salary.UpdatedBy = ctx.UserId ?? Guid.Empty;
 
             db.Salaries.Update(salary);
+
+            await CashTransactionLinker.RemoveAsync(db, CashTransactionSourceType.Salary, salary.Id, salary.UpdatedBy, ct);
+
             await db.SaveChangesAsync(ct);
             return (false, false);
         }

@@ -2,26 +2,32 @@ namespace Ucms.Application.Features.Salaries.Commands;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Entities;
+using Ucms.Domain.Enums;
 
 public static class CreateSalary
 {
-    public record Command(Guid EmployeeId, string Month, decimal Amount, string? Notes);
+    public record Command(Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid? CashAccountId);
 
     public record Result(Guid Id, string EmployeeName, decimal Amount);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
-        public async Task<(Result? Data, bool EmployeeNotFound, bool Forbidden)> HandleAsync(Command cmd, CancellationToken ct)
+        public async Task<(Result? Data, bool EmployeeNotFound, bool Forbidden, bool CashAccountNotFound)> HandleAsync(Command cmd, CancellationToken ct)
         {
             var employee = await db.Employees
                 .Where(e => e.Id == cmd.EmployeeId && !e.IsDeleted)
                 .Select(e => new { e.Id, e.Name, e.OrganizationId })
                 .FirstOrDefaultAsync(ct);
 
-            if (employee is null) return (null, true, false);
-            if (!ctx.IsOwner && ctx.OrganizationId != employee.OrganizationId) return (null, false, true);
+            if (employee is null) return (null, true, false, false);
+            if (!ctx.IsOwner && ctx.OrganizationId != employee.OrganizationId) return (null, false, true, false);
+
+            if (cmd.CashAccountId.HasValue &&
+                !await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId.Value, employee.OrganizationId, ct))
+                return (null, false, false, true);
 
             var now    = DateTimeOffset.UtcNow;
             var userId = ctx.UserId ?? Guid.Empty;
@@ -40,8 +46,21 @@ public static class CreateSalary
             };
 
             await db.Salaries.AddAsync(salary, ct);
+
+            if (cmd.CashAccountId.HasValue)
+            {
+                var date = DateTimeOffset.TryParse(cmd.Month + "-01", out var parsed) ? parsed : now;
+                await CashTransactionLinker.UpsertAsync(
+                    db, CashTransactionSourceType.Salary, salary.Id,
+                    employee.OrganizationId, cmd.CashAccountId.Value,
+                    CashDirection.Out, CashTransactionType.SalaryPayment,
+                    FinancePartnerType.Employee, cmd.EmployeeId,
+                    cmd.Amount, date, null, cmd.Notes,
+                    userId, ct);
+            }
+
             await db.SaveChangesAsync(ct);
-            return (new Result(salary.Id, employee.Name, salary.Amount), false, false);
+            return (new Result(salary.Id, employee.Name, salary.Amount), false, false, false);
         }
     }
 }

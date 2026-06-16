@@ -62,6 +62,20 @@ public class CashTransaction : AuditableEntity, IDeletable, IHasOrganization
     public string? Note { get; set; }
 
     /// <summary>
+    /// Agar bu yozuv eski to'lov entity'sidan (BrigadePayment/ClientPayment/Salary/ProjectExpense)
+    /// avtomatik yaratilgan bo'lsa — qaysi turdan ekanligi. Qo'lda (Supplier/Loan/Owner kabi)
+    /// yaratilgan yozuvlar uchun null.
+    /// </summary>
+    public CashTransactionSourceType? SourceType { get; set; }
+
+    /// <summary>
+    /// SourceType bilan birga ishlatiladi — bog'langan eski yozuvning ID'si
+    /// (masalan BrigadePayment.Id). Har bir (SourceType, SourceId) juftligiga
+    /// faqat bitta o'chirilmagan CashTransaction to'g'ri keladi.
+    /// </summary>
+    public Guid? SourceId { get; set; }
+
+    /// <summary>
     /// O'chirilgan yoki yo'q
     /// </summary>
     public bool IsDeleted { get; set; }

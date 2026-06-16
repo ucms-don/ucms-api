@@ -20,6 +20,8 @@ public static class GetProjectById
                     p.Id,
                     p.Name,
                     p.ClientName,
+                    p.CustomerId,
+                    p.Customer != null ? p.Customer.Name : null,
                     p.Address,
                     p.Description,
                     p.ContractNumber,

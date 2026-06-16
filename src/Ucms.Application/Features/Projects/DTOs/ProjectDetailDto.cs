@@ -6,6 +6,8 @@ public record ProjectDetailDto(
     Guid                           Id,
     string                         Name,
     string?                        ClientName,
+    Guid?                          CustomerId,
+    string?                        CustomerName,
     string?                        Address,
     string?                        Description,
     string?                        ContractNumber,

@@ -26,4 +26,19 @@ public enum FinancePartnerType
     /// Boshqa
     /// </summary>
     Other = 4,
+
+    /// <summary>
+    /// Brigada (BrigadePayment bog'langanda)
+    /// </summary>
+    Brigade = 5,
+
+    /// <summary>
+    /// Xodim (Salary bog'langanda)
+    /// </summary>
+    Employee = 6,
+
+    /// <summary>
+    /// Buyurtmachi (ClientPayment bog'langanda)
+    /// </summary>
+    Customer = 7,
 }

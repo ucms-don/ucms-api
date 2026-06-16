@@ -13,7 +13,8 @@ public static class GetProjects
         Guid Id, string Name, string? ClientName, string? Address, string? ContractNumber,
         decimal? ContractValue, ProjectStatus Status, string StatusString,
         DateTimeOffset? StartDate, DateTimeOffset? EndDate,
-        Guid OrganizationId, DateTimeOffset CreatedAt);
+        Guid OrganizationId, DateTimeOffset CreatedAt,
+        Guid? CustomerId, string? CustomerName);
 
     public record Result(int Total, int Page, int Size, List<Item> Items);
 
@@ -46,7 +47,8 @@ public static class GetProjects
                 .Select(p => new Item(
                     p.Id, p.Name, p.ClientName, p.Address, p.ContractNumber,
                     p.ContractValue, p.Status, MapStatusToString(p.Status),
-                    p.StartDate, p.EndDate, p.OrganizationId, p.CreatedAt))
+                    p.StartDate, p.EndDate, p.OrganizationId, p.CreatedAt,
+                    p.CustomerId, p.Customer != null ? p.Customer.Name : null))
                 .ToListAsync(ct);
 
             return (new Result(total, q.Page, q.Size, items), false);

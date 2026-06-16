@@ -29,4 +29,24 @@ public enum CashTransactionType
     /// Boshqa
     /// </summary>
     Other = 5,
+
+    /// <summary>
+    /// Brigada to'lovi (BrigadePayment bilan bog'langan kassa harakati)
+    /// </summary>
+    BrigadePayment = 6,
+
+    /// <summary>
+    /// Mijoz/buyurtmachi to'lovi (ClientPayment bilan bog'langan kassa harakati)
+    /// </summary>
+    ClientPayment = 7,
+
+    /// <summary>
+    /// Maosh to'lovi (Salary bilan bog'langan kassa harakati)
+    /// </summary>
+    SalaryPayment = 8,
+
+    /// <summary>
+    /// Loyiha xarajati (ProjectExpense bilan bog'langan kassa harakati)
+    /// </summary>
+    ProjectExpense = 9,
 }

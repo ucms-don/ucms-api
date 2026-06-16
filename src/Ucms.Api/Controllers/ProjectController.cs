@@ -31,7 +31,8 @@ public class ProjectController(
         DateTimeOffset? ContractDate,
         DateTimeOffset? StartDate,
         DateTimeOffset? EndDate,
-        decimal? ContractValue);
+        decimal? ContractValue,
+        Guid? CustomerId);
 
     public record UpdateProjectRequest(
         string Name,
@@ -43,7 +44,8 @@ public class ProjectController(
         DateTimeOffset? StartDate,
         DateTimeOffset? EndDate,
         decimal? ContractValue,
-        ProjectStatus Status);
+        ProjectStatus Status,
+        Guid? CustomerId);
 
     /// <summary>
     /// Loyihalar ro'yxati (sahifalash va holat filtri bilan).
@@ -89,9 +91,9 @@ public class ProjectController(
     {
         var result = await create.HandleAsync(
             new(req.Name, req.ClientName, req.Address, req.Description, req.ContractNumber,
-                req.ContractDate, req.StartDate, req.EndDate, req.ContractValue), ct);
+                req.ContractDate, req.StartDate, req.EndDate, req.ContractValue, req.CustomerId), ct);
 
-        if (result is null) return BadRequest(new { message = "Foydalanuvchiga tashkilot biriktirilmagan. / Пользователю не привязана организация." });
+        if (result is null) return BadRequest(new { message = "Foydalanuvchiga tashkilot biriktirilmagan yoki buyurtmachi topilmadi. / Пользователю не привязана организация, или заказчик не найден." });
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -102,15 +104,17 @@ public class ProjectController(
     [HttpPut("{id:guid}")]
     [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectRequest req, CancellationToken ct)
     {
-        var (notFound, forbidden) = await update.HandleAsync(
+        var (notFound, forbidden, customerNotFound) = await update.HandleAsync(
             new(id, req.Name, req.ClientName, req.Address, req.Description, req.ContractNumber,
-                req.ContractDate, req.StartDate, req.EndDate, req.ContractValue, req.Status), ct);
+                req.ContractDate, req.StartDate, req.EndDate, req.ContractValue, req.Status, req.CustomerId), ct);
 
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        if (customerNotFound) return BadRequest(new { message = "Buyurtmachi topilmadi. / Заказчик не найден." });
         return NoContent();
     }
 

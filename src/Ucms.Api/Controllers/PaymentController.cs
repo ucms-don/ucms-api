@@ -23,11 +23,11 @@ public class PaymentController(
 {
     public record CreateClientPaymentRequest(
         Guid? ActId, DateTimeOffset Date, decimal Amount,
-        PaymentMethod PaymentMethod, string? Note);
+        PaymentMethod PaymentMethod, string? Note, Guid? CashAccountId);
 
     public record CreateBrigadePaymentRequest(
         Guid BrigadeId, DateTimeOffset Date, decimal Amount,
-        PaymentMethod PaymentMethod, Guid[] WorkLogIds, string? Note);
+        PaymentMethod PaymentMethod, Guid[] WorkLogIds, string? Note, Guid? CashAccountId);
 
     /// <summary>
     /// Loyiha bo'yicha mijoz to'lovlari ro'yxati.
@@ -55,14 +55,16 @@ public class PaymentController(
     [HttpPost("client")]
     [Authorize(Roles = "Admin,Manager,Accountant")]
     [ProducesResponseType(201)]
+    [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> CreateClientPayment(
         Guid projectId, [FromBody] CreateClientPaymentRequest req, CancellationToken ct)
     {
-        var (data, notFound, forbidden) = await createClientPayment.HandleAsync(
-            new(projectId, req.ActId, req.Date, req.Amount, req.PaymentMethod, req.Note), ct);
+        var (data, notFound, forbidden, cashAccountNotFound) = await createClientPayment.HandleAsync(
+            new(projectId, req.ActId, req.Date, req.Amount, req.PaymentMethod, req.Note, req.CashAccountId), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         return StatusCode(201, data);
     }
 
@@ -94,14 +96,16 @@ public class PaymentController(
     [HttpPost("brigade")]
     [Authorize(Roles = "Admin,Manager,Accountant")]
     [ProducesResponseType(201)]
+    [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> CreateBrigadePayment(
         Guid projectId, [FromBody] CreateBrigadePaymentRequest req, CancellationToken ct)
     {
-        var (data, notFound, forbidden) = await createBrigadePayment.HandleAsync(
-            new(projectId, req.BrigadeId, req.Date, req.Amount, req.PaymentMethod, req.WorkLogIds, req.Note), ct);
+        var (data, notFound, forbidden, cashAccountNotFound) = await createBrigadePayment.HandleAsync(
+            new(projectId, req.BrigadeId, req.Date, req.Amount, req.PaymentMethod, req.WorkLogIds, req.Note, req.CashAccountId), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         return StatusCode(201, data);
     }
 

@@ -13,6 +13,7 @@ public class CashTransactionConfiguration : IEntityTypeConfiguration<CashTransac
         builder.HasIndex(e => e.CashAccountId);
         builder.HasIndex(e => new { e.PartnerType, e.PartnerId });
         builder.HasIndex(e => e.ProjectId);
+        builder.HasIndex(e => new { e.SourceType, e.SourceId });
         builder.Property(e => e.Amount).HasPrecision(18, 2);
         builder.Property(e => e.Note).HasMaxLength(1024);
 
