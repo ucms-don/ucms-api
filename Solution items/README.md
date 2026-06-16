@@ -89,7 +89,7 @@ Toshkent · `ixtiyor.pudrat@gmail.com`
 
 | Name                      | Username           | Password      | Role  |
 |---------------------------|--------------------|---------------|-------|
-| Daminov Ixtiyor Jonovich  | `ixtiyor.direktor`  | `Ixtiyor123!` | Admin |
+| Daminov Ixtiyor Jonovich  | `ixtiyor.direktor` | `Ixtiyor123!` | Admin |
 
 **Brigade:** Yusupov brigada — foreman/worker Yusupov Aziz Tursunovich (shtukatorchi)
 **Project:** Pivchenkova ko'chasi, 14-uy — 2,3-sektsiya otdelka *(InProgress)* · Client: OOO "IKS"
