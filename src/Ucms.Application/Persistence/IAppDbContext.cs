@@ -41,6 +41,13 @@ public interface IUcmsDbContext
     // Maoshlar
     public DbSet<Salary> Salaries { get; set; }
 
+    // Buyurtmachilar
+    public DbSet<Customer> Customers { get; set; }
+
+    // Finance (kassa va pul harakati)
+    public DbSet<CashAccount> CashAccounts { get; set; }
+    public DbSet<CashTransaction> CashTransactions { get; set; }
+
     // O'lchov birliklari (spravochnik)
     public DbSet<MeasurementUnit> MeasurementUnits { get; set; }
     public DbSet<OrganizationMeasurementUnit> OrganizationMeasurementUnits { get; set; }

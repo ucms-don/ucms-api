@@ -36,5 +36,10 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
         builder.HasMany(e => e.BrigadePayments)
             .WithOne(e => e.Project)
             .HasForeignKey(e => e.ProjectId);
+
+        builder.HasOne(e => e.Customer)
+            .WithMany(e => e.Projects)
+            .HasForeignKey(e => e.CustomerId)
+            .IsRequired(false);
     }
 }

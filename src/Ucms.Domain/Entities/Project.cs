@@ -49,9 +49,15 @@ public class Project : AuditableEntity, IDeletable
     public DateTimeOffset? EndDate { get; set; }
 
     /// <summary>
-    /// Buyurtmachi nomi
+    /// Buyurtmachi nomi (legacy — Customer entity qo'shilishidan oldin ishlatilgan, hozir saqlanadi
+    /// orqaga moslik uchun, lekin yangi yozuvlarda CustomerId ishlatilishi tavsiya etiladi)
     /// </summary>
     public string? ClientName { get; set; }
+
+    /// <summary>
+    /// Buyurtmachi ID (ixtiyoriy — Customer entity'ga bog'lanish)
+    /// </summary>
+    public Guid? CustomerId { get; set; }
 
     /// <summary>
     /// Shartnoma summasi
@@ -69,6 +75,7 @@ public class Project : AuditableEntity, IDeletable
     public bool IsDeleted { get; set; }
 
     public virtual Organization? Organization { get; set; }
+    public virtual Customer? Customer { get; set; }
     public virtual ICollection<Estimate> Estimates { get; set; } = [];
     public virtual ICollection<WorkLog> WorkLogs { get; set; } = [];
     public virtual ICollection<ClientAct> ClientActs { get; set; } = [];

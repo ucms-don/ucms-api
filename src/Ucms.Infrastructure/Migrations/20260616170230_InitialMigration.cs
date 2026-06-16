@@ -206,21 +206,15 @@ namespace Ucms.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Projects",
+                name: "CashAccounts",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
-                    Address = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    Description = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
-                    ContractNumber = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    ContractDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    StartDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    EndDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    ClientName = table.Column<string>(type: "text", nullable: true),
-                    ContractValue = table.Column<decimal>(type: "numeric", nullable: true),
-                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false),
+                    Notes = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -229,9 +223,38 @@ namespace Ucms.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.PrimaryKey("PK_CashAccounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Projects_Organizations_OrganizationId",
+                        name: "FK_CashAccounts_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    Phone = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    TaxId = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    Address = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    Notes = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Customers_Organizations_OrganizationId",
                         column: x => x.OrganizationId,
                         principalTable: "Organizations",
                         principalColumn: "Id",
@@ -404,106 +427,23 @@ namespace Ucms.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BrigadePayments",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
-                    BrigadeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    Amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    PaymentMethod = table.Column<int>(type: "integer", nullable: false),
-                    Note = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BrigadePayments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BrigadePayments_Brigades_BrigadeId",
-                        column: x => x.BrigadeId,
-                        principalTable: "Brigades",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BrigadePayments_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ClientActs",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ActNumber = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    ActDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    Status = table.Column<int>(type: "integer", nullable: false),
-                    Note = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ClientActs", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ClientActs_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Estimates",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
-                    Description = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    Order = table.Column<int>(type: "integer", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Estimates", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Estimates_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProjectExpenses",
+                name: "Projects",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    Category = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    Amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    Description = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
-                    PaymentMethod = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    Note = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    Name = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    Address = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    Description = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
+                    ContractNumber = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ContractDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    StartDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    EndDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    ClientName = table.Column<string>(type: "text", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ContractValue = table.Column<decimal>(type: "numeric", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    ProjectId1 = table.Column<Guid>(type: "uuid", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
@@ -511,18 +451,18 @@ namespace Ucms.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProjectExpenses", x => x.Id);
+                    table.PrimaryKey("PK_Projects", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProjectExpenses_Projects_ProjectId",
-                        column: x => x.ProjectId,
-                        principalTable: "Projects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ProjectExpenses_Projects_ProjectId1",
-                        column: x => x.ProjectId1,
-                        principalTable: "Projects",
+                        name: "FK_Projects_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Projects_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -802,6 +742,7 @@ namespace Ucms.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     FullName = table.Column<string>(type: "text", nullable: true),
+                    AvatarUrl = table.Column<string>(type: "text", nullable: true),
                     OrganizationId = table.Column<Guid>(type: "uuid", nullable: true),
                     EmployeeId = table.Column<Guid>(type: "uuid", nullable: true),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
@@ -836,12 +777,12 @@ namespace Ucms.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ClientPayments",
+                name: "BrigadePayments",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ActId = table.Column<Guid>(type: "uuid", nullable: true),
+                    BrigadeId = table.Column<Guid>(type: "uuid", nullable: false),
                     Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     Amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     PaymentMethod = table.Column<int>(type: "integer", nullable: false),
@@ -853,14 +794,15 @@ namespace Ucms.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ClientPayments", x => x.Id);
+                    table.PrimaryKey("PK_BrigadePayments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ClientPayments_ClientActs_ActId",
-                        column: x => x.ActId,
-                        principalTable: "ClientActs",
-                        principalColumn: "Id");
+                        name: "FK_BrigadePayments_Brigades_BrigadeId",
+                        column: x => x.BrigadeId,
+                        principalTable: "Brigades",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClientPayments_Projects_ProjectId",
+                        name: "FK_BrigadePayments_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -868,23 +810,136 @@ namespace Ucms.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EstimateSections",
+                name: "CashTransactions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    EstimateId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
-                    Order = table.Column<int>(type: "integer", nullable: false)
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CashAccountId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Direction = table.Column<int>(type: "integer", nullable: false),
+                    TransactionType = table.Column<int>(type: "integer", nullable: false),
+                    PartnerType = table.Column<int>(type: "integer", nullable: false),
+                    PartnerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Note = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EstimateSections", x => x.Id);
+                    table.PrimaryKey("PK_CashTransactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EstimateSections_Estimates_EstimateId",
-                        column: x => x.EstimateId,
-                        principalTable: "Estimates",
+                        name: "FK_CashTransactions_CashAccounts_CashAccountId",
+                        column: x => x.CashAccountId,
+                        principalTable: "CashAccounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CashTransactions_Organizations_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Organizations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CashTransactions_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClientActs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ActNumber = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    ActDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    Note = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientActs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClientActs_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Estimates",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    Order = table.Column<int>(type: "integer", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Estimates", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Estimates_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectExpenses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrganizationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Category = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    PaymentMethod = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    Note = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    ProjectId1 = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectExpenses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProjectExpenses_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ProjectExpenses_Projects_ProjectId1",
+                        column: x => x.ProjectId1,
+                        principalTable: "Projects",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1043,6 +1098,58 @@ namespace Ucms.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ClientPayments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ActId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Date = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
+                    PaymentMethod = table.Column<int>(type: "integer", nullable: false),
+                    Note = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClientPayments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClientPayments_ClientActs_ActId",
+                        column: x => x.ActId,
+                        principalTable: "ClientActs",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ClientPayments_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EstimateSections",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    EstimateId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    Order = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EstimateSections", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EstimateSections_Estimates_EstimateId",
+                        column: x => x.EstimateId,
+                        principalTable: "Estimates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EstimateItems",
                 columns: table => new
                 {
@@ -1177,6 +1284,41 @@ namespace Ucms.Infrastructure.Migrations
                 column: "OrganizationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CashAccounts_Id",
+                table: "CashAccounts",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashAccounts_OrganizationId",
+                table: "CashAccounts",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_CashAccountId",
+                table: "CashTransactions",
+                column: "CashAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_Id",
+                table: "CashTransactions",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_OrganizationId",
+                table: "CashTransactions",
+                column: "OrganizationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_PartnerType_PartnerId",
+                table: "CashTransactions",
+                columns: new[] { "PartnerType", "PartnerId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_ProjectId",
+                table: "CashTransactions",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ClientActItems_ActId",
                 table: "ClientActItems",
                 column: "ActId");
@@ -1210,6 +1352,16 @@ namespace Ucms.Infrastructure.Migrations
                 name: "IX_ClientPayments_ProjectId",
                 table: "ClientPayments",
                 column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_Id",
+                table: "Customers",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customers_OrganizationId",
+                table: "Customers",
+                column: "OrganizationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_BrigadeId",
@@ -1403,6 +1555,11 @@ namespace Ucms.Infrastructure.Migrations
                 name: "IX_ProjectExpenses_ProjectId1",
                 table: "ProjectExpenses",
                 column: "ProjectId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_CustomerId",
+                table: "Projects",
+                column: "CustomerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_Id",
@@ -1626,6 +1783,9 @@ namespace Ucms.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "CashTransactions");
+
+            migrationBuilder.DropTable(
                 name: "ClientActItems");
 
             migrationBuilder.DropTable(
@@ -1689,6 +1849,9 @@ namespace Ucms.Infrastructure.Migrations
                 name: "WorkLogs");
 
             migrationBuilder.DropTable(
+                name: "CashAccounts");
+
+            migrationBuilder.DropTable(
                 name: "ClientActs");
 
             migrationBuilder.DropTable(
@@ -1746,6 +1909,9 @@ namespace Ucms.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Projects");
+
+            migrationBuilder.DropTable(
+                name: "Customers");
 
             migrationBuilder.DropTable(
                 name: "Organizations");
