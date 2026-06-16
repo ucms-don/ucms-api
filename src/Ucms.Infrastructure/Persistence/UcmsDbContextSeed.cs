@@ -28,8 +28,10 @@ public class UcmsDbContextSeed
     private static readonly Guid AccountantRoleId = new("00000000-0000-0000-0000-000000000013");
 
     // ── OWNER tashkilot (tizim egasi — UCMS) ─────────────────────────────────
-    private static readonly Guid OwnerOrgId     = new("00000000-0000-0000-0001-000000000000");
-    private static readonly Guid SysAdminId     = new("00000000-0000-0000-0000-000000000001");
+    private static readonly Guid OwnerOrgId      = new("00000000-0000-0000-0001-000000000000");
+    private static readonly Guid SysAdminId      = new("00000000-0000-0000-0000-000000000001");
+    private static readonly Guid OwnerBrigadeId  = new("00000000-0000-0000-0003-000000000001");
+    private static readonly Guid OwnerEmployeeId = new("00000000-0000-0000-0010-000000000001");
 
     // ── TENANT 1 — "Ihtiyor Qurilish Kompaniyasi" ────────────────────────────────
     private static readonly Guid T1OrgId        = new("00000000-0000-0000-0001-000000000001");
@@ -107,6 +109,7 @@ public class UcmsDbContextSeed
             // 2. OWNER tashkilot va foydalanuvchisi
             await SeedOwnerOrgAsync(db, logger);
             await SeedOwnerUsersAsync(userManager, logger);
+            await SeedOwnerEmployeeAsync(db, userManager, logger);
 
             // 3. TENANT 1 — to'liq ma'lumotlar bilan
             await SeedTenant1OrgAsync(db, logger);
@@ -227,6 +230,55 @@ public class UcmsDbContextSeed
             CreatedAt          = Now(), UpdatedAt = Now(),
             CreatedBy          = SysAdminId, UpdatedBy = SysAdminId,
         }, "SysAdmin123!", "Admin");
+    }
+
+    /// <summary>
+    /// OWNER tashkiloti uchun brigada va sysadminga bog'langan Employee yozuvi.
+    /// Bu sysadminni "xodim" sifatida ham tizimda ko'rinishini ta'minlaydi
+    /// (Employee/Brigade modullarida OWNER tashkiloti bo'sh ko'rinmasligi uchun).
+    /// </summary>
+    private static async Task SeedOwnerEmployeeAsync(UcmsDbContext db, UserManager<User> um, ILogger? logger)
+    {
+        if (await db.Employees.AnyAsync(e => e.Id == OwnerEmployeeId))
+            return;
+
+        var now = Now();
+
+        await db.Brigades.AddAsync(new Brigade
+        {
+            Id             = OwnerBrigadeId,
+            OrganizationId = OwnerOrgId,
+            Name           = "Boshqaruv brigadasi",
+            ForemanName    = "Tizim Super Admini",
+            IsActive       = true, IsDeleted = false,
+            CreatedAt      = now, UpdatedAt = now,
+            CreatedBy      = SysAdminId, UpdatedBy = SysAdminId,
+        });
+        await db.SaveChangesAsync();
+
+        await db.Employees.AddAsync(new Employee
+        {
+            Id             = OwnerEmployeeId,
+            OrganizationId = OwnerOrgId,
+            Name           = "Tizim Super Admini",
+            Position       = "Super Admin",
+            UserId         = SysAdminId,
+            BrigadeId      = OwnerBrigadeId,
+            IsActive       = true, IsDeleted = false,
+            CreatedAt      = now, UpdatedAt = now,
+            CreatedBy      = SysAdminId, UpdatedBy = SysAdminId,
+        });
+        await db.SaveChangesAsync();
+
+        // sysadmin User yozuvini Employee bilan bog'lash (teskari havola)
+        var sysadmin = await um.FindByIdAsync(SysAdminId.ToString());
+        if (sysadmin is not null)
+        {
+            sysadmin.EmployeeId = OwnerEmployeeId;
+            await um.UpdateAsync(sysadmin);
+        }
+
+        logger?.LogInformation("[Seed] OWNER: brigada va sysadmin uchun Employee yaratildi");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
