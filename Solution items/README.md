@@ -81,6 +81,18 @@ Tashkent · `info@demo-qurilish.uz`
 
 **Projects:** Yunusobod-14 repair *(InProgress)* · Sergeli office *(Planning)*
 
+---
+
+### 🟡 Tenant 2 — IXTIYOR PUDRAT
+
+Toshkent · `ixtiyor.pudrat@gmail.com`
+
+| Name                      | Username           | Password      | Role  |
+|---------------------------|--------------------|---------------|-------|
+| Daminov Ixtiyor Jonovich  | `ixtiyor.direktor`  | `Ixtiyor123!` | Admin |
+
+**Brigade:** Yusupov brigada — foreman/worker Yusupov Aziz Tursunovich (shtukatorchi)
+**Project:** Pivchenkova ko'chasi, 14-uy — 2,3-sektsiya otdelka *(InProgress)* · Client: OOO "IKS"
 
 ---
 

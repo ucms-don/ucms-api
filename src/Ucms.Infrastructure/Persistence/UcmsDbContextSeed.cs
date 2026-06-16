@@ -699,7 +699,7 @@ public class UcmsDbContextSeed
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    // IXTIYOR — shaxsiy qurilish pudratchisi tashkiloti (Daminov Ixtiyor Jonovich)
+    // IXTIYOR — shaxsiy qurilish pudratchisi tashkiloti (Daminov Ixtiyor Ilhomjonovich)
     // ══════════════════════════════════════════════════════════════════════════
 
     private static async Task SeedIhtiyorOrgAsync(UcmsDbContext db, ILogger? logger)
@@ -729,7 +729,7 @@ public class UcmsDbContextSeed
     {
         var now = Now();
 
-        // direktor — Daminov Ixtiyor Jonovich, o'z tashkilotida to'liq huquq (Admin rol)
+        // direktor — Daminov Ixtiyor IlhomIlhomjonovich, o'z tashkilotida to'liq huquq (Admin rol)
         await CreateUserAsync(um, logger, new User
         {
             Id                 = IhtiyorDirectorUserId,
@@ -738,7 +738,7 @@ public class UcmsDbContextSeed
             Email              = "ixtiyor.pudrat@gmail.com",
             NormalizedEmail    = "IXTIYOR.PUDRAT@GMAIL.COM",
             EmailConfirmed     = true,
-            FullName           = "Daminov Ixtiyor Jonovich",
+            FullName           = "Daminov Ixtiyor Ilhomjonovich",
             OrganizationId     = IhtiyorOrgId,
             IsDeleted          = false,
             CreatedAt          = now, UpdatedAt = now,
@@ -777,7 +777,7 @@ public class UcmsDbContextSeed
             {
                 Id             = IhtiyorDirectorEmpId,
                 OrganizationId = IhtiyorOrgId,
-                Name           = "Daminov Ixtiyor Jonovich",
+                Name           = "Daminov Ixtiyor Ilhomjonovich",
                 Position       = "Direktor",
                 UserId         = IhtiyorDirectorUserId,
                 BrigadeId      = null,
@@ -843,8 +843,10 @@ public class UcmsDbContextSeed
             EndDate        = D(2026, 8, 31),
             Status         = ProjectStatus.InProgress,
             IsDeleted      = false,
-            CreatedAt      = now, UpdatedAt = now,
-            CreatedBy      = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+            CreatedAt      = now, 
+            UpdatedAt = now,
+            CreatedBy      = IhtiyorDirectorUserId, 
+            UpdatedBy = IhtiyorDirectorUserId,
         };
 
         var est = new Estimate
@@ -854,9 +856,10 @@ public class UcmsDbContextSeed
             Name        = "Smeta kontrakti (2,3-sektsiya otdelka)",
             Description = "Zakazchik (OOO IKS) bilan tuzilgan shartnoma narxining tafsilnomasi",
             Order       = 1,
-            IsDeleted   = false,
-            CreatedAt   = now, UpdatedAt = now,
-            CreatedBy   = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+            CreatedAt   = now, 
+            UpdatedAt = now,
+            CreatedBy   = IhtiyorDirectorUserId, 
+            UpdatedBy = IhtiyorDirectorUserId,
         };
 
         var sec1 = Sec(IhtiyorSec1Id, IhtiyorEstId, "Pol ishlari", 1);
