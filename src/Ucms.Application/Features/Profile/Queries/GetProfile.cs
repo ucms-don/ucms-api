@@ -19,7 +19,7 @@ public static class GetProfile
                 .Select(u => (object)new
                 {
                     u.Id, u.UserName, u.FullName, u.Email, u.PhoneNumber,
-                    u.OrganizationId, u.CreatedAt,
+                    u.OrganizationId, u.CreatedAt, u.AvatarUrl,
                     Organization = u.OrganizationId == null ? null :
                         db.Organizations
                             .Where(o => o.Id == u.OrganizationId)

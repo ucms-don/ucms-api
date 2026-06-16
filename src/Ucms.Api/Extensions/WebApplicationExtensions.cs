@@ -3,6 +3,7 @@ namespace Ucms.Api.Extensions;
 using System.Text.Json;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Serilog;
 using Ucms.Api.Middlewares;
 using Ucms.Application.Features;
@@ -56,6 +57,14 @@ public static class WebApplicationExtensions
         app.UseSerilogRequestLogging();
         app.UseMiddleware<GlobalMiddlewareErrorHander>();
         app.UseStaticFiles();
+
+        var avatarsDir = Path.Combine(app.Environment.WebRootPath, "avatars");
+        Directory.CreateDirectory(avatarsDir);
+        app.UseStaticFiles(new StaticFileOptions
+        {
+            FileProvider = new PhysicalFileProvider(avatarsDir),
+            RequestPath  = "/api/avatars",
+        });
         app.UseRouting();
         app.UseCors("UcmsCors");
         app.UseSwagger();

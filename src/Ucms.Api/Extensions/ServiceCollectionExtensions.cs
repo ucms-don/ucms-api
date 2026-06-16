@@ -70,6 +70,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IOrganizationClient, StubOrganizationClient>();
         services.AddScoped<IPermissionProvider, StubPermissionProvider>();
         services.AddScoped<IFileStorageClient, StubFileStorageClient>();
+        services.AddScoped<IAvatarStorageClient, LocalAvatarStorageClient>();
         return services;
     }
 

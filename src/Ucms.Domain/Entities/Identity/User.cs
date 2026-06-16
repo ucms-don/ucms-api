@@ -14,6 +14,11 @@ public class User : IdentityUser<Guid>, IAuditableEntity, IDeletable
     public string? FullName { get; set; }
 
     /// <summary>
+    /// Profil rasmi URL manzili (nullable)
+    /// </summary>
+    public string? AvatarUrl { get; set; }
+
+    /// <summary>
     /// Bog'liq tashkilot (nullable — admin uchun)
     /// </summary>
     public Guid? OrganizationId { get; set; }

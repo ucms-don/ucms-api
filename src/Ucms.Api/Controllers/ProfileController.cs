@@ -16,7 +16,8 @@ using Ucms.Application.Features.Profile.Queries;
 public class ProfileController(
     GetProfile.Handler     getProfile,
     UpdateProfile.Handler  updateProfile,
-    ChangePassword.Handler changePassword) : ControllerBase
+    ChangePassword.Handler changePassword,
+    UploadAvatar.Handler   uploadAvatar) : ControllerBase
 {
     public record UpdateProfileRequest(string? FullName, string? PhoneNumber, string? Email);
 
@@ -67,5 +68,23 @@ public class ProfileController(
         if (unauthorized)       return Unauthorized();
         if (errors is not null) return BadRequest(new { errors });
         return Ok(new { message = "Parol muvaffaqiyatli o'zgartirildi. / Пароль успешно изменён." });
+    }
+
+    /// <summary>
+    /// Profil rasmini (avatar) yuklash (maks. 5 MB, JPEG/PNG/WEBP).
+    /// Загрузить аватар профиля (макс. 5 МБ, JPEG/PNG/WEBP).
+    /// </summary>
+    [HttpPost("avatar")]
+    [RequestSizeLimit(5L * 1024L * 1024L)]
+    [RequestFormLimits(MultipartBodyLengthLimit = 5L * 1024L * 1024L)]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(401)]
+    public async Task<IActionResult> UploadAvatar(IFormFile file, CancellationToken ct)
+    {
+        var (avatarUrl, unauthorized, error) = await uploadAvatar.HandleAsync(new(file), ct);
+        if (unauthorized)     return Unauthorized();
+        if (error is not null) return BadRequest(new { message = error });
+        return Ok(new { avatarUrl });
     }
 }
