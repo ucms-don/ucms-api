@@ -80,6 +80,23 @@ public class UcmsDbContextSeed
     // ClientPayment
     private static readonly Guid T1CP1Id        = new("00000000-0000-0000-0009-000000000101");
 
+    // ── IXTIYOR — alohida qurilish pudratchisi tashkiloti ───────────────────────
+    private static readonly Guid IhtiyorOrgId          = new("00000000-0000-0000-0001-000000000002");
+    private static readonly Guid IhtiyorDirectorUserId  = new("00000000-0000-0000-0000-000000000201");
+    private static readonly Guid IhtiyorDirectorEmpId   = new("00000000-0000-0000-0010-000000000002");
+    private static readonly Guid IhtiyorWorkerEmpId     = new("00000000-0000-0000-0010-000000000003");
+    private static readonly Guid IhtiyorBrigadeId       = new("00000000-0000-0000-0003-000000000201");
+
+    private static readonly Guid IhtiyorProjectId   = new("00000000-0000-0000-0002-000000000201");
+    private static readonly Guid IhtiyorEstId       = new("00000000-0000-0000-000B-000000000301");
+    private static readonly Guid IhtiyorSec1Id      = new("00000000-0000-0000-0004-000000000301");
+    private static readonly Guid IhtiyorSec2Id      = new("00000000-0000-0000-0004-000000000302");
+    private static readonly Guid IhtiyorItem1Id     = new("00000000-0000-0000-0005-000000000301");
+    private static readonly Guid IhtiyorItem2Id     = new("00000000-0000-0000-0005-000000000302");
+    private static readonly Guid IhtiyorItem3Id     = new("00000000-0000-0000-0005-000000000303");
+    private static readonly Guid IhtiyorItem4Id     = new("00000000-0000-0000-0005-000000000304");
+    private static readonly Guid IhtiyorItem5Id     = new("00000000-0000-0000-0005-000000000305");
+
     // ── O'lchov birliklari (fixed — idempotent seeding uchun) ─────────────────
     private static readonly Guid UnitM2Id   = new("00000000-0000-0000-000A-000000000001");
     private static readonly Guid UnitM3Id   = new("00000000-0000-0000-000A-000000000002");
@@ -118,6 +135,12 @@ public class UcmsDbContextSeed
             await SeedTenant1BrigadesAsync(db, logger);
             await SeedTenant1WorkLogsAsync(db, logger);
             await SeedTenant1FinanceAsync(db, logger);
+
+            // 4. IXTIYOR — shaxsiy qurilish pudratchisi tashkiloti
+            await SeedIhtiyorOrgAsync(db, logger);
+            await SeedIhtiyorUsersAsync(userManager, logger);
+            await SeedIhtiyorEmployeesAsync(db, userManager, logger);
+            await SeedIhtiyorProjectAsync(db, logger);
 
         });
     }
@@ -673,6 +696,203 @@ public class UcmsDbContextSeed
         await db.ClientPayments.AddAsync(cp1);
         await db.SaveChangesAsync();
         logger?.LogInformation("[Seed] TENANT-1: moliyaviy ma'lumotlar yaratildi (akt + to'lovlar)");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // IXTIYOR — shaxsiy qurilish pudratchisi tashkiloti (Daminov Ixtiyor Jonovich)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private static async Task SeedIhtiyorOrgAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.Organizations.AnyAsync(o => o.Id == IhtiyorOrgId))
+            return;
+
+        var now = Now();
+        await db.Organizations.AddAsync(new Organization
+        {
+            Id        = IhtiyorOrgId,
+            Name      = "IXTIYOR PUDRAT",
+            TaxId     = "3057891240",
+            Address   = "Toshkent shahri, Yashnobod tumani",
+            Phone     = "+998901112233",
+            Email     = "ixtiyor.pudrat@gmail.com",
+            Type      = OrganizationType.Tenant,
+            IsTest    = true,
+            IsDeleted = false,
+            CreatedAt = now, UpdatedAt = now,
+            CreatedBy = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+        });
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] IXTIYOR tashkilot yaratildi");
+    }
+
+    private static async Task SeedIhtiyorUsersAsync(UserManager<User> um, ILogger? logger)
+    {
+        var now = Now();
+
+        // direktor — Daminov Ixtiyor Jonovich, o'z tashkilotida to'liq huquq (Admin rol)
+        await CreateUserAsync(um, logger, new User
+        {
+            Id                 = IhtiyorDirectorUserId,
+            UserName           = "ixtiyor.direktor",
+            NormalizedUserName = "IXTIYOR.DIREKTOR",
+            Email              = "ixtiyor.pudrat@gmail.com",
+            NormalizedEmail    = "IXTIYOR.PUDRAT@GMAIL.COM",
+            EmailConfirmed     = true,
+            FullName           = "Daminov Ixtiyor Jonovich",
+            OrganizationId     = IhtiyorOrgId,
+            IsDeleted          = false,
+            CreatedAt          = now, UpdatedAt = now,
+            CreatedBy          = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+        }, "Ixtiyor123!", "Admin");
+    }
+
+    /// <summary>
+    /// IXTIYOR tashkiloti uchun: direktor Employee (Daminov Ixtiyor) + 1 ta brigada
+    /// va unga biriktirilgan ishchi Employee (shuvoqchi), shu ishchi ayni paytda brigada boshlig'i.
+    /// </summary>
+    private static async Task SeedIhtiyorEmployeesAsync(UcmsDbContext db, UserManager<User> um, ILogger? logger)
+    {
+        if (await db.Employees.AnyAsync(e => e.Id == IhtiyorDirectorEmpId))
+            return;
+
+        var now = Now();
+        const string foremanName = "Yusupov Aziz Tursunovich";
+
+        await db.Brigades.AddAsync(new Brigade
+        {
+            Id             = IhtiyorBrigadeId,
+            OrganizationId = IhtiyorOrgId,
+            Name           = "Yusupov brigada (Shuvoq ishlari)",
+            ForemanName    = foremanName,
+            Phone          = "+998904445566",
+            IsActive       = true, IsDeleted = false,
+            CreatedAt      = now, UpdatedAt = now,
+            CreatedBy      = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+        });
+        await db.SaveChangesAsync();
+
+        await db.Employees.AddRangeAsync(
+            // Direktor — Daminov Ixtiyor, User bilan bog'langan
+            new Employee
+            {
+                Id             = IhtiyorDirectorEmpId,
+                OrganizationId = IhtiyorOrgId,
+                Name           = "Daminov Ixtiyor Jonovich",
+                Position       = "Direktor",
+                UserId         = IhtiyorDirectorUserId,
+                BrigadeId      = null,
+                IsActive       = true, IsDeleted = false,
+                CreatedAt      = now, UpdatedAt = now,
+                CreatedBy      = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+            },
+            // Ishchi — shuvoqchi, ayni paytda brigada boshlig'i (alohida User talab qilinmaydi)
+            new Employee
+            {
+                Id             = IhtiyorWorkerEmpId,
+                OrganizationId = IhtiyorOrgId,
+                Name           = foremanName,
+                Position       = "Shtukatorchi (shuvoqchi) / Brigada boshlig'i",
+                UserId         = null,
+                BrigadeId      = IhtiyorBrigadeId,
+                IsActive       = true, IsDeleted = false,
+                CreatedAt      = now, UpdatedAt = now,
+                CreatedBy      = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+            }
+        );
+        await db.SaveChangesAsync();
+
+        // direktor User yozuvini Employee bilan bog'lash (teskari havola)
+        var director = await um.FindByIdAsync(IhtiyorDirectorUserId.ToString());
+        if (director is not null)
+        {
+            director.EmployeeId = IhtiyorDirectorEmpId;
+            await um.UpdateAsync(director);
+        }
+
+        logger?.LogInformation("[Seed] IXTIYOR: brigada, direktor va ishchi Employee yaratildi");
+    }
+
+    /// <summary>
+    /// IXTIYOR tashkiloti uchun 1 ta loyiha va smeta — real smeta fayllaridan olingan
+    /// namuna ma'lumotlar asosida ("Смета ИКС отделка сек. 2,3 финал" — Zakazchik narxi,
+    /// "Новая таблица 2" — Ixtiyor o'z ishchilariga to'laydigan narx).
+    /// </summary>
+    private static async Task SeedIhtiyorProjectAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.Projects.AnyAsync(p => p.Id == IhtiyorProjectId))
+            return;
+
+        var now = Now();
+
+        var project = new Project
+        {
+            Id             = IhtiyorProjectId,
+            OrganizationId = IhtiyorOrgId,
+            Name           = "Pivchenkova ko'chasi, 14-uy — 2,3-sektsiya otdelka",
+            Address        = "Moskva sh., G'arbiy ma.okrugi, Fili-Davydkovo tumani, Pivchenkova ko'chasi, 14-uy",
+            Description    = "Tipik qavatlarni otdelka qilish bo'yicha pudrat ishlari kompleksi (2,3-sektsiyalar)",
+            ClientName     = "OOO \"IKS\"",
+            ContractNumber = "2026/2-3",
+            ContractDate   = D(2026, 1, 10),
+            ContractValue  = 16_061_329.00m,
+            StartDate      = D(2026, 1, 15),
+            EndDate        = D(2026, 8, 31),
+            Status         = ProjectStatus.InProgress,
+            IsDeleted      = false,
+            CreatedAt      = now, UpdatedAt = now,
+            CreatedBy      = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+        };
+
+        var est = new Estimate
+        {
+            Id          = IhtiyorEstId,
+            ProjectId   = IhtiyorProjectId,
+            Name        = "Smeta kontrakti (2,3-sektsiya otdelka)",
+            Description = "Zakazchik (OOO IKS) bilan tuzilgan shartnoma narxining tafsilnomasi",
+            Order       = 1,
+            IsDeleted   = false,
+            CreatedAt   = now, UpdatedAt = now,
+            CreatedBy   = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+        };
+
+        var sec1 = Sec(IhtiyorSec1Id, IhtiyorEstId, "Pol ishlari", 1);
+        var sec2 = Sec(IhtiyorSec2Id, IhtiyorEstId, "Devor ishlari", 2);
+
+        var items = new[]
+        {
+            // ── Pol ishlari ──
+            Item(IhtiyorItem1Id, IhtiyorSec1Id,
+                 "Ajratuvchi qatlam — polietilen plyonka T 0,200 (1 sort, 1 qavat)", UnitM2Id,
+                 2360.53m, 56.57m, 25m, 1),
+            Item(IhtiyorItem2Id, IhtiyorSec1Id,
+                 "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 84mm", UnitM2Id,
+                 2360.53m, 932.29m, 420m, 2),
+            Item(IhtiyorItem3Id, IhtiyorSec1Id,
+                 "Keramogranit plitka 600x600x10, choklarini fugovka qilish bilan", UnitM2Id,
+                 2360.53m, 1195.24m, 650m, 3),
+            // ── Devor ishlari ──
+            Item(IhtiyorItem4Id, IhtiyorSec2Id,
+                 "Gips asosli shtukaturka (tekislash), yaxshilangan — 17mm", UnitM2Id,
+                 7980.40m, 733.08m, 350m, 1),
+            Item(IhtiyorItem5Id, IhtiyorSec2Id,
+                 "Gips asosli shpaklyovka — 2mm", UnitM2Id,
+                 7980.40m, 633.48m, 180m, 2),
+        };
+
+        await db.Projects.AddAsync(project);
+        await db.SaveChangesAsync();
+
+        await db.Estimates.AddAsync(est);
+        await db.SaveChangesAsync();
+
+        await db.EstimateSections.AddRangeAsync(sec1, sec2);
+        await db.SaveChangesAsync();
+
+        await db.EstimateItems.AddRangeAsync(items);
+        await db.SaveChangesAsync();
+
+        logger?.LogInformation("[Seed] IXTIYOR: loyiha va smeta (2 bo'lim, 5 ish turi) yaratildi");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
