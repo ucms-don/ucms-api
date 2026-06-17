@@ -22,6 +22,7 @@ public static class AssignBrigadeEmployees
             if (!ctx.IsOwner && ctx.OrganizationId != brigade.OrganizationId) return (false, true, 0);
 
             var employees = await db.Employees
+                .AsTracking()
                 .Where(e => cmd.EmployeeIds.Contains(e.Id) && !e.IsDeleted
                          && e.OrganizationId == brigade.OrganizationId)
                 .ToListAsync(ct);

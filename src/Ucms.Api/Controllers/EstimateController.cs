@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.Estimates.Commands;
 using Ucms.Application.Features.Estimates.Queries;
+using GetProjectEstimateItemsQuery = Ucms.Application.Features.Estimates.Queries.GetProjectEstimateItems;
 
 /// <summary>
 /// Loyiha smeta hujjatlarini boshqarish.
@@ -25,7 +26,8 @@ public class EstimateController(
     GetItems.Handler       getItems,
     CreateItem.Handler     createItem,
     UpdateItem.Handler     updateItem,
-    DeleteItem.Handler     deleteItem) : ControllerBase
+    DeleteItem.Handler     deleteItem,
+    GetProjectEstimateItemsQuery.Handler getProjectItems) : ControllerBase
 {
     public record CreateEstimateRequest(string Name, string? Description, int Order);
     public record UpdateEstimateRequest(string Name, string? Description, int Order);
@@ -37,6 +39,22 @@ public class EstimateController(
     public record UpdateItemRequest(
         string Name, Guid MeasurementUnitId, decimal Volume,
         decimal ClientUnitPrice, decimal BrigadeUnitPrice, int Order);
+
+    // ── Flat items (WorkLog uchun) ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Loyihaning barcha smeta pozitsiyalari (tekis ro'yxat). WorkLog yaratishda ishlatiladi.
+    /// </summary>
+    [HttpGet("items")]
+    [Authorize(Roles = "Admin,Manager,Brigadir,Accountant")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> GetProjectEstimateItems(Guid projectId, CancellationToken ct)
+    {
+        var (data, forbidden) = await getProjectItems.HandleAsync(new(projectId), ct);
+        if (forbidden) return Forbid();
+        return data is null ? NotFound() : Ok(data);
+    }
 
     // ── Estimates ──────────────────────────────────────────────────────────────
 

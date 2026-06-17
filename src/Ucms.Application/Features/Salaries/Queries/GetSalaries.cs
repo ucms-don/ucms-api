@@ -10,6 +10,7 @@ public static class GetSalaries
 
     public record Item(
         Guid Id, Guid EmployeeId, string EmployeeName, string? Position,
+        string? BrigadeName,
         string Month, decimal Amount, string? Notes, DateTimeOffset CreatedAt);
 
     public record Result(int Total, int Page, int Size, decimal TotalAmount, List<Item> Items);
@@ -40,6 +41,7 @@ public static class GetSalaries
                 .Skip((q.Page - 1) * q.Size).Take(q.Size)
                 .Select(s => new Item(
                     s.Id, s.EmployeeId, s.Employee!.Name, s.Employee.Position,
+                    s.Employee.Brigade != null ? s.Employee.Brigade.Name : null,
                     s.Month, s.Amount, s.Notes, s.CreatedAt))
                 .ToListAsync(ct);
 

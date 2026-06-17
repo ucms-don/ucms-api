@@ -42,6 +42,11 @@ public class CashTransaction : AuditableEntity, IDeletable, IHasOrganization
     public Guid? PartnerId { get; set; }
 
     /// <summary>
+    /// Partner nomi (erkin matn) — masalan "Alisher Toshmatov" yoki "Kapitalbank".
+    /// </summary>
+    public string? PartnerName { get; set; }
+
+    /// <summary>
     /// Summa (har doim musbat — yo'nalish Direction maydonida)
     /// </summary>
     public decimal Amount { get; set; }

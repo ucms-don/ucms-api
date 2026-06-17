@@ -9,7 +9,7 @@ public static class UpdateCashTransaction
 {
     public record Command(
         Guid Id, Guid CashAccountId, CashDirection Direction, CashTransactionType TransactionType,
-        FinancePartnerType PartnerType, Guid? PartnerId, decimal Amount, DateTimeOffset Date,
+        FinancePartnerType PartnerType, Guid? PartnerId, string? PartnerName, decimal Amount, DateTimeOffset Date,
         Guid? ProjectId, string? Note);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
@@ -39,6 +39,7 @@ public static class UpdateCashTransaction
             transaction.TransactionType = cmd.TransactionType;
             transaction.PartnerType     = cmd.PartnerType;
             transaction.PartnerId       = cmd.PartnerId;
+            transaction.PartnerName     = cmd.PartnerName;
             transaction.Amount          = cmd.Amount;
             transaction.Date            = cmd.Date;
             transaction.ProjectId       = cmd.ProjectId;
