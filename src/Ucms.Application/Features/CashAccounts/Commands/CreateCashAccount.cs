@@ -15,7 +15,7 @@ public static class CreateCashAccount
     {
         public async Task<Result?> HandleAsync(Command cmd, CancellationToken ct)
         {
-            var orgId = ctx.IsOwner ? (Guid?)null : ctx.OrganizationId;
+            var orgId = ctx.IsOwner ? ctx.OrganizationId : (Guid?)null;
             if (!orgId.HasValue) return null;
 
             var now    = DateTimeOffset.UtcNow;
