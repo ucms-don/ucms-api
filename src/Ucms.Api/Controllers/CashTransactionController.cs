@@ -24,12 +24,12 @@ public class CashTransactionController(
 {
     public record CreateCashTransactionRequest(
         Guid CashAccountId, CashDirection Direction, CashTransactionType TransactionType,
-        FinancePartnerType PartnerType, Guid? PartnerId, decimal Amount, DateTimeOffset Date,
+        FinancePartnerType PartnerType, Guid? PartnerId, string? PartnerName, decimal Amount, DateTimeOffset Date,
         Guid? ProjectId, string? Note);
 
     public record UpdateCashTransactionRequest(
         Guid CashAccountId, CashDirection Direction, CashTransactionType TransactionType,
-        FinancePartnerType PartnerType, Guid? PartnerId, decimal Amount, DateTimeOffset Date,
+        FinancePartnerType PartnerType, Guid? PartnerId, string? PartnerName, decimal Amount, DateTimeOffset Date,
         Guid? ProjectId, string? Note);
 
     /// <summary>
@@ -101,7 +101,7 @@ public class CashTransactionController(
     public async Task<IActionResult> Create([FromBody] CreateCashTransactionRequest req, CancellationToken ct)
     {
         var (result, cashAccountNotFound, projectNotFound, forbidden) = await create.HandleAsync(
-            new(req.CashAccountId, req.Direction, req.TransactionType, req.PartnerType, req.PartnerId,
+            new(req.CashAccountId, req.Direction, req.TransactionType, req.PartnerType, req.PartnerId, req.PartnerName,
                 req.Amount, req.Date, req.ProjectId, req.Note), ct);
 
         if (forbidden) return Forbid();
@@ -123,7 +123,7 @@ public class CashTransactionController(
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCashTransactionRequest req, CancellationToken ct)
     {
         var (notFound, forbidden, cashAccountNotFound, projectNotFound) = await update.HandleAsync(
-            new(id, req.CashAccountId, req.Direction, req.TransactionType, req.PartnerType, req.PartnerId,
+            new(id, req.CashAccountId, req.Direction, req.TransactionType, req.PartnerType, req.PartnerId, req.PartnerName,
                 req.Amount, req.Date, req.ProjectId, req.Note), ct);
 
         if (notFound)  return NotFound();

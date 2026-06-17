@@ -12,7 +12,7 @@ public static class GetCashTransactionById
     public record CashTransactionDetailDto(
         Guid Id, Guid CashAccountId, string CashAccountName,
         CashDirection Direction, CashTransactionType TransactionType,
-        FinancePartnerType PartnerType, Guid? PartnerId, decimal Amount, DateTimeOffset Date,
+        FinancePartnerType PartnerType, Guid? PartnerId, string? PartnerName, decimal Amount, DateTimeOffset Date,
         Guid? ProjectId, string? ProjectName, string? Note,
         Guid OrganizationId, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt);
 
@@ -24,7 +24,7 @@ public static class GetCashTransactionById
                 .Where(t => t.Id == q.Id && !t.IsDeleted)
                 .Select(t => new CashTransactionDetailDto(
                     t.Id, t.CashAccountId, t.CashAccount!.Name,
-                    t.Direction, t.TransactionType, t.PartnerType, t.PartnerId,
+                    t.Direction, t.TransactionType, t.PartnerType, t.PartnerId, t.PartnerName,
                     t.Amount, t.Date, t.ProjectId,
                     t.Project != null ? t.Project.Name : null, t.Note,
                     t.OrganizationId, t.CreatedAt, t.UpdatedAt))

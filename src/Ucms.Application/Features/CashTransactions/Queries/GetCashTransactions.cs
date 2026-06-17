@@ -16,7 +16,7 @@ public static class GetCashTransactions
     public record Item(
         Guid Id, Guid CashAccountId, string CashAccountName,
         CashDirection Direction, CashTransactionType TransactionType,
-        FinancePartnerType PartnerType, Guid? PartnerId, decimal Amount, DateTimeOffset Date,
+        FinancePartnerType PartnerType, Guid? PartnerId, string? PartnerName, decimal Amount, DateTimeOffset Date,
         Guid? ProjectId, string? ProjectName, string? Note);
 
     public record Result(int Total, int Page, int Size, decimal TotalIn, decimal TotalOut, List<Item> Items);
@@ -65,7 +65,7 @@ public static class GetCashTransactions
                 .Skip((q.Page - 1) * q.Size).Take(q.Size)
                 .Select(t => new Item(
                     t.Id, t.CashAccountId, t.CashAccount!.Name,
-                    t.Direction, t.TransactionType, t.PartnerType, t.PartnerId,
+                    t.Direction, t.TransactionType, t.PartnerType, t.PartnerId, t.PartnerName,
                     t.Amount, t.Date, t.ProjectId,
                     t.Project != null ? t.Project.Name : null, t.Note))
                 .ToListAsync(ct);

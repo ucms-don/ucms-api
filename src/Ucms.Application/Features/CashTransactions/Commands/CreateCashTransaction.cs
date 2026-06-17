@@ -10,7 +10,7 @@ public static class CreateCashTransaction
 {
     public record Command(
         Guid CashAccountId, CashDirection Direction, CashTransactionType TransactionType,
-        FinancePartnerType PartnerType, Guid? PartnerId, decimal Amount, DateTimeOffset Date,
+        FinancePartnerType PartnerType, Guid? PartnerId, string? PartnerName, decimal Amount, DateTimeOffset Date,
         Guid? ProjectId, string? Note);
 
     public record Result(Guid Id, decimal Amount, CashDirection Direction);
@@ -48,6 +48,7 @@ public static class CreateCashTransaction
                 TransactionType = cmd.TransactionType,
                 PartnerType     = cmd.PartnerType,
                 PartnerId       = cmd.PartnerId,
+                PartnerName     = cmd.PartnerName,
                 Amount          = cmd.Amount,
                 Date            = cmd.Date,
                 ProjectId       = cmd.ProjectId,
