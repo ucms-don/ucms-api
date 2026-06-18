@@ -117,6 +117,19 @@ public class UcmsDbContextSeed
     private static readonly Guid IhtiyorCashAccountCashId = new("00000000-0000-0000-000D-000000000003");
     private static readonly Guid IhtiyorCashAccountBankId = new("00000000-0000-0000-000D-000000000004");
 
+    // ── Mahsulotlar / Продукты (qurilishda eng ko'p ishlatiladigan 5 ta, fixed) ─
+    private static readonly Guid ProductCementId = new("00000000-0000-0000-0010-000000000001");
+    private static readonly Guid ProductBrickId  = new("00000000-0000-0000-0010-000000000002");
+    private static readonly Guid ProductRebarId  = new("00000000-0000-0000-0010-000000000003");
+    private static readonly Guid ProductTileId   = new("00000000-0000-0000-0010-000000000004");
+    private static readonly Guid ProductPaintId  = new("00000000-0000-0000-0010-000000000005");
+
+    private static readonly Guid SkuCementId = new("00000000-0000-0000-0011-000000000001");
+    private static readonly Guid SkuBrickId  = new("00000000-0000-0000-0011-000000000002");
+    private static readonly Guid SkuRebarId  = new("00000000-0000-0000-0011-000000000003");
+    private static readonly Guid SkuTileId   = new("00000000-0000-0000-0011-000000000004");
+    private static readonly Guid SkuPaintId  = new("00000000-0000-0000-0011-000000000005");
+
     // ══════════════════════════════════════════════════════════════════════════
 
     public async Task SeedAsync(IServiceProvider services)
@@ -722,6 +735,7 @@ public class UcmsDbContextSeed
         await SeedTenant1CashAccountsAsync(db, logger);
         await SeedSuppliersAsync(db, logger);
         await SeedManufacturersAsync(db, logger);
+        await SeedProductsAsync(db, logger);
     }
 
     /// <summary>
@@ -830,6 +844,160 @@ public class UcmsDbContextSeed
         });
         await db.SaveChangesAsync();
         logger?.LogInformation("[Seed] Ishlab chiqaruvchi yaratildi");
+    }
+
+    /// <summary>
+    /// Qurilishda eng ko'p ishlatiladigan 5 ta mahsulot (har biriga 1 ta SKU bilan).
+    /// 5 самых часто используемых в строительстве продуктов (каждый с одним SKU).
+    /// </summary>
+    private static async Task SeedProductsAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.Products.AnyAsync(p => p.Id == ProductCementId))
+            return;
+
+        await db.Products.AddRangeAsync(
+            new Product
+            {
+                Id     = ProductCementId,
+                Code   = "PROD-001",
+                Name   = "Sement (M-400)",
+                NameRu = "Цемент (М-400)",
+                NameEn = "Cement (M-400)",
+                Type   = ProductType.Cement,
+                IsDeleted = false,
+            },
+            new Product
+            {
+                Id     = ProductBrickId,
+                Code   = "PROD-002",
+                Name   = "Silikat g'isht",
+                NameRu = "Силикатный кирпич",
+                NameEn = "Silicate brick",
+                Type   = ProductType.Brick,
+                IsDeleted = false,
+            },
+            new Product
+            {
+                Id     = ProductRebarId,
+                Code   = "PROD-003",
+                Name   = "Armatura (Ø12mm)",
+                NameRu = "Арматура (Ø12мм)",
+                NameEn = "Rebar (Ø12mm)",
+                Type   = ProductType.Rebar,
+                IsDeleted = false,
+            },
+            new Product
+            {
+                Id     = ProductTileId,
+                Code   = "PROD-004",
+                Name   = "Keramogranit plitka (600x600)",
+                NameRu = "Керамогранитная плитка (600x600)",
+                NameEn = "Porcelain tile (600x600)",
+                Type   = ProductType.Tile,
+                IsDeleted = false,
+            },
+            new Product
+            {
+                Id     = ProductPaintId,
+                Code   = "PROD-005",
+                Name   = "Fasad bo'yog'i",
+                NameRu = "Фасадная краска",
+                NameEn = "Facade paint",
+                Type   = ProductType.Paint,
+                IsDeleted = false,
+            }
+        );
+
+        await db.Skus.AddRangeAsync(
+            new Sku
+            {
+                Id                  = SkuCementId,
+                ProductId           = ProductCementId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitTonId,
+                SerialNumber        = "SKU-CEMENT-001",
+                Name                = "Sement (M-400), 50kg qop",
+                NameRu              = "Цемент (М-400), мешок 50кг",
+                NameEn              = "Cement (M-400), 50kg bag",
+                Amount              = 100,
+                Price               = 850_000m,
+                ExpirationDate      = Now().AddMonths(6),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            },
+            new Sku
+            {
+                Id                  = SkuBrickId,
+                ProductId           = ProductBrickId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitDonaId,
+                SerialNumber        = "SKU-BRICK-001",
+                Name                = "Silikat g'isht, standart",
+                NameRu              = "Силикатный кирпич, стандарт",
+                NameEn              = "Silicate brick, standard",
+                Amount              = 5000,
+                Price               = 1_200m,
+                ExpirationDate      = Now().AddYears(5),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            },
+            new Sku
+            {
+                Id                  = SkuRebarId,
+                ProductId           = ProductRebarId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitTonId,
+                SerialNumber        = "SKU-REBAR-001",
+                Name                = "Armatura A500C, Ø12mm",
+                NameRu              = "Арматура А500С, Ø12мм",
+                NameEn              = "Rebar A500C, Ø12mm",
+                Amount              = 20,
+                Price               = 9_500_000m,
+                ExpirationDate      = Now().AddYears(10),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            },
+            new Sku
+            {
+                Id                  = SkuTileId,
+                ProductId           = ProductTileId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitM2Id,
+                SerialNumber        = "SKU-TILE-001",
+                Name                = "Keramogranit plitka, 600x600x10",
+                NameRu              = "Керамогранитная плитка, 600x600x10",
+                NameEn              = "Porcelain tile, 600x600x10",
+                Amount              = 800,
+                Price               = 95_000m,
+                ExpirationDate      = Now().AddYears(15),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            },
+            new Sku
+            {
+                Id                  = SkuPaintId,
+                ProductId           = ProductPaintId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitKgId,
+                SerialNumber        = "SKU-PAINT-001",
+                Name                = "Fasad bo'yog'i, akril asosli",
+                NameRu              = "Фасадная краска, акриловая",
+                NameEn              = "Facade paint, acrylic",
+                Amount              = 300,
+                Price               = 75_000m,
+                ExpirationDate      = Now().AddYears(2),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            }
+        );
+
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] 5 ta mahsulot va SKU yaratildi (sement, g'isht, armatura, plitka, bo'yoq)");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
