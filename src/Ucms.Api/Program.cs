@@ -1,5 +1,9 @@
 using Ucms.Api.Extensions;
 
+// Npgsql v6+ requires DateTimeOffset values to be in UTC when writing to timestamptz columns.
+// This switch restores the legacy behavior that accepts any DateTimeOffset offset.
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 Console.Title = "UCMS API";
 
 var builder = WebApplication.CreateBuilder(args);
