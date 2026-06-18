@@ -11,7 +11,7 @@ public static class CreateProjectExpense
 {
     public record Command(
         Guid ProjectId, DateTimeOffset Date, string Category,
-        decimal Amount, string? Description, string? PaymentMethod, string? Note, Guid? CashAccountId);
+        decimal Amount, string? Description, string? PaymentMethod, string? Note, Guid CashAccountId);
 
     public record Result(Guid Id, decimal Amount);
 
@@ -27,8 +27,7 @@ public static class CreateProjectExpense
             if (orgId is null) return (null, true, false, false);
             if (!ctx.IsOwner && ctx.OrganizationId != orgId) return (null, false, true, false);
 
-            if (cmd.CashAccountId.HasValue &&
-                !await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId.Value, orgId.Value, ct))
+            if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId, orgId.Value, ct))
                 return (null, false, false, true);
 
             var now    = DateTimeOffset.UtcNow;
@@ -52,16 +51,13 @@ public static class CreateProjectExpense
 
             await db.ProjectExpenses.AddAsync(expense, ct);
 
-            if (cmd.CashAccountId.HasValue)
-            {
-                await CashTransactionLinker.UpsertAsync(
-                    db, CashTransactionSourceType.ProjectExpense, expense.Id,
-                    orgId.Value, cmd.CashAccountId.Value,
-                    CashDirection.Out, CashTransactionType.ProjectExpense,
-                    FinancePartnerType.Other, null,
-                    cmd.Amount, cmd.Date, cmd.ProjectId, cmd.Note ?? cmd.Description,
-                    userId, ct);
-            }
+            await CashTransactionLinker.UpsertAsync(
+                db, CashTransactionSourceType.ProjectExpense, expense.Id,
+                orgId.Value, cmd.CashAccountId,
+                CashDirection.Out, CashTransactionType.ProjectExpense,
+                FinancePartnerType.Other, null,
+                cmd.Amount, cmd.Date, cmd.ProjectId, cmd.Note ?? cmd.Description,
+                userId, ct);
 
             await db.SaveChangesAsync(ct);
             return (new Result(expense.Id, expense.Amount), false, false, false);

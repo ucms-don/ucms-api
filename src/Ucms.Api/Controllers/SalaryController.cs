@@ -21,10 +21,10 @@ public class SalaryController(
     DeleteSalary.Handler   delete) : ControllerBase
 {
     public record CreateSalaryRequest(
-        Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid? CashAccountId);
+        Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid CashAccountId);
 
     public record UpdateSalaryRequest(
-        Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid? CashAccountId);
+        Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid CashAccountId);
 
     /// <summary>
     /// Maoshlar ro'yxati (oy va xodim filtri bilan).

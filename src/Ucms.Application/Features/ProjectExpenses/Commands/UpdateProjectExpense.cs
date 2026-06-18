@@ -10,7 +10,7 @@ public static class UpdateProjectExpense
 {
     public record Command(
         Guid ProjectId, Guid Id, DateTimeOffset Date, string Category,
-        decimal Amount, string? Description, string? PaymentMethod, string? Note, Guid? CashAccountId);
+        decimal Amount, string? Description, string? PaymentMethod, string? Note, Guid CashAccountId);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
@@ -23,8 +23,7 @@ public static class UpdateProjectExpense
 
             if (!ctx.IsOwner && ctx.OrganizationId != expense.OrganizationId) return (false, true, false);
 
-            if (cmd.CashAccountId.HasValue &&
-                !await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId.Value, expense.OrganizationId, ct))
+            if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId, expense.OrganizationId, ct))
                 return (false, false, true);
 
             expense.Date          = cmd.Date;
@@ -39,20 +38,13 @@ public static class UpdateProjectExpense
             db.ProjectExpenses.Update(expense);
 
             var userId = ctx.UserId ?? Guid.Empty;
-            if (cmd.CashAccountId.HasValue)
-            {
-                await CashTransactionLinker.UpsertAsync(
-                    db, CashTransactionSourceType.ProjectExpense, expense.Id,
-                    expense.OrganizationId, cmd.CashAccountId.Value,
-                    CashDirection.Out, CashTransactionType.ProjectExpense,
-                    FinancePartnerType.Other, null,
-                    cmd.Amount, cmd.Date, cmd.ProjectId, cmd.Note ?? cmd.Description,
-                    userId, ct);
-            }
-            else
-            {
-                await CashTransactionLinker.RemoveAsync(db, CashTransactionSourceType.ProjectExpense, expense.Id, userId, ct);
-            }
+            await CashTransactionLinker.UpsertAsync(
+                db, CashTransactionSourceType.ProjectExpense, expense.Id,
+                expense.OrganizationId, cmd.CashAccountId,
+                CashDirection.Out, CashTransactionType.ProjectExpense,
+                FinancePartnerType.Other, null,
+                cmd.Amount, cmd.Date, cmd.ProjectId, cmd.Note ?? cmd.Description,
+                userId, ct);
 
             await db.SaveChangesAsync(ct);
             return (false, false, false);

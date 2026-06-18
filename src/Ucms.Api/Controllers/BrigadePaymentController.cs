@@ -26,7 +26,7 @@ public class BrigadePaymentController(
         PaymentMethod   PaymentMethod,
         Guid[]?         WorkLogIds,
         string?         Note,
-        Guid?           CashAccountId);
+        Guid            CashAccountId);
 
     /// <summary>
     /// Barcha brigada to'lovlari ro'yxati (brigada, loyiha, sana filtrlari bilan).

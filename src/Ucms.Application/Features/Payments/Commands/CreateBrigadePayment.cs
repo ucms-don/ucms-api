@@ -17,7 +17,7 @@ public static class CreateBrigadePayment
         PaymentMethod PaymentMethod,
         Guid[] WorkLogIds,
         string? Note,
-        Guid? CashAccountId);
+        Guid CashAccountId);
 
     public record Result(Guid Id, decimal Amount);
 
@@ -33,8 +33,7 @@ public static class CreateBrigadePayment
             if (orgId is null) return (null, true, false, false);
             if (!ctx.IsOwner && ctx.OrganizationId != orgId) return (null, false, true, false);
 
-            if (cmd.CashAccountId.HasValue &&
-                !await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId.Value, orgId.Value, ct))
+            if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId, orgId.Value, ct))
                 return (null, false, false, true);
 
             var now       = DateTimeOffset.UtcNow;
@@ -75,16 +74,13 @@ public static class CreateBrigadePayment
                 }
             }
 
-            if (cmd.CashAccountId.HasValue)
-            {
-                await CashTransactionLinker.UpsertAsync(
-                    db, CashTransactionSourceType.BrigadePayment, paymentId,
-                    orgId.Value, cmd.CashAccountId.Value,
-                    CashDirection.Out, CashTransactionType.BrigadePayment,
-                    FinancePartnerType.Brigade, cmd.BrigadeId,
-                    cmd.Amount, cmd.Date, cmd.ProjectId, cmd.Note,
-                    userId, ct);
-            }
+            await CashTransactionLinker.UpsertAsync(
+                db, CashTransactionSourceType.BrigadePayment, paymentId,
+                orgId.Value, cmd.CashAccountId,
+                CashDirection.Out, CashTransactionType.BrigadePayment,
+                FinancePartnerType.Brigade, cmd.BrigadeId,
+                cmd.Amount, cmd.Date, cmd.ProjectId, cmd.Note,
+                userId, ct);
 
             await db.SaveChangesAsync(ct);
             return (new Result(payment.Id, payment.Amount), false, false, false);

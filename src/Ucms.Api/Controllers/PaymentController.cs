@@ -23,11 +23,11 @@ public class PaymentController(
 {
     public record CreateClientPaymentRequest(
         Guid? ActId, DateTimeOffset Date, decimal Amount,
-        PaymentMethod PaymentMethod, string? Note, Guid? CashAccountId);
+        PaymentMethod PaymentMethod, string? Note, Guid CashAccountId);
 
     public record CreateBrigadePaymentRequest(
         Guid BrigadeId, DateTimeOffset Date, decimal Amount,
-        PaymentMethod PaymentMethod, Guid[] WorkLogIds, string? Note, Guid? CashAccountId);
+        PaymentMethod PaymentMethod, Guid[] WorkLogIds, string? Note, Guid CashAccountId);
 
     /// <summary>
     /// Loyiha bo'yicha mijoz to'lovlari ro'yxati.

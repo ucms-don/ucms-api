@@ -9,7 +9,7 @@ using Ucms.Domain.Enums;
 
 public static class CreateSalary
 {
-    public record Command(Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid? CashAccountId);
+    public record Command(Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid CashAccountId);
 
     public record Result(Guid Id, string EmployeeName, decimal Amount);
 
@@ -25,8 +25,7 @@ public static class CreateSalary
             if (employee is null) return (null, true, false, false);
             if (!ctx.IsOwner && ctx.OrganizationId != employee.OrganizationId) return (null, false, true, false);
 
-            if (cmd.CashAccountId.HasValue &&
-                !await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId.Value, employee.OrganizationId, ct))
+            if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId, employee.OrganizationId, ct))
                 return (null, false, false, true);
 
             var now    = DateTimeOffset.UtcNow;
@@ -47,17 +46,14 @@ public static class CreateSalary
 
             await db.Salaries.AddAsync(salary, ct);
 
-            if (cmd.CashAccountId.HasValue)
-            {
-                var date = DateTimeOffset.TryParse(cmd.Month + "-01", out var parsed) ? parsed : now;
-                await CashTransactionLinker.UpsertAsync(
-                    db, CashTransactionSourceType.Salary, salary.Id,
-                    employee.OrganizationId, cmd.CashAccountId.Value,
-                    CashDirection.Out, CashTransactionType.SalaryPayment,
-                    FinancePartnerType.Employee, cmd.EmployeeId,
-                    cmd.Amount, date, null, cmd.Notes,
-                    userId, ct);
-            }
+            var date = DateTimeOffset.TryParse(cmd.Month + "-01", out var parsedDate) ? parsedDate : now;
+            await CashTransactionLinker.UpsertAsync(
+                db, CashTransactionSourceType.Salary, salary.Id,
+                employee.OrganizationId, cmd.CashAccountId,
+                CashDirection.Out, CashTransactionType.SalaryPayment,
+                FinancePartnerType.Employee, cmd.EmployeeId,
+                cmd.Amount, date, null, cmd.Notes,
+                userId, ct);
 
             await db.SaveChangesAsync(ct);
             return (new Result(salary.Id, employee.Name, salary.Amount), false, false, false);

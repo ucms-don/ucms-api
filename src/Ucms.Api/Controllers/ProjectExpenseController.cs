@@ -22,11 +22,11 @@ public class ProjectExpenseController(
 {
     public record CreateExpenseRequest(
         DateTimeOffset Date, string Category, decimal Amount,
-        string? Description, string? PaymentMethod, string? Note, Guid? CashAccountId);
+        string? Description, string? PaymentMethod, string? Note, Guid CashAccountId);
 
     public record UpdateExpenseRequest(
         DateTimeOffset Date, string Category, decimal Amount,
-        string? Description, string? PaymentMethod, string? Note, Guid? CashAccountId);
+        string? Description, string? PaymentMethod, string? Note, Guid CashAccountId);
 
     /// <summary>
     /// Loyiha xarajatlari ro'yxati (filtr va sahifalash bilan).
