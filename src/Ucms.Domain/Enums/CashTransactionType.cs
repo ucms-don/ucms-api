@@ -49,4 +49,9 @@ public enum CashTransactionType
     /// Loyiha xarajati (ProjectExpense bilan bog'langan kassa harakati)
     /// </summary>
     ProjectExpense = 9,
+
+    /// <summary>
+    /// Kassadan kassaga o'tkazma (AccountTransfer bilan bog'langan kassa harakati)
+    /// </summary>
+    AccountTransfer = 10,
 }
