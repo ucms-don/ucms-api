@@ -19,11 +19,15 @@ public static class GetFilteredStocks
     {
         public async Task<PagedResult<StockModel>> HandleAsync(Query q, CancellationToken ct)
         {
-            var query = db.Stocks.AsQueryable();
-            if (!workContext.IsAdmin) query = query.Where(w => w.OrganizationId == workContext.TenantId);
+            var query = db.Stocks
+                .Where(w => w.OrganizationId == workContext.TenantId);
+            
             if (!await permissionProvider.HasPermissionAsync(Permissions.Warehouse.AccessSettingMinimumBalanceWarehouse, ct))
                 query = query.Where(w => w.EmployeeIds.Contains(workContext.EmployeeId ?? Guid.Empty));
-            return await query.OrderBy(c => c.Name).ToPagedResultAsync<Stock, StockModel>(q.Paging, mapper, ct);
+            
+            return await query
+                .OrderBy(c => c.Name)
+                .ToPagedResultAsync<Stock, StockModel>(q.Paging, mapper, ct);
         }
     }
 }
