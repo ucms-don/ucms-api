@@ -25,7 +25,7 @@ public class PaymentController(
         Guid? ActId, DateTimeOffset Date, decimal Amount,
         PaymentMethod PaymentMethod, string? Note, Guid CashAccountId);
 
-    public record CreateBrigadePaymentRequest(
+    public record CreateProjectBrigadePaymentRequest(
         Guid BrigadeId, DateTimeOffset Date, decimal Amount,
         PaymentMethod PaymentMethod, Guid[] WorkLogIds, string? Note, Guid CashAccountId);
 
@@ -99,13 +99,14 @@ public class PaymentController(
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> CreateBrigadePayment(
-        Guid projectId, [FromBody] CreateBrigadePaymentRequest req, CancellationToken ct)
+        Guid projectId, [FromBody] CreateProjectBrigadePaymentRequest req, CancellationToken ct)
     {
-        var (data, notFound, forbidden, cashAccountNotFound) = await createBrigadePayment.HandleAsync(
+        var (data, notFound, forbidden, cashAccountNotFound, insufficientBalance) = await createBrigadePayment.HandleAsync(
             new(projectId, req.BrigadeId, req.Date, req.Amount, req.PaymentMethod, req.WorkLogIds, req.Note, req.CashAccountId), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
         if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
+        if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
         return StatusCode(201, data);
     }
 

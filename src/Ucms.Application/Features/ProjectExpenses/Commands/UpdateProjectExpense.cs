@@ -14,17 +14,21 @@ public static class UpdateProjectExpense
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
-        public async Task<(bool NotFound, bool Forbidden, bool CashAccountNotFound)> HandleAsync(Command cmd, CancellationToken ct)
+        public async Task<(bool NotFound, bool Forbidden, bool CashAccountNotFound, bool InsufficientBalance)> HandleAsync(Command cmd, CancellationToken ct)
         {
             var expense = await db.ProjectExpenses
                 .FirstOrDefaultAsync(e => e.Id == cmd.Id && e.ProjectId == cmd.ProjectId && !e.IsDeleted, ct);
 
-            if (expense is null) return (true, false, false);
+            if (expense is null) return (true, false, false, false);
 
-            if (!ctx.IsOwner && ctx.OrganizationId != expense.OrganizationId) return (false, true, false);
+            if (!ctx.IsOwner && ctx.OrganizationId != expense.OrganizationId) return (false, true, false, false);
 
             if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId, expense.OrganizationId, ct))
-                return (false, false, true);
+                return (false, false, true, false);
+
+            if (!await CashTransactionLinker.HasSufficientBalanceAsync(
+                    db, cmd.CashAccountId, cmd.Amount, CashTransactionSourceType.ProjectExpense, expense.Id, ct))
+                return (false, false, false, true);
 
             expense.Date          = cmd.Date;
             expense.Category      = cmd.Category;
@@ -47,7 +51,7 @@ public static class UpdateProjectExpense
                 userId, ct);
 
             await db.SaveChangesAsync(ct);
-            return (false, false, false);
+            return (false, false, false, false);
         }
     }
 }

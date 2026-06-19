@@ -15,18 +15,21 @@ public static class CreateSalary
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
-        public async Task<(Result? Data, bool EmployeeNotFound, bool Forbidden, bool CashAccountNotFound)> HandleAsync(Command cmd, CancellationToken ct)
+        public async Task<(Result? Data, bool EmployeeNotFound, bool Forbidden, bool CashAccountNotFound, bool InsufficientBalance)> HandleAsync(Command cmd, CancellationToken ct)
         {
             var employee = await db.Employees
                 .Where(e => e.Id == cmd.EmployeeId && !e.IsDeleted)
                 .Select(e => new { e.Id, e.Name, e.OrganizationId })
                 .FirstOrDefaultAsync(ct);
 
-            if (employee is null) return (null, true, false, false);
-            if (!ctx.IsOwner && ctx.OrganizationId != employee.OrganizationId) return (null, false, true, false);
+            if (employee is null) return (null, true, false, false, false);
+            if (!ctx.IsOwner && ctx.OrganizationId != employee.OrganizationId) return (null, false, true, false, false);
 
             if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId, employee.OrganizationId, ct))
-                return (null, false, false, true);
+                return (null, false, false, true, false);
+
+            if (!await CashTransactionLinker.HasSufficientBalanceAsync(db, cmd.CashAccountId, cmd.Amount, null, null, ct))
+                return (null, false, false, false, true);
 
             var now    = DateTimeOffset.UtcNow;
             var userId = ctx.UserId ?? Guid.Empty;
@@ -56,7 +59,7 @@ public static class CreateSalary
                 userId, ct);
 
             await db.SaveChangesAsync(ct);
-            return (new Result(salary.Id, employee.Name, salary.Amount), false, false, false);
+            return (new Result(salary.Id, employee.Name, salary.Amount), false, false, false, false);
         }
     }
 }

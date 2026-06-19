@@ -60,13 +60,14 @@ public class BrigadePaymentController(
     public async Task<IActionResult> Create(
         [FromBody] CreateBrigadePaymentRequest req, CancellationToken ct)
     {
-        var (data, projectNotFound, forbidden, cashNotFound) = await create.HandleAsync(
+        var (data, projectNotFound, forbidden, cashNotFound, insufficientBalance) = await create.HandleAsync(
             new(req.ProjectId, req.BrigadeId, req.Date, req.Amount,
                 req.PaymentMethod, req.WorkLogIds ?? [], req.Note, req.CashAccountId), ct);
 
         if (projectNotFound) return NotFound(new { message = "Loyiha topilmadi" });
         if (forbidden)       return Forbid();
         if (cashNotFound)    return BadRequest(new { message = "Kassa hisobi topilmadi" });
+        if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
         return StatusCode(201, data);
     }
 }
