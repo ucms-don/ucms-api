@@ -31,6 +31,24 @@ public static class UpdateWorkLog
             if (workLog.Status != WorkLogStatus.Draft)
                 return (false, false, "Faqat Draft holatidagi yozuvni o'zgartirish mumkin");
 
+            var smetaVolume = await db.EstimateItems
+                .Where(i => i.Id == workLog.EstimateItemId)
+                .Select(i => (decimal?)i.Volume)
+                .FirstOrDefaultAsync(ct) ?? 0m;
+
+            var usedVolume = await db.WorkLogs
+                .Where(w => w.EstimateItemId == workLog.EstimateItemId
+                         && w.ProjectId      == cmd.ProjectId
+                         && w.Id             != cmd.Id
+                         && w.Status         != WorkLogStatus.Rejected)
+                .SumAsync(w => (decimal?)w.Volume, ct) ?? 0m;
+
+            if (usedVolume + cmd.Volume > smetaVolume)
+                return (false, false,
+                    $"Kiritilgan hajm ({cmd.Volume}) smetadagi ruxsat etilgan hajmdan oshib ketadi. " +
+                    $"Smeta bo'yicha: {smetaVolume}, boshqa yozuvlarda: {usedVolume}, " +
+                    $"qolgan: {smetaVolume - usedVolume}");
+
             workLog.Date             = cmd.Date;
             workLog.Volume           = cmd.Volume;
             workLog.BrigadeUnitPrice = cmd.BrigadeUnitPrice;
