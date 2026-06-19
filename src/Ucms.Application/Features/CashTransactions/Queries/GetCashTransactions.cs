@@ -17,7 +17,8 @@ public static class GetCashTransactions
         Guid Id, Guid CashAccountId, string CashAccountName,
         CashDirection Direction, CashTransactionType TransactionType,
         FinancePartnerType PartnerType, Guid? PartnerId, string? PartnerName, decimal Amount, DateTimeOffset Date,
-        Guid? ProjectId, string? ProjectName, string? Note);
+        Guid? ProjectId, string? ProjectName, string? Note,
+        CashTransactionSourceType? SourceType, Guid? SourceId);
 
     public record Result(int Total, int Page, int Size, decimal TotalIn, decimal TotalOut, List<Item> Items);
 
@@ -67,7 +68,8 @@ public static class GetCashTransactions
                     t.Id, t.CashAccountId, t.CashAccount!.Name,
                     t.Direction, t.TransactionType, t.PartnerType, t.PartnerId, t.PartnerName,
                     t.Amount, t.Date, t.ProjectId,
-                    t.Project != null ? t.Project.Name : null, t.Note))
+                    t.Project != null ? t.Project.Name : null, t.Note,
+                    t.SourceType, t.SourceId))
                 .ToListAsync(ct);
 
             return (new Result(total, q.Page, q.Size, totalIn, totalOut, items), false);

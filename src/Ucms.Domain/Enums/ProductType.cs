@@ -3,195 +3,156 @@ namespace Ucms.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
 /// <summary>
-/// Тип продукта
+/// Tip produkta (qurilish materiallari va jihozlari) / Тип продукта (строительные материалы и оборудование)
 /// </summary>
 public enum ProductType
 {
     /// <summary>
-    /// По умолчанию
+    /// Standart / По умолчанию
     /// </summary>
     [Display(Name = "По умолчанию")]
     Default = 0,
 
-    #region 103
+    #region Qurilish materiallari / Строительные материалы
 
     /// <summary>
-    /// Медикамент
+    /// Sement va qorishma aralashmalari / Цемент и сухие смеси
     /// </summary>
-    [Display(Name = "Медикамент")]
-    Medicine = 10,
+    [Display(Name = "Цемент и сухие смеси")]
+    Cement = 10,
 
     /// <summary>
-    /// Спец. изделие
+    /// G'isht va blok (g'isht, gazoblok, keramoblok) / Кирпич и блоки (кирпич, газоблок, керамоблок)
     /// </summary>
-    [Display(Name = "Спец. изделие")]
-    SpecialProduct = 20,
+    [Display(Name = "Кирпич и блоки")]
+    Brick = 11,
+
+    /// <summary>
+    /// Beton va temir-beton buyumlar / Бетон и железобетонные изделия
+    /// </summary>
+    [Display(Name = "Бетон и ЖБИ")]
+    Concrete = 12,
+
+    /// <summary>
+    /// Armatura va metallokonstruksiya / Арматура и металлоконструкции
+    /// </summary>
+    [Display(Name = "Арматура и металлоконструкции")]
+    Rebar = 13,
+
+    /// <summary>
+    /// Pol va devor kafel-plitkalari / Напольная и настенная плитка
+    /// </summary>
+    [Display(Name = "Плитка (напольная/настенная)")]
+    Tile = 14,
+
+    /// <summary>
+    /// Bo'yoq va lak materiallari / Лакокрасочные материалы
+    /// </summary>
+    [Display(Name = "Лакокрасочные материалы")]
+    Paint = 15,
+
+    /// <summary>
+    /// Gipsokarton va shtukaturka materiallari / Гипсокартон и штукатурные смеси
+    /// </summary>
+    [Display(Name = "Гипсокартон и штукатурка")]
+    Drywall = 16,
+
+    /// <summary>
+    /// Issiqlik va gidroizolyatsiya materiallari / Тепло- и гидроизоляция
+    /// </summary>
+    [Display(Name = "Тепло- и гидроизоляция")]
+    Insulation = 17,
+
+    /// <summary>
+    /// Yog'och va pogonaj materiallari (taxta, brus, plinttus) / Пиломатериалы и погонаж
+    /// </summary>
+    [Display(Name = "Пиломатериалы и погонаж")]
+    Lumber = 18,
+
+    /// <summary>
+    /// Tom yopish materiallari (shifer, metallochepitsa va h.k.) / Кровельные материалы
+    /// </summary>
+    [Display(Name = "Кровельные материалы")]
+    RoofingMaterial = 19,
 
     #endregion
 
-
-    #region 101
-
-    /// <summary>
-    /// Техника
-    /// </summary>
-    [Display(Name = "Техника")]
-    Equipment = 30,
+    #region Quvur va kommunikatsiyalar / Трубы и коммуникации
 
     /// <summary>
-    /// Защитные газовые маски
+    /// Suv va kanalizatsiya quvurlari / Трубы водоснабжения и канализации
     /// </summary>
-    [Display(Name = "Защитные газовые маски")]
-    SafetyGasMask = 31,
+    [Display(Name = "Трубы водоснабжения и канализации")]
+    Pipe = 30,
 
     /// <summary>
-    /// Портативные средства радиосвязи
+    /// Elektr kabel va simlari / Электрические кабели и провода
     /// </summary>
-    [Display(Name = "Портативные средства радиосвязи")]
-    PortableRadioCommunication = 32,
+    [Display(Name = "Кабели и провода")]
+    Cable = 31,
 
     /// <summary>
-    /// Защитные костюмы
+    /// Santexnika armaturalari (kran, fitting, ventil) / Сантехническая арматура (краны, фитинги, вентили)
     /// </summary>
-    [Display(Name = "Защитные костюмы")]
-    ProtectiveSuit = 33,
+    [Display(Name = "Сантехническая арматура")]
+    PlumbingFixture = 32,
 
     /// <summary>
-    /// Рукава 
+    /// Elektr jihozlari (rozetka, vyklyuchatel, light) / Электрооборудование (розетки, выключатели, светильники)
     /// </summary>
-    [Display(Name = "Рукава")]
-    Sleeve = 34,
+    [Display(Name = "Электрооборудование")]
+    ElectricalFixture = 33,
+
+    #endregion
+
+    #region Asbob-uskuna va texnika / Инструменты и техника
 
     /// <summary>
-    /// Всасывающий рукава 
+    /// Qurilish texnikasi (kran, ekskavator va h.k.) / Строительная техника
     /// </summary>
-    [Display(Name = "Всасывающий рукава")]
-    SuctionSleeve = 35,
+    [Display(Name = "Строительная техника")]
+    Equipment = 50,
 
     /// <summary>
-    /// Диэлектрическое  имущество 
+    /// Qo'l asboblari / Ручной инструмент
     /// </summary>
-    [Display(Name = "Диэлектрическое  имущество")]
-    Dielectric = 36,
+    [Display(Name = "Ручной инструмент")]
+    HandTool = 51,
 
     /// <summary>
-    /// Лестница 
+    /// Elektr asboblari (perforator, shurupovert va h.k.) / Электроинструмент
     /// </summary>
-    [Display(Name = "Лестница")]
-    Ladder = 37,
+    [Display(Name = "Электроинструмент")]
+    PowerTool = 52,
+
+    /// <summary>
+    /// Lestnitsa va eshafot (qurilish zinapoyalari) / Лестницы и строительные подмостья
+    /// </summary>
+    [Display(Name = "Лестницы и подмостья")]
+    Ladder = 53,
+
+    /// <summary>
+    /// Himoya kiyim-kechak va SIV (kaska, qo'lqop, kombinezon) / Защитная одежда и СИЗ (каска, перчатки, спецодежда)
+    /// </summary>
+    [Display(Name = "Защитная одежда и СИЗ")]
+    ProtectiveSuit = 54,
 
     #endregion
 
     /// <summary>
-    /// Раствор для иньекций
+    /// Metiz va mahkamlash buyumlari (vint, bolt, dyubel) / Метизы и крепёжные изделия (винты, болты, дюбели)
     /// </summary>
-    [Display(Name = "Раствор для иньекций")]
-    InjectionSolution = 40,
+    [Display(Name = "Метизы и крепёжные изделия")]
+    Fastener = 70,
 
     /// <summary>
-    /// Раствор для инфузий
+    /// Bir martalik sarf materiallari (skotch, plyonka va h.k.) / Расходные материалы (скотч, плёнка и др.)
     /// </summary>
-    [Display(Name = "Раствор для инфузий")]
-    InfusionSolution = 41,
+    [Display(Name = "Расходные материалы")]
+    Consumable = 71,
 
     /// <summary>
-    /// Аэрозоль
-    /// </summary>
-    [Display(Name = "Аэрозоль")]
-    Aerosol = 42,
-
-    /// <summary>
-    /// Таблетки
-    /// </summary>
-    [Display(Name = "Таблетки")]
-    Pills = 43,
-
-    /// <summary>
-    /// Сироп
-    /// </summary>
-    [Display(Name = "Сироп")]
-    Syrup = 44,
-
-    /// <summary>
-    /// Мазь
-    /// </summary>
-    [Display(Name = "Мазь")]
-    Ointment = 45,
-
-    /// <summary>
-    /// Капли
-    /// </summary>
-    [Display(Name = "Капли")]
-    Drops = 46,
-
-    /// <summary>
-    /// Спрей
-    /// </summary>
-    [Display(Name = "Спрей")]
-    Spray = 47,
-
-    /// <summary>
-    /// Антисептик
-    /// </summary>
-    [Display(Name = "Антисептик")]
-    Antiseptic = 48,
-
-    /// <summary>
-    /// Перевязочный материал
-    /// </summary>
-    [Display(Name = "Перевязочный материал")]
-    DressingMaterial = 49,
-
-    /// <summary>
-    /// Одноразовый расходный материал
-    /// </summary>
-    [Display(Name = "Одноразовый расходный материал")]
-    DisposableConsumables = 50,
-
-    /// <summary>
-    /// Укладка
-    /// </summary>
-    [Display(Name = "Укладка")]
-    Laying = 51,
-
-    /// <summary>
-    /// Диагностика
-    /// </summary>
-    [Display(Name = "Диагностика")]
-    Diagnostics = 52,
-
-    /// <summary>
-    /// Дез. средство
-    /// </summary>
-    [Display(Name = "Дез. средство")]
-    DisinfectionAgent = 53,
-
-    /// <summary>
-    /// Психотропные вещества
-    /// </summary>
-    [Display(Name = "Психотропные вещества")]
-    PsychotropicSubstances = 54,
-
-    /// <summary>
-    /// Наркотические средства
-    /// </summary>
-    [Display(Name = "Наркотические средства")]
-    NarcoticDrugs = 55,
-
-    /// <summary>
-    /// Раствор для наружного применения
-    /// </summary>
-    [Display(Name = "Раствор для наружного применения")]
-    SolutionForExternalUse = 56,
-
-    /// <summary>
-    /// Порошок
-    /// </summary>
-    [Display(Name = "Порошок")]
-    Powder = 57,
-
-    /// <summary>
-    /// Другое
+    /// Boshqa / Другое
     /// </summary>
     [Display(Name = "Другое")]
     Other = 99,

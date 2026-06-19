@@ -16,7 +16,7 @@ public static class CreateClientPayment
         decimal Amount,
         PaymentMethod PaymentMethod,
         string? Note,
-        Guid? CashAccountId);
+        Guid CashAccountId);
 
     public record Result(Guid Id, decimal Amount);
 
@@ -32,8 +32,7 @@ public static class CreateClientPayment
             if (project is null) return (null, true, false, false);
             if (!ctx.IsOwner && ctx.OrganizationId != project.OrganizationId) return (null, false, true, false);
 
-            if (cmd.CashAccountId.HasValue &&
-                !await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId.Value, project.OrganizationId, ct))
+            if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId, project.OrganizationId, ct))
                 return (null, false, false, true);
 
             var now    = DateTimeOffset.UtcNow;
@@ -57,16 +56,13 @@ public static class CreateClientPayment
             if (cmd.ActId.HasValue)
                 await UpdateActStatusAsync(cmd.ActId.Value, ct);
 
-            if (cmd.CashAccountId.HasValue)
-            {
-                await CashTransactionLinker.UpsertAsync(
-                    db, CashTransactionSourceType.ClientPayment, payment.Id,
-                    project.OrganizationId, cmd.CashAccountId.Value,
-                    CashDirection.In, CashTransactionType.ClientPayment,
-                    FinancePartnerType.Customer, project.CustomerId,
-                    cmd.Amount, cmd.Date, cmd.ProjectId, cmd.Note,
-                    userId, ct);
-            }
+            await CashTransactionLinker.UpsertAsync(
+                db, CashTransactionSourceType.ClientPayment, payment.Id,
+                project.OrganizationId, cmd.CashAccountId,
+                CashDirection.In, CashTransactionType.ClientPayment,
+                FinancePartnerType.Customer, project.CustomerId,
+                cmd.Amount, cmd.Date, cmd.ProjectId, cmd.Note,
+                userId, ct);
 
             await db.SaveChangesAsync(ct);
             return (new Result(payment.Id, payment.Amount), false, false, false);

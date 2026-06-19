@@ -2,6 +2,8 @@ namespace Ucms.Api.Middlewares;
 
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Ucms.Domain.Exceptions;
 
@@ -38,6 +40,11 @@ public class GlobalMiddlewareErrorHander
     {
         var statusCode = ex.GetStatusCode();
         var problemDetails = ExceptionHandlerExtensions.GetProblemDetails(ex, (int)statusCode);
+
+        // In Development: include inner exception for debugging
+        var env = context.RequestServices.GetService<IWebHostEnvironment>();
+        if (env?.IsDevelopment() == true && ex.InnerException is not null)
+            problemDetails.Extensions["innerException"] = ex.InnerException.Message;
 
         var response = context.Response;
         response.ContentType = "application/json";

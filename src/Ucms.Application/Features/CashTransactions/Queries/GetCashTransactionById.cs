@@ -14,6 +14,7 @@ public static class GetCashTransactionById
         CashDirection Direction, CashTransactionType TransactionType,
         FinancePartnerType PartnerType, Guid? PartnerId, string? PartnerName, decimal Amount, DateTimeOffset Date,
         Guid? ProjectId, string? ProjectName, string? Note,
+        CashTransactionSourceType? SourceType, Guid? SourceId,
         Guid OrganizationId, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
@@ -27,6 +28,7 @@ public static class GetCashTransactionById
                     t.Direction, t.TransactionType, t.PartnerType, t.PartnerId, t.PartnerName,
                     t.Amount, t.Date, t.ProjectId,
                     t.Project != null ? t.Project.Name : null, t.Note,
+                    t.SourceType, t.SourceId,
                     t.OrganizationId, t.CreatedAt, t.UpdatedAt))
                 .FirstOrDefaultAsync(ct);
 

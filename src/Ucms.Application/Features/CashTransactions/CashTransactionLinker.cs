@@ -26,6 +26,34 @@ public static class CashTransactionLinker
         db.CashAccounts.AnyAsync(a => a.Id == cashAccountId && !a.IsDeleted && a.OrganizationId == organizationId, ct);
 
     /// <summary>
+    /// Kassa/hisobning joriy balansini hisoblaydi. Agar <paramref name="excludeSourceType"/>/<paramref name="excludeSourceId"/>
+    /// berilsa, shu manbaga tegishli (masalan, yangilanayotgan yozuvning eski) CashTransaction balansga qo'shilmaydi —
+    /// shunday qilib Update paytida "eski tranzaksiya hali ham balansni band qilib turibdi" degan noto'g'ri hisoblashning oldi olinadi.
+    /// </summary>
+    public static async Task<decimal> GetAvailableBalanceAsync(
+        IUcmsDbContext db, Guid cashAccountId,
+        CashTransactionSourceType? excludeSourceType, Guid? excludeSourceId, CancellationToken ct)
+    {
+        var query = db.CashTransactions.Where(t => t.CashAccountId == cashAccountId && !t.IsDeleted);
+
+        if (excludeSourceType.HasValue && excludeSourceId.HasValue)
+            query = query.Where(t => !(t.SourceType == excludeSourceType.Value && t.SourceId == excludeSourceId.Value));
+
+        return await query.SumAsync(t => t.Direction == CashDirection.In ? t.Amount : -t.Amount, ct);
+    }
+
+    /// <summary>
+    /// Kassa/hisobda berilgan summa uchun yetarli mablag' bor-yo'qligini tekshiradi (faqat chiqim — Out — operatsiyalari uchun).
+    /// </summary>
+    public static async Task<bool> HasSufficientBalanceAsync(
+        IUcmsDbContext db, Guid cashAccountId, decimal amount,
+        CashTransactionSourceType? excludeSourceType, Guid? excludeSourceId, CancellationToken ct)
+    {
+        var available = await GetAvailableBalanceAsync(db, cashAccountId, excludeSourceType, excludeSourceId, ct);
+        return available >= amount;
+    }
+
+    /// <summary>
     /// (SourceType, SourceId) bo'yicha bog'langan CashTransaction'ni topadi, topilsa yangilaydi,
     /// topilmasa yangi yaratadi. SaveChangesAsync chaqirilmaydi — bu chaqiruvchi handler'ning
     /// o'z SaveChangesAsync'i bilan bitta tranzaksiyada saqlanishi uchun.

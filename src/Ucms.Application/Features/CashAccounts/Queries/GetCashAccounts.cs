@@ -19,12 +19,11 @@ public static class GetCashAccounts
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
+            if (!ctx.OrganizationId.HasValue) 
+                return (null, true);
 
-            var query = db.CashAccounts.Where(a => !a.IsDeleted);
-
-            if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
-                query = query.Where(a => a.OrganizationId == ctx.OrganizationId.Value);
+            var query = db.CashAccounts.Where(a => !a.IsDeleted
+            && a.OrganizationId == ctx.OrganizationId!.Value);
 
             if (q.IsActive.HasValue)
                 query = query.Where(a => a.IsActive == q.IsActive.Value);

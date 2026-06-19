@@ -106,6 +106,30 @@ public class UcmsDbContextSeed
     private static readonly Guid UnitKgId   = new("00000000-0000-0000-000A-000000000006");
     private static readonly Guid UnitTonId  = new("00000000-0000-0000-000A-000000000007");
 
+    // ── Omborlar / Kassalar / Postavshiklar / Ishlab chiqaruvchilar (fixed) ────
+    private static readonly Guid T1MainStockId        = new("00000000-0000-0000-000C-000000000001");
+    private static readonly Guid T1CashAccountCashId  = new("00000000-0000-0000-000D-000000000001");
+    private static readonly Guid T1CashAccountBankId  = new("00000000-0000-0000-000D-000000000002");
+    private static readonly Guid Supplier1Id          = new("00000000-0000-0000-000E-000000000001");
+    private static readonly Guid Manufacturer1Id      = new("00000000-0000-0000-000F-000000000001");
+
+    private static readonly Guid IhtiyorStockId           = new("00000000-0000-0000-000C-000000000002");
+    private static readonly Guid IhtiyorCashAccountCashId = new("00000000-0000-0000-000D-000000000003");
+    private static readonly Guid IhtiyorCashAccountBankId = new("00000000-0000-0000-000D-000000000004");
+
+    // ── Mahsulotlar / Продукты (qurilishda eng ko'p ishlatiladigan 5 ta, fixed) ─
+    private static readonly Guid ProductCementId = new("00000000-0000-0000-0010-000000000001");
+    private static readonly Guid ProductBrickId  = new("00000000-0000-0000-0010-000000000002");
+    private static readonly Guid ProductRebarId  = new("00000000-0000-0000-0010-000000000003");
+    private static readonly Guid ProductTileId   = new("00000000-0000-0000-0010-000000000004");
+    private static readonly Guid ProductPaintId  = new("00000000-0000-0000-0010-000000000005");
+
+    private static readonly Guid SkuCementId = new("00000000-0000-0000-0011-000000000001");
+    private static readonly Guid SkuBrickId  = new("00000000-0000-0000-0011-000000000002");
+    private static readonly Guid SkuRebarId  = new("00000000-0000-0000-0011-000000000003");
+    private static readonly Guid SkuTileId   = new("00000000-0000-0000-0011-000000000004");
+    private static readonly Guid SkuPaintId  = new("00000000-0000-0000-0011-000000000005");
+
     // ══════════════════════════════════════════════════════════════════════════
 
     public async Task SeedAsync(IServiceProvider services)
@@ -135,12 +159,14 @@ public class UcmsDbContextSeed
             await SeedTenant1BrigadesAsync(db, logger);
             await SeedTenant1WorkLogsAsync(db, logger);
             await SeedTenant1FinanceAsync(db, logger);
+            await SeedTenant1ReferenceDataAsync(db, logger);
 
             // 4. IXTIYOR — shaxsiy qurilish pudratchisi tashkiloti
             await SeedIhtiyorOrgAsync(db, logger);
             await SeedIhtiyorUsersAsync(userManager, logger);
             await SeedIhtiyorEmployeesAsync(db, userManager, logger);
             await SeedIhtiyorProjectAsync(db, logger);
+            await SeedIhtiyorReferenceDataAsync(db, logger);
 
         });
     }
@@ -699,6 +725,282 @@ public class UcmsDbContextSeed
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // TENANT 1 — Spravochniklar: Ombor, Kassa, Postavshik, Ishlab chiqaruvchi
+    // Справочники: Склад, Касса, Поставщик, Производитель
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private static async Task SeedTenant1ReferenceDataAsync(UcmsDbContext db, ILogger? logger)
+    {
+        await SeedTenant1StocksAsync(db, logger);
+        await SeedTenant1CashAccountsAsync(db, logger);
+        await SeedSuppliersAsync(db, logger);
+        await SeedManufacturersAsync(db, logger);
+        await SeedProductsAsync(db, logger);
+    }
+
+    /// <summary>
+    /// Ombor — material va jihozlar saqlanadigan joy. / Склад — место хранения материалов и оборудования.
+    /// </summary>
+    private static async Task SeedTenant1StocksAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.Stocks.AnyAsync(s => s.Id == T1MainStockId))
+            return;
+
+        await db.Stocks.AddAsync(new Stock
+        {
+            Id               = T1MainStockId,
+            OrganizationId   = T1OrgId,
+            Code             = "OMB-001",
+            Name             = "Asosiy ombor",
+            NameRu           = "Основной склад",
+            NameEn           = "Main warehouse",
+            StorageCondition = StorageCondition.Dry,
+            StockType        = StockType.Premises,
+            StockCategory    = StockCategory.Central,
+            IsDeleted        = false,
+        });
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] TENANT-1: Asosiy ombor yaratildi");
+    }
+
+    /// <summary>
+    /// Kassa hisoblari — naqd pul kassasi va bank hisob raqami.
+    /// Кассовые счета — касса наличных и банковский расчётный счёт.
+    /// </summary>
+    private static async Task SeedTenant1CashAccountsAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.CashAccounts.AnyAsync(c => c.Id == T1CashAccountCashId))
+            return;
+
+        var now = Now();
+
+        await db.CashAccounts.AddRangeAsync(
+            // Naqd pul kassasi / Касса наличных денежных средств
+            new CashAccount
+            {
+                Id             = T1CashAccountCashId,
+                OrganizationId = T1OrgId,
+                Name           = "Naqd pul kassasi",
+                Type           = CashAccountType.Cash,
+                Notes          = "Asosiy naqd pul kassasi",
+                IsActive       = true,
+                IsDeleted      = false,
+                CreatedAt = now, UpdatedAt = now, CreatedBy = T1AdminId, UpdatedBy = T1AdminId,
+            },
+            // Hisob raqam (bank) / Расчётный счёт (банк)
+            new CashAccount
+            {
+                Id             = T1CashAccountBankId,
+                OrganizationId = T1OrgId,
+                Name           = "Hisob raqam",
+                Type           = CashAccountType.Bank,
+                Notes          = "Asosiy bank hisob raqami",
+                IsActive       = true,
+                IsDeleted      = false,
+                CreatedAt = now, UpdatedAt = now, CreatedBy = T1AdminId, UpdatedBy = T1AdminId,
+            }
+        );
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] TENANT-1: 2 ta kassa hisobi yaratildi (naqd + hisob raqam)");
+    }
+
+    /// <summary>
+    /// Postavshik — material/tovar yetkazib beruvchi tashkilot. / Поставщик материалов и товаров.
+    /// </summary>
+    private static async Task SeedSuppliersAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.Suppliers.AnyAsync(s => s.Id == Supplier1Id))
+            return;
+
+        await db.Suppliers.AddAsync(new Supplier
+        {
+            Id        = Supplier1Id,
+            Code      = "POST-001",
+            Name      = "Qurilish Materiallari Savdo MChJ",
+            NameRu    = "ООО \"Торговля строительными материалами\"",
+            NameEn    = "Construction Materials Trade LLC",
+            IsDeleted = false,
+        });
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] Postavshik yaratildi");
+    }
+
+    /// <summary>
+    /// Ishlab chiqaruvchi — mahsulot/material ishlab chiqaruvchi tashkilot. / Производитель продукции/материалов.
+    /// </summary>
+    private static async Task SeedManufacturersAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.Manufacturers.AnyAsync(m => m.Id == Manufacturer1Id))
+            return;
+
+        await db.Manufacturers.AddAsync(new Manufacturer
+        {
+            Id        = Manufacturer1Id,
+            Code      = "ISHLAB-001",
+            Name      = "Qurilish Materiallari Ishlab Chiqarish Zavodi",
+            NameRu    = "Завод по производству строительных материалов",
+            NameEn    = "Construction Materials Manufacturing Plant",
+            IsDeleted = false,
+        });
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] Ishlab chiqaruvchi yaratildi");
+    }
+
+    /// <summary>
+    /// Qurilishda eng ko'p ishlatiladigan 5 ta mahsulot (har biriga 1 ta SKU bilan).
+    /// 5 самых часто используемых в строительстве продуктов (каждый с одним SKU).
+    /// </summary>
+    private static async Task SeedProductsAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.Products.AnyAsync(p => p.Id == ProductCementId))
+            return;
+
+        await db.Products.AddRangeAsync(
+            new Product
+            {
+                Id     = ProductCementId,
+                Code   = "PROD-001",
+                Name   = "Sement (M-400)",
+                NameRu = "Цемент (М-400)",
+                NameEn = "Cement (M-400)",
+                Type   = ProductType.Cement,
+                IsDeleted = false,
+            },
+            new Product
+            {
+                Id     = ProductBrickId,
+                Code   = "PROD-002",
+                Name   = "Silikat g'isht",
+                NameRu = "Силикатный кирпич",
+                NameEn = "Silicate brick",
+                Type   = ProductType.Brick,
+                IsDeleted = false,
+            },
+            new Product
+            {
+                Id     = ProductRebarId,
+                Code   = "PROD-003",
+                Name   = "Armatura (Ø12mm)",
+                NameRu = "Арматура (Ø12мм)",
+                NameEn = "Rebar (Ø12mm)",
+                Type   = ProductType.Rebar,
+                IsDeleted = false,
+            },
+            new Product
+            {
+                Id     = ProductTileId,
+                Code   = "PROD-004",
+                Name   = "Keramogranit plitka (600x600)",
+                NameRu = "Керамогранитная плитка (600x600)",
+                NameEn = "Porcelain tile (600x600)",
+                Type   = ProductType.Tile,
+                IsDeleted = false,
+            },
+            new Product
+            {
+                Id     = ProductPaintId,
+                Code   = "PROD-005",
+                Name   = "Fasad bo'yog'i",
+                NameRu = "Фасадная краска",
+                NameEn = "Facade paint",
+                Type   = ProductType.Paint,
+                IsDeleted = false,
+            }
+        );
+
+        await db.Skus.AddRangeAsync(
+            new Sku
+            {
+                Id                  = SkuCementId,
+                ProductId           = ProductCementId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitTonId,
+                SerialNumber        = "SKU-CEMENT-001",
+                Name                = "Sement (M-400), 50kg qop",
+                NameRu              = "Цемент (М-400), мешок 50кг",
+                NameEn              = "Cement (M-400), 50kg bag",
+                Amount              = 100,
+                Price               = 850_000m,
+                ExpirationDate      = Now().AddMonths(6),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            },
+            new Sku
+            {
+                Id                  = SkuBrickId,
+                ProductId           = ProductBrickId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitDonaId,
+                SerialNumber        = "SKU-BRICK-001",
+                Name                = "Silikat g'isht, standart",
+                NameRu              = "Силикатный кирпич, стандарт",
+                NameEn              = "Silicate brick, standard",
+                Amount              = 5000,
+                Price               = 1_200m,
+                ExpirationDate      = Now().AddYears(5),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            },
+            new Sku
+            {
+                Id                  = SkuRebarId,
+                ProductId           = ProductRebarId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitTonId,
+                SerialNumber        = "SKU-REBAR-001",
+                Name                = "Armatura A500C, Ø12mm",
+                NameRu              = "Арматура А500С, Ø12мм",
+                NameEn              = "Rebar A500C, Ø12mm",
+                Amount              = 20,
+                Price               = 9_500_000m,
+                ExpirationDate      = Now().AddYears(10),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            },
+            new Sku
+            {
+                Id                  = SkuTileId,
+                ProductId           = ProductTileId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitM2Id,
+                SerialNumber        = "SKU-TILE-001",
+                Name                = "Keramogranit plitka, 600x600x10",
+                NameRu              = "Керамогранитная плитка, 600x600x10",
+                NameEn              = "Porcelain tile, 600x600x10",
+                Amount              = 800,
+                Price               = 95_000m,
+                ExpirationDate      = Now().AddYears(15),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            },
+            new Sku
+            {
+                Id                  = SkuPaintId,
+                ProductId           = ProductPaintId,
+                ManufacturerId      = Manufacturer1Id,
+                SupplierId          = Supplier1Id,
+                MeasurementUnitId   = UnitKgId,
+                SerialNumber        = "SKU-PAINT-001",
+                Name                = "Fasad bo'yog'i, akril asosli",
+                NameRu              = "Фасадная краска, акриловая",
+                NameEn              = "Facade paint, acrylic",
+                Amount              = 300,
+                Price               = 75_000m,
+                ExpirationDate      = Now().AddYears(2),
+                Status              = SkuStatus.Default,
+                IsDeleted           = false,
+            }
+        );
+
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] 5 ta mahsulot va SKU yaratildi (sement, g'isht, armatura, plitka, bo'yoq)");
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // IXTIYOR — shaxsiy qurilish pudratchisi tashkiloti (Daminov Ixtiyor Ilhomjonovich)
     // ══════════════════════════════════════════════════════════════════════════
 
@@ -899,6 +1201,82 @@ public class UcmsDbContextSeed
         await db.SaveChangesAsync();
 
         logger?.LogInformation("[Seed] IXTIYOR: loyiha va smeta (2 bo'lim, 5 ish turi) yaratildi");
+    }
+
+    /// <summary>
+    /// IXTIYOR tashkiloti uchun spravochniklar: ombor va kassa hisoblari.
+    /// Справочники для организации ИХТИЁР: склад и кассовые счета.
+    /// </summary>
+    private static async Task SeedIhtiyorReferenceDataAsync(UcmsDbContext db, ILogger? logger)
+    {
+        await SeedIhtiyorStockAsync(db, logger);
+        await SeedIhtiyorCashAccountsAsync(db, logger);
+    }
+
+    /// <summary>
+    /// Ombor — material va jihozlar saqlanadigan joy. / Склад — место хранения материалов и оборудования.
+    /// </summary>
+    private static async Task SeedIhtiyorStockAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.Stocks.AnyAsync(s => s.Id == IhtiyorStockId))
+            return;
+
+        await db.Stocks.AddAsync(new Stock
+        {
+            Id               = IhtiyorStockId,
+            OrganizationId   = IhtiyorOrgId,
+            Code             = "OMB-001",
+            Name             = "Asosiy ombor",
+            NameRu           = "Основной склад",
+            NameEn           = "Main warehouse",
+            StorageCondition = StorageCondition.Dry,
+            StockType        = StockType.Premises,
+            StockCategory    = StockCategory.Central,
+            IsDeleted        = false,
+        });
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] IXTIYOR: Asosiy ombor yaratildi");
+    }
+
+    /// <summary>
+    /// Kassa hisoblari — naqd pul kassasi va bank hisob raqami.
+    /// Кассовые счета — касса наличных и банковский расчётный счёт.
+    /// </summary>
+    private static async Task SeedIhtiyorCashAccountsAsync(UcmsDbContext db, ILogger? logger)
+    {
+        if (await db.CashAccounts.AnyAsync(c => c.Id == IhtiyorCashAccountCashId))
+            return;
+
+        var now = Now();
+
+        await db.CashAccounts.AddRangeAsync(
+            // Naqd pul kassasi / Касса наличных денежных средств
+            new CashAccount
+            {
+                Id             = IhtiyorCashAccountCashId,
+                OrganizationId = IhtiyorOrgId,
+                Name           = "Naqd pul kassasi",
+                Type           = CashAccountType.Cash,
+                Notes          = "Asosiy naqd pul kassasi",
+                IsActive       = true,
+                IsDeleted      = false,
+                CreatedAt = now, UpdatedAt = now, CreatedBy = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+            },
+            // Hisob raqam (bank) / Расчётный счёт (банк)
+            new CashAccount
+            {
+                Id             = IhtiyorCashAccountBankId,
+                OrganizationId = IhtiyorOrgId,
+                Name           = "Hisob raqam",
+                Type           = CashAccountType.Bank,
+                Notes          = "Asosiy bank hisob raqami",
+                IsActive       = true,
+                IsDeleted      = false,
+                CreatedAt = now, UpdatedAt = now, CreatedBy = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
+            }
+        );
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] IXTIYOR: 2 ta kassa hisobi yaratildi (naqd + hisob raqam)");
     }
 
     // ══════════════════════════════════════════════════════════════════════════
