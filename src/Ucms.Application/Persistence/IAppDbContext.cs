@@ -47,6 +47,7 @@ public interface IUcmsDbContext
     // Finance (kassa va pul harakati)
     public DbSet<CashAccount> CashAccounts { get; set; }
     public DbSet<CashTransaction> CashTransactions { get; set; }
+    public DbSet<AccountTransfer> AccountTransfers { get; set; }
 
     // O'lchov birliklari (spravochnik)
     public DbSet<MeasurementUnit> MeasurementUnits { get; set; }

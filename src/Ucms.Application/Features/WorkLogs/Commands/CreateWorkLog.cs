@@ -36,11 +36,23 @@ public static class CreateWorkLog
 
             var estimateItem = await db.EstimateItems
                 .Where(i => i.Id == cmd.EstimateItemId)
-                .Select(i => new { i.BrigadeUnitPrice })
+                .Select(i => new { i.BrigadeUnitPrice, i.Volume })
                 .FirstOrDefaultAsync(ct);
 
             if (estimateItem is null)
                 return (null, false, false, "Smeta qatori topilmadi");
+
+            var usedVolume = await db.WorkLogs
+                .Where(w => w.EstimateItemId == cmd.EstimateItemId
+                         && w.ProjectId      == cmd.ProjectId
+                         && w.Status         != WorkLogStatus.Rejected)
+                .SumAsync(w => (decimal?)w.Volume, ct) ?? 0m;
+
+            if (usedVolume + cmd.Volume > estimateItem.Volume)
+                return (null, false, false,
+                    $"Kiritilgan hajm ({cmd.Volume}) smetadagi ruxsat etilgan hajmdan oshib ketadi. " +
+                    $"Smeta bo'yicha: {estimateItem.Volume}, allaqachon kiritilgan: {usedVolume}, " +
+                    $"qolgan: {estimateItem.Volume - usedVolume}");
 
             var unitPrice   = cmd.BrigadeUnitPrice ?? estimateItem.BrigadeUnitPrice;
             var totalAmount = cmd.Volume * unitPrice;
