@@ -2,8 +2,10 @@ namespace Ucms.Application.Features.AccountTransfers.Commands;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Entities;
+using Ucms.Domain.Enums;
 
 public static class CreateAccountTransfer
 {
@@ -51,6 +53,18 @@ public static class CreateAccountTransfer
             if (cmd.Commission < 0)
                 return (null, false, false, false, "Komissiya manfiy bo'lishi mumkin emas");
 
+            // Manba hisobda yetarli mablag' borligini tekshirish
+            var totalDeducted = cmd.Amount + cmd.Commission;
+            var available = await CashTransactionLinker.GetAvailableBalanceAsync(
+                db, cmd.FromAccountId, null, null, ct);
+
+            if (available < totalDeducted)
+                return (null, false, false, false,
+                    $"Kassada mablag' yetarli emas. " +
+                    $"Mavjud balans: {available:N2} so'm, " +
+                    $"kerakli: {totalDeducted:N2} so'm " +
+                    $"(o'tkazma: {cmd.Amount:N2} + komissiya: {cmd.Commission:N2})");
+
             var now    = DateTimeOffset.UtcNow;
             var userId = ctx.UserId ?? Guid.Empty;
 
@@ -71,6 +85,29 @@ public static class CreateAccountTransfer
             };
 
             await db.AccountTransfers.AddAsync(transfer, ct);
+
+            // Manba hisobdan chiqim (amount + commission)
+            await CashTransactionLinker.UpsertAsync(
+                db,
+                CashTransactionSourceType.AccountTransferOut, transfer.Id,
+                fromAccount.OrganizationId, cmd.FromAccountId,
+                CashDirection.Out, CashTransactionType.AccountTransfer,
+                FinancePartnerType.Other, null,
+                totalDeducted, cmd.Date, null,
+                cmd.Note ?? $"O'tkazma chiqimi: {cmd.Amount:N0} so'm + {cmd.Commission:N0} komissiya",
+                userId, ct);
+
+            // Maqsad hisobga kirim (faqat amount, commission emas)
+            await CashTransactionLinker.UpsertAsync(
+                db,
+                CashTransactionSourceType.AccountTransferIn, transfer.Id,
+                fromAccount.OrganizationId, cmd.ToAccountId,
+                CashDirection.In, CashTransactionType.AccountTransfer,
+                FinancePartnerType.Other, null,
+                cmd.Amount, cmd.Date, null,
+                cmd.Note ?? $"O'tkazma kirimi: {cmd.Amount:N0} so'm",
+                userId, ct);
+
             await db.SaveChangesAsync(ct);
             return (new Result(transfer.Id), false, false, false, null);
         }

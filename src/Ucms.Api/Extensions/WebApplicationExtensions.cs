@@ -58,7 +58,7 @@ public static class WebApplicationExtensions
         app.UseMiddleware<GlobalMiddlewareErrorHander>();
         app.UseStaticFiles();
 
-        var avatarsDir = Path.Combine(app.Environment.WebRootPath, "avatars");
+        var avatarsDir = Infrastructure.Services.AvatarPathResolver.Resolve(app.Configuration, app.Environment);
         Directory.CreateDirectory(avatarsDir);
         app.UseStaticFiles(new StaticFileOptions
         {

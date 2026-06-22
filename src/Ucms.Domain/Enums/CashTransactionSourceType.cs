@@ -28,4 +28,14 @@ public enum CashTransactionSourceType
     /// ProjectExpense.Id ga bog'langan
     /// </summary>
     ProjectExpense = 4,
+
+    /// <summary>
+    /// AccountTransfer.Id ga bog'langan — manba hisobdan chiqim (Amount + Commission)
+    /// </summary>
+    AccountTransferOut = 5,
+
+    /// <summary>
+    /// AccountTransfer.Id ga bog'langan — maqsad hisobga kirim (Amount)
+    /// </summary>
+    AccountTransferIn = 6,
 }

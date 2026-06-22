@@ -1,23 +1,23 @@
 namespace Ucms.Infrastructure.Services;
 
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Ucms.Application.Abstractions.Storage;
 
 /// <summary>
-/// Foydalanuvchi avatarlarini lokal wwwroot/avatars papkasiga saqlaydi.
-/// Сохраняет аватары пользователей локально в wwwroot/avatars.
+/// Foydalanuvchi avatarlarini lokal diskka saqlaydi. Papka manzili
+/// "Storage:AvatarsPath" sozlamasi orqali konfiguratsiya qilinadi (production'da
+/// bu — Docker volume bilan saqlanadigan papka bo'lishi kerak, aks holda image
+/// qayta build qilinganda fayllar yo'qoladi).
+/// Сохраняет аватары пользователей локально на диск. Путь к папке настраивается
+/// через "Storage:AvatarsPath" (в production должен указывать на смонтированный
+/// Docker volume, иначе файлы пропадут при пересборке образа).
 /// </summary>
-public class LocalAvatarStorageClient(IWebHostEnvironment env) : IAvatarStorageClient
+public class LocalAvatarStorageClient(IWebHostEnvironment env, IConfiguration configuration) : IAvatarStorageClient
 {
-    private const string FolderName = "avatars";
-
     public async Task<string> SaveAsync(Guid userId, string fileExtension, Stream stream, CancellationToken cancellationToken = default)
     {
-        var webRoot = string.IsNullOrEmpty(env.WebRootPath)
-            ? Path.Combine(env.ContentRootPath, "wwwroot")
-            : env.WebRootPath;
-
-        var avatarsDir = Path.Combine(webRoot, FolderName);
+        var avatarsDir = AvatarPathResolver.Resolve(configuration, env);
         Directory.CreateDirectory(avatarsDir);
 
         var fileName = $"{userId}_{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}{fileExtension}";
@@ -26,7 +26,7 @@ public class LocalAvatarStorageClient(IWebHostEnvironment env) : IAvatarStorageC
         await using var file = File.Create(filePath);
         await stream.CopyToAsync(file, cancellationToken);
 
-        return $"/api/{FolderName}/{fileName}";
+        return $"/api/avatars/{fileName}";
     }
 
     public void DeleteExisting(string? avatarUrl)
@@ -36,11 +36,8 @@ public class LocalAvatarStorageClient(IWebHostEnvironment env) : IAvatarStorageC
         var fileName = Path.GetFileName(avatarUrl);
         if (string.IsNullOrWhiteSpace(fileName)) return;
 
-        var webRoot = string.IsNullOrEmpty(env.WebRootPath)
-            ? Path.Combine(env.ContentRootPath, "wwwroot")
-            : env.WebRootPath;
-
-        var filePath = Path.Combine(webRoot, FolderName, fileName);
+        var avatarsDir = AvatarPathResolver.Resolve(configuration, env);
+        var filePath = Path.Combine(avatarsDir, fileName);
         if (File.Exists(filePath))
         {
             try { File.Delete(filePath); } catch { /* eskirgan faylni o'chirishda xato — e'tiborsiz qoldiramiz */ }
