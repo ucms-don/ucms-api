@@ -53,11 +53,9 @@ public static class GetWorkLogs
                     w.Room,
                     w.Note,
                     w.BrigadePaymentId,
-                    w.CreatedAt,
-                    new WorkLogBrigadeDto(w.Brigade!.Id, w.Brigade.Name),
-                    new WorkLogDetailEstimateItemDto(
-                        w.EstimateItem!.Id,
-                        w.EstimateItem.WorkType!.Name,
+                    w.Brigade!.Name,
+                    new WorkLogEstimateItemDto(
+                        w.EstimateItem!.WorkType!.Name,
                         w.EstimateItem.MeasurementUnit!.Code)))
                 .ToListAsync(ct);
 
