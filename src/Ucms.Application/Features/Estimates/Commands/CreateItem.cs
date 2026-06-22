@@ -60,7 +60,7 @@ public static class CreateItem
 
             await db.EstimateItems.AddAsync(item, ct);
             await db.SaveChangesAsync(ct);
-            return (new Result(item.Id, item.WorkTypeId), false, null);
+            return (new Result(item.Id, item.WorkTypeId.Value), false, null);
         }
     }
 }

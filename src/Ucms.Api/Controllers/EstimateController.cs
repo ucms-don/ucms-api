@@ -231,11 +231,12 @@ public class EstimateController(
         Guid projectId, Guid estimateId, Guid itemId,
         [FromBody] UpdateItemRequest req, CancellationToken ct)
     {
-        var (notFound, forbidden) = await updateItem.HandleAsync(
+        var (notFound, forbidden, error) = await updateItem.HandleAsync(
             new(projectId, estimateId, itemId, req.WorkTypeId, req.Description, req.MeasurementUnitId, req.Volume,
                 req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.Order), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        if (error is not null) return BadRequest(new { message = error });
         return NoContent();
     }
 

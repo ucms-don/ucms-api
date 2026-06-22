@@ -256,9 +256,6 @@ public class UcmsDbContextSeed
 
     private static async Task SeedWorkTypesAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.WorkTypes.AnyAsync())
-            return;
-
         var workTypes = new List<WorkType>
         {
             new() { Id = WorkTypeFloorScreedId,   Name = "Pol shtukaturkasi (M-200 beton stяjka)", NameRu = "Стяжка пола (бетон М-200)", IsDeleted = false },
@@ -472,9 +469,15 @@ public class UcmsDbContextSeed
                     NameRu = "Подвесной потолок \"Грилято\" 75х75х40 на мет. каркасе, класс пожарной опасности КМ0", IsDeleted = false },
         };
 
-        await db.WorkTypes.AddRangeAsync(workTypes);
+        var existingIds = await db.WorkTypes.Select(w => w.Id).ToListAsync();
+        var newWorkTypes = workTypes.Where(w => !existingIds.Contains(w.Id)).ToList();
+
+        if (newWorkTypes.Count == 0)
+            return;
+
+        await db.WorkTypes.AddRangeAsync(newWorkTypes);
         await db.SaveChangesAsync();
-        logger?.LogInformation("[Seed] {N} ta ish turi", workTypes.Count);
+        logger?.LogInformation("[Seed] {N} ta yangi ish turi", newWorkTypes.Count);
     }
 
     // ══════════════════════════════════════════════════════════════════════════

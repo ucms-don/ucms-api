@@ -15,7 +15,7 @@ public class EstimateItem : Entity
     /// <summary>
     /// Ish turi ID (WorkType ga FK)
     /// </summary>
-    public Guid WorkTypeId { get; set; }
+    public Guid? WorkTypeId { get; set; }
 
     public virtual WorkType? WorkType { get; set; }
 

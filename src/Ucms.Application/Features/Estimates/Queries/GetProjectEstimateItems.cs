@@ -40,7 +40,7 @@ public static class GetProjectEstimateItems
                 .ThenBy(i => i.Order)
                 .Select(i => new ItemOption(
                     i.Id,
-                    i.WorkTypeId,
+                    i.WorkTypeId.Value,
                     i.WorkType!.Name,
                     i.Section!.Estimate!.Name,
                     i.Section!.Name,

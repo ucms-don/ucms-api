@@ -12,7 +12,7 @@ using Ucms.Infrastructure.Persistence;
 namespace Ucms.Infrastructure.Migrations
 {
     [DbContext(typeof(UcmsDbContext))]
-    [Migration("20260622192229_AddDescriptionAndMaterialPriceToEstimateItem")]
+    [Migration("20260622194806_AddDescriptionAndMaterialPriceToEstimateItem")]
     partial class AddDescriptionAndMaterialPriceToEstimateItem
     {
         /// <inheritdoc />
@@ -646,7 +646,7 @@ namespace Ucms.Infrastructure.Migrations
                         .HasPrecision(18, 4)
                         .HasColumnType("numeric(18,4)");
 
-                    b.Property<Guid>("WorkTypeId")
+                    b.Property<Guid?>("WorkTypeId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -2241,8 +2241,7 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasOne("Ucms.Domain.Entities.WorkType", "WorkType")
                         .WithMany()
                         .HasForeignKey("WorkTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("MeasurementUnit");
 
