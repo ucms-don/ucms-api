@@ -9,10 +9,10 @@ public static class CreateItem
 {
     public record Command(
         Guid ProjectId, Guid EstimateId, Guid SectionId,
-        string Name, Guid MeasurementUnitId, decimal Volume,
-        decimal ClientUnitPrice, decimal BrigadeUnitPrice, int Order);
+        Guid WorkTypeId, string? Description, Guid MeasurementUnitId, decimal Volume,
+        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
 
-    public record Result(Guid Id, string Name);
+    public record Result(Guid Id, Guid WorkTypeId);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
@@ -38,21 +38,29 @@ public static class CreateItem
             if (!unitExists)
                 return (null, false, "O'lchov birligi topilmadi");
 
+            var workTypeExists = await db.WorkTypes
+                .AnyAsync(w => w.Id == cmd.WorkTypeId && !w.IsDeleted, ct);
+
+            if (!workTypeExists)
+                return (null, false, "Ish turi topilmadi");
+
             var item = new EstimateItem
             {
                 Id                = Guid.NewGuid(),
                 SectionId         = cmd.SectionId,
-                Name              = cmd.Name,
+                WorkTypeId        = cmd.WorkTypeId,
+                Description       = cmd.Description,
                 MeasurementUnitId = cmd.MeasurementUnitId,
                 Volume            = cmd.Volume,
                 ClientUnitPrice   = cmd.ClientUnitPrice,
                 BrigadeUnitPrice  = cmd.BrigadeUnitPrice,
+                MaterialUnitPrice = cmd.MaterialUnitPrice,
                 Order             = cmd.Order,
             };
 
             await db.EstimateItems.AddAsync(item, ct);
             await db.SaveChangesAsync(ct);
-            return (new Result(item.Id, item.Name), false, null);
+            return (new Result(item.Id, item.WorkTypeId.Value), false, null);
         }
     }
 }

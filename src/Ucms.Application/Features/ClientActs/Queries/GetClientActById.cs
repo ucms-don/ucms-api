@@ -35,7 +35,7 @@ public static class GetClientActById
                     a.Items.Select(i => new ClientActItemDto(
                         i.Id,
                         i.EstimateItemId,
-                        i.EstimateItem!.Name,
+                        i.EstimateItem!.WorkType!.Name,
                         i.EstimateItem.MeasurementUnit!.Code,
                         i.Volume,
                         i.UnitPrice,

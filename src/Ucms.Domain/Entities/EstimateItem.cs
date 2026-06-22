@@ -13,9 +13,16 @@ public class EstimateItem : Entity
     public Guid SectionId { get; set; }
 
     /// <summary>
-    /// Ish nomi
+    /// Ish turi ID (WorkType ga FK)
     /// </summary>
-    public string Name { get; set; } = default!;
+    public Guid? WorkTypeId { get; set; }
+
+    public virtual WorkType? WorkType { get; set; }
+
+    /// <summary>
+    /// Qo'shimcha izoh / tavsif
+    /// </summary>
+    public string? Description { get; set; }
 
     /// <summary>
     /// O'lchov birligi ID (MeasurementUnit ga FK)
@@ -38,6 +45,11 @@ public class EstimateItem : Entity
     /// Birlik narhi — brigada uchun (so'm), odatiy qiymat
     /// </summary>
     public decimal BrigadeUnitPrice { get; set; }
+
+    /// <summary>
+    /// Material narhi — bir o'lchov birligi uchun (so'm)
+    /// </summary>
+    public decimal MaterialUnitPrice { get; set; }
 
     /// <summary>
     /// Tartib raqami

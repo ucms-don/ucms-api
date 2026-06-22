@@ -34,11 +34,11 @@ public class EstimateController(
     public record CreateSectionRequest(string Name, int Order);
     public record UpdateSectionRequest(string Name, int Order);
     public record CreateItemRequest(
-        Guid SectionId, string Name, Guid MeasurementUnitId, decimal Volume,
-        decimal ClientUnitPrice, decimal BrigadeUnitPrice, int Order);
+        Guid SectionId, Guid WorkTypeId, string? Description, Guid MeasurementUnitId, decimal Volume,
+        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
     public record UpdateItemRequest(
-        string Name, Guid MeasurementUnitId, decimal Volume,
-        decimal ClientUnitPrice, decimal BrigadeUnitPrice, int Order);
+        Guid WorkTypeId, string? Description, Guid MeasurementUnitId, decimal Volume,
+        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
 
     // ── Flat items (WorkLog uchun) ─────────────────────────────────────────────
 
@@ -213,8 +213,8 @@ public class EstimateController(
         Guid projectId, Guid estimateId, [FromBody] CreateItemRequest req, CancellationToken ct)
     {
         var (data, forbidden, error) = await createItem.HandleAsync(
-            new(projectId, estimateId, req.SectionId, req.Name, req.MeasurementUnitId, req.Volume,
-                req.ClientUnitPrice, req.BrigadeUnitPrice, req.Order), ct);
+            new(projectId, estimateId, req.SectionId, req.WorkTypeId, req.Description, req.MeasurementUnitId, req.Volume,
+                req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.Order), ct);
         if (forbidden)         return Forbid();
         if (error is not null) return BadRequest(new { message = error });
         if (data is null)      return NotFound();
@@ -231,11 +231,12 @@ public class EstimateController(
         Guid projectId, Guid estimateId, Guid itemId,
         [FromBody] UpdateItemRequest req, CancellationToken ct)
     {
-        var (notFound, forbidden) = await updateItem.HandleAsync(
-            new(projectId, estimateId, itemId, req.Name, req.MeasurementUnitId, req.Volume,
-                req.ClientUnitPrice, req.BrigadeUnitPrice, req.Order), ct);
+        var (notFound, forbidden, error) = await updateItem.HandleAsync(
+            new(projectId, estimateId, itemId, req.WorkTypeId, req.Description, req.MeasurementUnitId, req.Volume,
+                req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.Order), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        if (error is not null) return BadRequest(new { message = error });
         return NoContent();
     }
 

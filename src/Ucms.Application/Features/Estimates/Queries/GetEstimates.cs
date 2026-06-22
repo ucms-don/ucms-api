@@ -33,6 +33,9 @@ public static class GetEstimates
                     BrigadeTotal  = e.Sections
                         .SelectMany(s => s.EstimateItems)
                         .Sum(i => i.Volume * i.BrigadeUnitPrice),
+                    MaterialTotal = e.Sections
+                        .SelectMany(s => s.EstimateItems)
+                        .Sum(i => i.Volume * i.MaterialUnitPrice),
                     CreatedAt = e.CreatedAt,
                 })
                 .ToListAsync(ct);

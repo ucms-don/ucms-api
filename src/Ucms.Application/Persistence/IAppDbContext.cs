@@ -53,6 +53,9 @@ public interface IUcmsDbContext
     public DbSet<MeasurementUnit> MeasurementUnits { get; set; }
     public DbSet<OrganizationMeasurementUnit> OrganizationMeasurementUnits { get; set; }
 
+    // Ish turlari (spravochnik)
+    public DbSet<WorkType> WorkTypes { get; set; }
+
     // Mahsulotlar va ishlab chiqaruvchilar
     public DbSet<Product>      Products      { get; set; }
     public DbSet<Manufacturer> Manufacturers { get; set; }

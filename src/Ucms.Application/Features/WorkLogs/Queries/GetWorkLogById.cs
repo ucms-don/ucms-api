@@ -40,7 +40,7 @@ public static class GetWorkLogById
                     new WorkLogBrigadeDto(w.Brigade!.Id, w.Brigade.Name),
                     new WorkLogDetailEstimateItemDto(
                         w.EstimateItem!.Id,
-                        w.EstimateItem.Name,
+                        w.EstimateItem.WorkType!.Name,
                         w.EstimateItem.MeasurementUnit!.Code)))
                 .FirstOrDefaultAsync(ct);
 

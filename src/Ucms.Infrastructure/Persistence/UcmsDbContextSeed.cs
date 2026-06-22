@@ -106,6 +106,20 @@ public class UcmsDbContextSeed
     private static readonly Guid UnitKgId   = new("00000000-0000-0000-000A-000000000006");
     private static readonly Guid UnitTonId  = new("00000000-0000-0000-000A-000000000007");
 
+    // ── Ish turlari / spravochnik (fixed — idempotent seeding uchun) ──────────
+    private static readonly Guid WorkTypeFloorScreedId      = new("00000000-0000-0000-000B-000000000001");
+    private static readonly Guid WorkTypeTileLayingId       = new("00000000-0000-0000-000B-000000000002");
+    private static readonly Guid WorkTypeWallPlasterId      = new("00000000-0000-0000-000B-000000000003");
+    private static readonly Guid WorkTypePaintingId         = new("00000000-0000-0000-000B-000000000004");
+    private static readonly Guid WorkTypeDrywallId          = new("00000000-0000-0000-000B-000000000005");
+    private static readonly Guid WorkTypeWindowsId          = new("00000000-0000-0000-000B-000000000006");
+    private static readonly Guid WorkTypeDoorsId            = new("00000000-0000-0000-000B-000000000007");
+    private static readonly Guid WorkTypeVaporBarrierId     = new("00000000-0000-0000-000B-000000000008");
+    private static readonly Guid WorkTypeSemiDryScreedId    = new("00000000-0000-0000-000B-000000000009");
+    private static readonly Guid WorkTypePorcelainTileId    = new("00000000-0000-0000-000B-00000000000A");
+    private static readonly Guid WorkTypeGypsumPlasterId    = new("00000000-0000-0000-000B-00000000000B");
+    private static readonly Guid WorkTypeGypsumPuttyId      = new("00000000-0000-0000-000B-00000000000C");
+
     // ── Omborlar / Kassalar / Postavshiklar / Ishlab chiqaruvchilar (fixed) ────
     private static readonly Guid T1MainStockId        = new("00000000-0000-0000-000C-000000000001");
     private static readonly Guid T1CashAccountCashId  = new("00000000-0000-0000-000D-000000000001");
@@ -146,6 +160,7 @@ public class UcmsDbContextSeed
             // 1. Asosiy spravochniklar
             await SeedRolesAsync(roleManager, logger);
             await SeedMeasurementUnitsAsync(db, logger);
+            await SeedWorkTypesAsync(db, logger);
 
             // 2. OWNER tashkilot va foydalanuvchisi
             await SeedOwnerOrgAsync(db, logger);
@@ -233,6 +248,236 @@ public class UcmsDbContextSeed
         await db.MeasurementUnits.AddRangeAsync(units);
         await db.SaveChangesAsync();
         logger?.LogInformation("[Seed] {N} ta o'lchov birligi", units.Count);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // ISH TURLARI (smeta pozitsiyalari uchun sprvashnik)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private static async Task SeedWorkTypesAsync(UcmsDbContext db, ILogger? logger)
+    {
+        var workTypes = new List<WorkType>
+        {
+            new() { Id = WorkTypeFloorScreedId,   Name = "Pol shtukaturkasi (M-200 beton stяjka)", NameRu = "Стяжка пола (бетон М-200)", IsDeleted = false },
+            new() { Id = WorkTypeTileLayingId,    Name = "Keramik plitka qo'yish",                 NameRu = "Укладка керамической плитки", IsDeleted = false },
+            new() { Id = WorkTypeWallPlasterId,   Name = "Gips shtukaturka (devorlar)",            NameRu = "Гипсовая штукатурка (стены)", IsDeleted = false },
+            new() { Id = WorkTypePaintingId,      Name = "Bo'yoq (2 qavat)",                       NameRu = "Окраска (2 слоя)", IsDeleted = false },
+            new() { Id = WorkTypeDrywallId,       Name = "Gips karton (GKL) montaj",               NameRu = "Монтаж гипсокартона (ГКЛ)", IsDeleted = false },
+            new() { Id = WorkTypeWindowsId,       Name = "Derazalar almashtirish",                 NameRu = "Замена окон", IsDeleted = false },
+            new() { Id = WorkTypeDoorsId,         Name = "Eshiklar o'rnatish",                     NameRu = "Установка дверей", IsDeleted = false },
+            new() { Id = WorkTypeVaporBarrierId,  Name = "Ajratuvchi qatlam — polietilen plyonka T 0,200 (1 sort, 1 qavat)",
+                    NameRu = "Разделительный слой — полиэтиленовая плёнка Т 0,200", IsDeleted = false },
+            new() { Id = WorkTypeSemiDryScreedId, Name = "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 84mm",
+                    NameRu = "Полусухая цементно-песчаная стяжка М150, армированная фиброволокном — 84мм", IsDeleted = false },
+            new() { Id = WorkTypePorcelainTileId, Name = "Keramogranit plitka 600x600x10, choklarini fugovka qilish bilan",
+                    NameRu = "Керамогранитная плитка 600x600x10 с расшивкой швов", IsDeleted = false },
+            new() { Id = WorkTypeGypsumPlasterId, Name = "Gips asosli shtukaturka (tekislash), yaxshilangan — 17mm",
+                    NameRu = "Гипсовая штукатурка (выравнивание), улучшенная — 17мм", IsDeleted = false },
+            new() { Id = WorkTypeGypsumPuttyId,   Name = "Gips asosli shpaklyovka — 2mm",
+                    NameRu = "Гипсовая шпаклёвка — 2мм", IsDeleted = false },
+
+            // ── Pollar (Полы) ──────────────────────────────────────────────────
+            new() { Id = new("00000000-0000-0000-0012-000000000001"),
+                    Name = "Ajratuvchi qatlam — polietilen plyonka T, 0,200, 1-sort, 1 qavat",
+                    NameRu = "Разделительный слой из пленки полиэтиленовый Т, 0,200 1 сорт - 1 слой", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000002"),
+                    Name = "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 84mm",
+                    NameRu = "Полусухая цементно-песчанная стяжка М 150 армированная фиброволокном - 84мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000003"),
+                    Name = "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 85mm",
+                    NameRu = "Полусухая цементно-песчанная стяжка М 150 армированная фиброволокном - 85мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000004"),
+                    Name = "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 86mm",
+                    NameRu = "Полусухая цементно-песчанная стяжка М 150 армированная фиброволокном - 86мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000005"),
+                    Name = "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 88mm",
+                    NameRu = "Полусухая цементно-песчанная стяжка М 150 армированная фиброволокном - 88мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000006"),
+                    Name = "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 18mm",
+                    NameRu = "Полусухая цементно-песчанная стяжка М 150 армированная фиброволокном - 18мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000007"),
+                    Name = "Chuqur singdiruvchi grunt — 1 qavat",
+                    NameRu = "Грунтовка глубокого проникновения - 1 слой", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000008"),
+                    Name = "Plitka yelimi, fuga",
+                    NameRu = "Плиточный клей, затирка", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000009"),
+                    Name = "Keramogranit plitka 600x600x10, choklarini fugovka qilish bilan",
+                    NameRu = "Керамогранитная плитка 600х600х10 с затиркой межплиточных швов", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000000A"),
+                    Name = "Keramogranit plitka 300x300x10, choklarini fugovka qilish bilan",
+                    NameRu = "Керамогранитная плитка 300х300х10 с затиркой межплиточных швов", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000000B"),
+                    Name = "Sovuqqa chidamli keramogranit plitka 300x300x10, choklarini fugovka qilish bilan",
+                    NameRu = "Керамогранитная морозостойкая плитка 300х300х10 с затиркой межплиточных швов", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000000C"),
+                    Name = "TEPOFOL EPP issiqlik va tovush izolyatsiyasini o'rnatish, pol tayyorlash bilan (chiqindilarni tozalash, notekisliklarni silliqlash, armaturani kesish, chuqurchalarni ta'mirlash aralashmalari bilan to'ldirish)",
+                    NameRu = "Устройство тепло и звукоизоляции из ТЕПОФОЛ ЭПП, с подготовкой полов (уборка мусора, шлифовка неровностей, срезка арматуры, заливка ямы ремонтными составами)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000000D"),
+                    Name = "Laminat ostiga ekstrudirlangan penopolistiroldan list ko'rinishidagi taglik — 3 mm",
+                    NameRu = "Подложка листовая под ламинат из экструдированного пенополистирола - 3 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000000E"),
+                    Name = "Laminat poldan tashkil qilish, 32-sinf — 8 mm",
+                    NameRu = "Устройство полов из ламината, класс 32 - 8 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000000F"),
+                    Name = "Ekstrudirlangan penopolistirol λ=0,034 Vt/mK — 200 mm",
+                    NameRu = "Экструдированный пенополистирол λ=0,034 Вт/мК - 200 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000010"),
+                    Name = "Betonkontakt grunt — 1 qavat",
+                    NameRu = "Грунтовка Бетонконтакт - 1 слой", IsDeleted = false },
+
+            // ── Plintuslar / profillar ───────────────────────────────────────────
+            new() { Id = new("00000000-0000-0000-0012-000000000011"),
+                    Name = "PVX pol plintusi kabel kanali bilan, Hedson, 55x23x2200 mm (Mehmonxona, yotoqxona)",
+                    NameRu = "Плинтус ПВХ напольный с кабель каналом Хедсон, 55х23х2200 мм (Гостиная, спальня)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000012"),
+                    Name = "PVX pol plintusi kabel kanali bilan, Hedson, 55x23x2200 mm (Oshxona, holl)",
+                    NameRu = "Плинтус ПВХ напольный с кабель каналом Хедсон, 55х23х2200 мм (Кухня, Холл)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000013"),
+                    Name = "Keramogranit plitadan plintus 400x100x7 mm (Lodjiya)",
+                    NameRu = "Плинтус из керамогранитной плиты 400х100х7 мм (Лоджия)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000014"),
+                    Name = "Keramogranit plitadan plintus 600x95x10 mm (Lift holli, kvartiralararo dahliz, tambur shlyuz)",
+                    NameRu = "Плинтус из керамогранитной плиты 600х95х10 мм (Лиф. холл, межкв. коридор, тамбур шлюз)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000015"),
+                    Name = "Keramogranit plitadan plintus 300x57x7 mm (Chiqindi chiqarish xonasi)",
+                    NameRu = "Плинтус из керамогранитной плиты 300х57х7 мм (Помещение мусороудаления)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000016"),
+                    Name = "T-shakldagi ulagich alyuminiy profil 20x1800 (holl bilan mehmonxona va yotoqxona ulanish joyi)",
+                    NameRu = "Т-образный стыковочный алюминиевый профиль 20х1800 (стык холла со гостиной и спальней)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000017"),
+                    Name = "Zinapoyalarda kaloshnitsa 100x50 mm",
+                    NameRu = "Калошница на лестницах 100х50 мм", IsDeleted = false },
+
+            // ── Devorlar (Штукатурка, Шпатлевка, Обои) ───────────────────────────
+            new() { Id = new("00000000-0000-0000-0012-000000000018"),
+                    Name = "Gips asosli shtukaturka (tekislash), yaxshilangan — 17 mm",
+                    NameRu = "Штукатурка (выравнивание) на гипсовой основе улучшенной - 17 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000019"),
+                    Name = "Gips asosli shtukaturka (tekislash), yaxshilangan — 10 mm",
+                    NameRu = "Штукатурка (выравнивание) на гипсовой основе улучшенной - 10 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000001A"),
+                    Name = "Gips asosli shpaklyovka — 2 mm",
+                    NameRu = "Шпатлевка на гипсовой основе - 2 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000001B"),
+                    Name = "Flizelin devor qog'ozlari uchun yelim",
+                    NameRu = "Клей для флизелиновых обоев", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000001C"),
+                    Name = "Flizelin asosli devor qog'ozini yelimlash — 2 mm",
+                    NameRu = "Оклейка обоев на флизелиновой основе - 2 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000001D"),
+                    Name = "Suv-dispersion, polivinilatsetat bo'yoq bilan bo'yash (yaxshilangan) — 1 qavat",
+                    NameRu = "Окраска (улучшенной) воднодисперсионной, поливинилацетатной краской - 1 слой", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000001E"),
+                    Name = "Sement-qum aralashmalari bilan to'liq tekislash (yaxshilangan) — 14 mm",
+                    NameRu = "Сплошное выравнивание цементно-песчаными смесями, улучшенной - 14 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000001F"),
+                    Name = "Sement-qum aralashmalari bilan to'liq tekislash (yaxshilangan) — 17 mm (montaj devor ustidan)",
+                    NameRu = "Сплошное выравнивание цементно-песчаными смесями, улучшенной - 17 мм (по мон.)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000020"),
+                    Name = "Sement-qum aralashmalari bilan to'liq tekislash (yaxshilangan) — 8 mm",
+                    NameRu = "Сплошное выравнивание цементно-песчаными смесями, улучшенной - 8 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000021"),
+                    Name = "Sement-qum aralashmalari bilan to'liq tekislash (yaxshilangan, qalinligi ko'rsatilmagan)",
+                    NameRu = "Сплошное выравнивание цементно-песчаными смесями, улучшенный (без указ. толщины)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000022"),
+                    Name = "Karkas bo'yicha GKLV (namlikka chidamli gipskarton)dan soxta devor yasash",
+                    NameRu = "Устройство фальш стены из ГКЛВ по каркасу", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000023"),
+                    Name = "Devor yuzasi bo'ylab sement asosli shpaklyovka, GKL choklariga armirlovchi lenta yopishtirilgan holda — 2 mm",
+                    NameRu = "Шпатлевка на цементном основе по всей поверхности стен с проклейкой армирующей ленты по швам стыка ГКЛ - 2 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000024"),
+                    Name = "Bir komponentli elastik polimer gidroizolyatsiya, burchaklarda choklarni germetiklash uchun suv o'tkazmaydigan lenta bilan — 2 qavat",
+                    NameRu = "Однокомпонентная полимерная эластичная гидроизоляция с прокладкой по углам водонепроницаемой ленты для герметизации швов - 2 слоя", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000025"),
+                    Name = "Keramogranit plitka 200x300x7 (oq), choklarini fugovka qilish bilan",
+                    NameRu = "Керамогранитная плитка 200х300х7 (белая) с затиркой межплиточных швов", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000026"),
+                    Name = "Sement-qum aralashmalari bilan shtukaturka (yaxshilangan) — 17 mm (g'isht devor ustidan)",
+                    NameRu = "Штукатурка цементно-песчаными смесями, улучшенной - 17 мм (по кладке)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000027"),
+                    Name = "Sement-qum aralashmalari bilan shtukaturka (yaxshilangan) — 14 mm",
+                    NameRu = "Штукатурка цементно-песчаными смесями, улучшенной - 14 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000028"),
+                    Name = "Sement asosli shpaklyovka — 2 mm",
+                    NameRu = "Шпатлевка на цементном основе - 2 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000029"),
+                    Name = "Fasad uchun atmosfera ta'siriga chidamli G1 bo'yoq bilan bo'yash (yaxshilangan) — 1 qavat",
+                    NameRu = "Окраска (улучшенной) фасадной, атмосферостойкой краской Г1 - 1 слой", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000002A"),
+                    Name = "Fakturali (teksturali) G1 bo'yoq bilan bo'yash (yaxshilangan) — 1 qavat",
+                    NameRu = "Окраска (улучшенной) фактурной (текстурой) краской Г1 - 1 слой", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000002B"),
+                    Name = "Suv-emulsion, namlikka chidamli G1 bo'yoq bilan bo'yash (oddiy) — 1 qavat",
+                    NameRu = "Окраска (простой) водоэмульсионный, влагостойкой краской Г1 - 1 слой", IsDeleted = false },
+
+            // ── Otkoslar, eshiklar ────────────────────────────────────────────────
+            new() { Id = new("00000000-0000-0000-0012-00000000002C"),
+                    Name = "Deraza va eshik otkoslarini Betonkontakt bilan grunlash — 1 qavat",
+                    NameRu = "Грунтовка Бетонконтактом оконных и дверных откосов - 1 слой", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000002D"),
+                    Name = "Otkoslarni sement-qum aralashmalari bilan to'r bo'yicha shtukaturka qilish",
+                    NameRu = "Штукатурка откосов цементно-песчаными смесями, по сетке", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000002E"),
+                    Name = "Deraza va eshik otkoslarini 2 qavat bo'yash",
+                    NameRu = "Окраска оконных и дверных откосов в 2 слоя", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000002F"),
+                    Name = "Deraza va eshik otkoslarini PVX burchaklar bilan bezatish 20x20 mm",
+                    NameRu = "Обрамление оконных и дверных откосов ПВХ уголками 20х20 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000030"),
+                    Name = "To'r (ulagichlar va devorlarning ulanish joylari)",
+                    NameRu = "Сетка (перемычки и места соединения стен)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000031"),
+                    Name = "Metall eshiklarni o'rnatish (kvartiraning kirish eshiklari)",
+                    NameRu = "Установка металлических дверей (входные квартирные двери)", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000032"),
+                    Name = "Xonalararo eshiklarni o'rnatish",
+                    NameRu = "Установка межкомнатных дверей", IsDeleted = false },
+
+            // ── Fasad ─────────────────────────────────────────────────────────────
+            new() { Id = new("00000000-0000-0000-0012-000000000033"),
+                    Name = "Universal fasad grunti — 1 qavat",
+                    NameRu = "Грунтовка фасадная универсальная - 1 слой", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000034"),
+                    Name = "Mineral momiq plitalardan issiqlik izolyatori (Technonikol — TEXNOFAS DEKOR) ρ=100-120 kg/m³, λB=0,041 Vt/m°S, uzilishga R≥12 kPa — 150 mm, izolyatorni yopishtirish uchun yelim (Technonikol 110) — 5 mm",
+                    NameRu = "Утеплитель минераловатные плиты (Технониколь — ТЕХНОФАС ДЕКОР) ρ=100-120 кг/м³, λБ=0,041 Вт/м°С, R на отрыв≥12 кПа — 150 мм, клей для приклеивания утеплителя (Технониколь 110) — 5 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000035"),
+                    Name = "Shtukaturka-yelim qatlami (Technonikol 210), ishqorga chidamli fasad shisha to'r M3600 bilan armirlangan — 8 mm",
+                    NameRu = "Штукатурно-клеевой слой (Технониколь 210), армированный фасадной стеклотканевой щелочестойкой сеткой М3600 - 8 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000036"),
+                    Name = "Bazalt tolasi asosidagi mineral momiq plitalardan issiqlik izolyatori ρ=120 kg/m³, λ=0,042 Vt/m°S, NG — 150 mm, izolyatorni yopishtirish uchun yelim (Technonikol 110) — 10 mm",
+                    NameRu = "Утеплитель минераловатные плиты (на основе базальтового волокна) ρ=120 кг/м³, λ=0,042 Вт/м°С, НГ — 150 мм, клей для приклеивания утеплителя (Технониколь 110) — 10 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000037"),
+                    Name = "Shtukaturka-yelim qatlami (Technonikol 210), ishqorga chidamli fasad shisha to'r M3600 bilan armirlangan — 4 mm",
+                    NameRu = "Штукатурно-клеевой слой (Технониколь 210), армированный фасадной стеклотканевой щелочестойкой сеткой М3600 - 4 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-000000000038"),
+                    Name = "Bazalt tolasi asosidagi mineral momiq plitalardan issiqlik izolyatori ρ=120 kg/m³, λ=0,042 Vt/m°S, NG — 100 mm, izolyatorni yopishtirish uchun yelim (Technonikol 110) — 10 mm",
+                    NameRu = "Утеплитель минераловатные плиты (на основе базальтового волокна) ρ=120 кг/м³, λ=0,042 Вт/м°С, НГ — 100 мм, клей для приклеивания утеплителя (Технониколь 110) — 10 мм", IsDeleted = false },
+
+            // ── Shift (Потолки) ───────────────────────────────────────────────────
+            new() { Id = new("00000000-0000-0000-0012-000000000039"),
+                    Name = "Chuqur singdiruvchi grunt (akril suv-emulsion shimdirma) — 1 qavat",
+                    NameRu = "Грунтовка глубокого проникновения (пропитка акриловая водоэмульсионная) - 1 слой", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000003A"),
+                    Name = "Tortma shift, polivinilxlorid plyonka ρ=230 g/m³, qalinligi 0,2 mm, oq rang, G1, KM2 — 20 mm",
+                    NameRu = "Натяжной потолок, пленка поливинилхлорид ρ=230 г/м³, толщ. 0,2 мм, цвет белый, Г1, КМ2 - 20 мм", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000003B"),
+                    Name = "Teshiksiz alyuminiy reykali shift, reyka kengligi 130-180 mm, ALBES (qiyqimsiz), polimer-kukun qoplama, oq rang yoki o'xshashi",
+                    NameRu = "Алюминиевый реечный потолок без перфорации, ширина рейки 130-180 мм, АЛБЕС (без вставки), полимерно-порошковое покрытие, цвет белый или аналог", IsDeleted = false },
+            new() { Id = new("00000000-0000-0000-0012-00000000003C"),
+                    Name = "\"Grilyato\" osma shift 75x75x40, metall karkasda, KM0 yong'in xavfsizligi sinfi",
+                    NameRu = "Подвесной потолок \"Грилято\" 75х75х40 на мет. каркасе, класс пожарной опасности КМ0", IsDeleted = false },
+        };
+
+        var existingIds = await db.WorkTypes.Select(w => w.Id).ToListAsync();
+        var newWorkTypes = workTypes.Where(w => !existingIds.Contains(w.Id)).ToList();
+
+        if (newWorkTypes.Count == 0)
+            return;
+
+        await db.WorkTypes.AddRangeAsync(newWorkTypes);
+        await db.SaveChangesAsync();
+        logger?.LogInformation("[Seed] {N} ta yangi ish turi", newWorkTypes.Count);
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -447,15 +692,15 @@ public class UcmsDbContextSeed
 
         var items1 = new[]
         {
-            Item(T1P1Item1Id, T1P1Sec1Id, "Pol shtukaturkasi (M-200 beton stяjka)", UnitM2Id,
+            Item(T1P1Item1Id, T1P1Sec1Id, WorkTypeFloorScreedId, UnitM2Id,
                  450m, 85_000m, 55_000m, 1),
-            Item(T1P1Item2Id, T1P1Sec1Id, "Keramik plitka qo'yish", UnitM2Id,
+            Item(T1P1Item2Id, T1P1Sec1Id, WorkTypeTileLayingId, UnitM2Id,
                  450m, 120_000m, 80_000m, 2),
-            Item(T1P1Item3Id, T1P1Sec2Id, "Gips shtukaturka (devorlar)", UnitM2Id,
+            Item(T1P1Item3Id, T1P1Sec2Id, WorkTypeWallPlasterId, UnitM2Id,
                  1_200m, 48_000m, 30_000m, 1),
-            Item(T1P1Item4Id, T1P1Sec2Id, "Bo'yoq (2 qavat)", UnitM2Id,
+            Item(T1P1Item4Id, T1P1Sec2Id, WorkTypePaintingId, UnitM2Id,
                  1_200m, 22_000m, 14_000m, 2),
-            Item(T1P1Item5Id, T1P1Sec2Id, "Gips karton (GKL) montaj", UnitM2Id,
+            Item(T1P1Item5Id, T1P1Sec2Id, WorkTypeDrywallId, UnitM2Id,
                  320m, 75_000m, 50_000m, 3),
         };
 
@@ -492,9 +737,9 @@ public class UcmsDbContextSeed
         var s3    = Sec(T1P2Sec1Id, T1P2Est1Id, "Umumiy ta'mirlash ishlari", 1);
         var items2 = new[]
         {
-            Item(T1P2Item1Id, T1P2Sec1Id, "Derazalar almashtirish", UnitDonaId,
+            Item(T1P2Item1Id, T1P2Sec1Id, WorkTypeWindowsId, UnitDonaId,
                  24m, 850_000m, 600_000m, 1),
-            Item(T1P2Item2Id, T1P2Sec1Id, "Eshiklar o'rnatish", UnitDonaId,
+            Item(T1P2Item2Id, T1P2Sec1Id, WorkTypeDoorsId, UnitDonaId,
                  12m, 1_200_000m, 900_000m, 2),
         };
 
@@ -1171,20 +1416,20 @@ public class UcmsDbContextSeed
         {
             // ── Pol ishlari ──
             Item(IhtiyorItem1Id, IhtiyorSec1Id,
-                 "Ajratuvchi qatlam — polietilen plyonka T 0,200 (1 sort, 1 qavat)", UnitM2Id,
+                 WorkTypeVaporBarrierId, UnitM2Id,
                  2360.53m, 56.57m, 25m, 1),
             Item(IhtiyorItem2Id, IhtiyorSec1Id,
-                 "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 84mm", UnitM2Id,
+                 WorkTypeSemiDryScreedId, UnitM2Id,
                  2360.53m, 932.29m, 420m, 2),
             Item(IhtiyorItem3Id, IhtiyorSec1Id,
-                 "Keramogranit plitka 600x600x10, choklarini fugovka qilish bilan", UnitM2Id,
+                 WorkTypePorcelainTileId, UnitM2Id,
                  2360.53m, 1195.24m, 650m, 3),
             // ── Devor ishlari ──
             Item(IhtiyorItem4Id, IhtiyorSec2Id,
-                 "Gips asosli shtukaturka (tekislash), yaxshilangan — 17mm", UnitM2Id,
+                 WorkTypeGypsumPlasterId, UnitM2Id,
                  7980.40m, 733.08m, 350m, 1),
             Item(IhtiyorItem5Id, IhtiyorSec2Id,
-                 "Gips asosli shpaklyovka — 2mm", UnitM2Id,
+                 WorkTypeGypsumPuttyId, UnitM2Id,
                  7980.40m, 633.48m, 180m, 2),
         };
 
@@ -1311,14 +1556,14 @@ public class UcmsDbContextSeed
     }
 
     private static EstimateItem Item(
-        Guid id, Guid sectionId, string name, Guid measurementUnitId,
+        Guid id, Guid sectionId, Guid workTypeId, Guid measurementUnitId,
         decimal volume, decimal clientPrice, decimal brigadePrice, int order)
     {
         return new()
         {
             Id                = id,
             SectionId         = sectionId,
-            Name              = name,
+            WorkTypeId        = workTypeId,
             MeasurementUnitId = measurementUnitId,
             Volume            = volume,
             ClientUnitPrice   = clientPrice,
