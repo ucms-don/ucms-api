@@ -2,7 +2,9 @@ namespace Ucms.Application.Features.AccountTransfers.Commands;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
+using Ucms.Domain.Enums;
 
 public static class DeleteAccountTransfer
 {
@@ -19,11 +21,20 @@ public static class DeleteAccountTransfer
             if (!ctx.IsOwner && ctx.OrganizationId != transfer.OrganizationId)
                 return (false, true);
 
+            var userId = ctx.UserId ?? Guid.Empty;
+
             transfer.IsDeleted  = true;
             transfer.UpdatedAt  = DateTimeOffset.UtcNow;
-            transfer.UpdatedBy  = ctx.UserId ?? Guid.Empty;
+            transfer.UpdatedBy  = userId;
 
             db.AccountTransfers.Update(transfer);
+
+            // Bog'langan CashTransaction'larni soft-delete qilish
+            await CashTransactionLinker.RemoveAsync(
+                db, CashTransactionSourceType.AccountTransferOut, cmd.Id, userId, ct);
+            await CashTransactionLinker.RemoveAsync(
+                db, CashTransactionSourceType.AccountTransferIn, cmd.Id, userId, ct);
+
             await db.SaveChangesAsync(ct);
             return (false, false);
         }

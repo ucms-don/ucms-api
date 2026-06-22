@@ -2,7 +2,9 @@ namespace Ucms.Application.Features.AccountTransfers.Commands;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
+using Ucms.Domain.Enums;
 
 public static class UpdateAccountTransfer
 {
@@ -45,6 +47,22 @@ public static class UpdateAccountTransfer
             if (cmd.Commission < 0)
                 return (false, false, false, false, "Komissiya manfiy bo'lishi mumkin emas");
 
+            // Balans tekshiruvi — eski Out tranzaksiyani hisobdan chiqarib
+            var totalDeducted = cmd.Amount + cmd.Commission;
+            var available = await CashTransactionLinker.GetAvailableBalanceAsync(
+                db, cmd.FromAccountId,
+                CashTransactionSourceType.AccountTransferOut, cmd.Id,
+                ct);
+
+            if (available < totalDeducted)
+                return (false, false, false, false,
+                    $"Kassada mablag' yetarli emas. " +
+                    $"Mavjud balans: {available:N2} so'm, " +
+                    $"kerakli: {totalDeducted:N2} so'm " +
+                    $"(o'tkazma: {cmd.Amount:N2} + komissiya: {cmd.Commission:N2})");
+
+            var userId = ctx.UserId ?? Guid.Empty;
+
             transfer.FromAccountId = cmd.FromAccountId;
             transfer.ToAccountId   = cmd.ToAccountId;
             transfer.Amount        = cmd.Amount;
@@ -53,9 +71,32 @@ public static class UpdateAccountTransfer
             transfer.Date          = cmd.Date;
             transfer.Note          = cmd.Note;
             transfer.UpdatedAt     = DateTimeOffset.UtcNow;
-            transfer.UpdatedBy     = ctx.UserId ?? Guid.Empty;
+            transfer.UpdatedBy     = userId;
 
             db.AccountTransfers.Update(transfer);
+
+            // Manba hisobdagi chiqim tranzaksiyasini yangilash
+            await CashTransactionLinker.UpsertAsync(
+                db,
+                CashTransactionSourceType.AccountTransferOut, cmd.Id,
+                transfer.OrganizationId, cmd.FromAccountId,
+                CashDirection.Out, CashTransactionType.AccountTransfer,
+                FinancePartnerType.Other, null,
+                totalDeducted, cmd.Date, null,
+                cmd.Note ?? $"O'tkazma chiqimi: {cmd.Amount:N0} so'm + {cmd.Commission:N0} komissiya",
+                userId, ct);
+
+            // Maqsad hisobdagi kirim tranzaksiyasini yangilash
+            await CashTransactionLinker.UpsertAsync(
+                db,
+                CashTransactionSourceType.AccountTransferIn, cmd.Id,
+                transfer.OrganizationId, cmd.ToAccountId,
+                CashDirection.In, CashTransactionType.AccountTransfer,
+                FinancePartnerType.Other, null,
+                cmd.Amount, cmd.Date, null,
+                cmd.Note ?? $"O'tkazma kirimi: {cmd.Amount:N0} so'm",
+                userId, ct);
+
             await db.SaveChangesAsync(ct);
             return (false, false, false, false, null);
         }
