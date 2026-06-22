@@ -27,6 +27,14 @@ WORKDIR /app
 
 # Non-root user (xavfsizlik)
 RUN adduser --disabled-password --gecos "" appuser
+
+# Doimiy saqlash uchun umumiy papka (avatars, hujjatlar va h.k. — har biri o'z
+# subfolderini runtime'da Handlerlar/Resolverlar o'zi yaratadi). Volume sifatida
+# e'lon qilinadi — shunda docker-compose'da bog'lansa, image qayta build
+# qilinganda fayllar saqlanib qoladi.
+RUN mkdir -p /app/storage && chown -R appuser:appuser /app/storage
+VOLUME ["/app/storage"]
+
 USER appuser
 
 COPY --from=build --chown=appuser:appuser /app/publish .
