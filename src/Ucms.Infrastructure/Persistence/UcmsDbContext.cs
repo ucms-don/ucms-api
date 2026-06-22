@@ -62,6 +62,7 @@ public class UcmsDbContext(
     // ── Spravochniklar ─────────────────────────────────────────────────────
     public DbSet<MeasurementUnit>             MeasurementUnits             { get; set; }
     public DbSet<OrganizationMeasurementUnit> OrganizationMeasurementUnits { get; set; }
+    public DbSet<WorkType>                    WorkTypes                    { get; set; }
 
     // ── Mahsulotlar ────────────────────────────────────────────────────────
     public DbSet<Product>      Products      { get; set; }

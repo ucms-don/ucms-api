@@ -8,8 +8,8 @@ public static class UpdateItem
 {
     public record Command(
         Guid ProjectId, Guid EstimateId, Guid ItemId,
-        string Name, Guid MeasurementUnitId, decimal Volume,
-        decimal ClientUnitPrice, decimal BrigadeUnitPrice, int Order);
+        Guid WorkTypeId, string? Description, Guid MeasurementUnitId, decimal Volume,
+        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
@@ -29,11 +29,13 @@ public static class UpdateItem
 
             if (item is null) return (true, false);
 
-            item.Name              = cmd.Name;
+            item.WorkTypeId        = cmd.WorkTypeId;
+            item.Description       = cmd.Description;
             item.MeasurementUnitId = cmd.MeasurementUnitId;
             item.Volume            = cmd.Volume;
             item.ClientUnitPrice   = cmd.ClientUnitPrice;
             item.BrigadeUnitPrice  = cmd.BrigadeUnitPrice;
+            item.MaterialUnitPrice = cmd.MaterialUnitPrice;
             item.Order             = cmd.Order;
 
             db.EstimateItems.Update(item);

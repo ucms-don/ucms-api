@@ -89,7 +89,7 @@ public static class GetDashboard
                     w.Status,
                     w.Project!.Name,
                     w.Brigade!.Name,
-                    w.EstimateItem!.Name))
+                    w.EstimateItem!.WorkType!.Name))
                 .ToListAsync(ct);
 
             var recentPayments = await db.ClientPayments

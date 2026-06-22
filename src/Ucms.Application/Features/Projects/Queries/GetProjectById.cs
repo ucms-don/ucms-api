@@ -40,7 +40,7 @@ public static class GetProjectById
                         s.Order,
                         s.EstimateItems.OrderBy(i => i.Order).Select(i => new ProjectEstimateItemDto(
                             i.Id,
-                            i.Name,
+                            i.WorkType!.Name,
                             i.MeasurementUnit!.Code,
                             i.Volume,
                             i.ClientUnitPrice,

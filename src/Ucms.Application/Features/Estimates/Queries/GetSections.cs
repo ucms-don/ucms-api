@@ -26,9 +26,10 @@ public static class GetSections
                 .Select(s => (object)new
                 {
                     s.Id, s.Name, s.Order,
-                    ItemCount    = s.EstimateItems.Count(),
-                    ClientTotal  = s.EstimateItems.Sum(i => i.Volume * i.ClientUnitPrice),
-                    BrigadeTotal = s.EstimateItems.Sum(i => i.Volume * i.BrigadeUnitPrice),
+                    ItemCount     = s.EstimateItems.Count(),
+                    ClientTotal   = s.EstimateItems.Sum(i => i.Volume * i.ClientUnitPrice),
+                    BrigadeTotal  = s.EstimateItems.Sum(i => i.Volume * i.BrigadeUnitPrice),
+                    MaterialTotal = s.EstimateItems.Sum(i => i.Volume * i.MaterialUnitPrice),
                 })
                 .ToListAsync(ct);
 

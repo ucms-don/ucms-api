@@ -78,7 +78,7 @@ public static class GetAllWorkLogs
                     w.Room,
                     w.Note,
                     w.BrigadePaymentId,
-                    new EstimateItemInfo(w.EstimateItem!.Name, w.EstimateItem.MeasurementUnit!.Code),
+                    new EstimateItemInfo(w.EstimateItem!.WorkType!.Name, w.EstimateItem.MeasurementUnit!.Code),
                     w.CreatedAt))
                 .ToListAsync(ct);
 

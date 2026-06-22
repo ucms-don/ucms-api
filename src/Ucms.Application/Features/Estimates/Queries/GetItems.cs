@@ -25,14 +25,18 @@ public static class GetItems
                 .OrderBy(i => i.Order)
                 .Select(i => (object)new
                 {
-                    i.Id, i.Name, i.Order,
+                    i.Id, i.Description, i.Order,
+                    WorkTypeId          = i.WorkTypeId,
+                    WorkTypeName        = i.WorkType!.Name,
                     MeasurementUnitId   = i.MeasurementUnitId,
                     MeasurementUnitCode = i.MeasurementUnit!.Code,
                     i.Volume,
                     i.ClientUnitPrice,
                     i.BrigadeUnitPrice,
-                    ClientTotal  = i.Volume * i.ClientUnitPrice,
-                    BrigadeTotal = i.Volume * i.BrigadeUnitPrice,
+                    i.MaterialUnitPrice,
+                    ClientTotal   = i.Volume * i.ClientUnitPrice,
+                    BrigadeTotal  = i.Volume * i.BrigadeUnitPrice,
+                    MaterialTotal = i.Volume * i.MaterialUnitPrice,
                 })
                 .ToListAsync(ct);
 

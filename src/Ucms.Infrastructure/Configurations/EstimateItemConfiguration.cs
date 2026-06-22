@@ -10,8 +10,13 @@ public class EstimateItemConfiguration : IEntityTypeConfiguration<EstimateItem>
     {
         builder.HasIndex(e => e.Id);
         builder.HasIndex(e => e.SectionId);
-        builder.Property(e => e.Name).HasMaxLength(512).IsRequired();
+        builder.Property(e => e.Description).HasMaxLength(2048);
         builder.Property(e => e.Volume).HasPrecision(18, 4);
+
+        builder.HasOne(e => e.WorkType)
+            .WithMany()
+            .HasForeignKey(e => e.WorkTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(e => e.MeasurementUnit)
             .WithMany()
@@ -19,6 +24,7 @@ public class EstimateItemConfiguration : IEntityTypeConfiguration<EstimateItem>
             .OnDelete(DeleteBehavior.Restrict);
         builder.Property(e => e.ClientUnitPrice).HasPrecision(18, 2);
         builder.Property(e => e.BrigadeUnitPrice).HasPrecision(18, 2);
+        builder.Property(e => e.MaterialUnitPrice).HasPrecision(18, 2);
 
         builder.HasMany(e => e.WorkLogs)
             .WithOne(e => e.EstimateItem)

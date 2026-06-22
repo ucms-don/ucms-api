@@ -14,7 +14,8 @@ public static class GetProjectEstimateItems
 
     public record ItemOption(
         Guid   Id,
-        string Name,
+        Guid   WorkTypeId,
+        string WorkTypeName,
         string EstimateName,
         string SectionName,
         string MeasurementUnitCode,
@@ -39,7 +40,8 @@ public static class GetProjectEstimateItems
                 .ThenBy(i => i.Order)
                 .Select(i => new ItemOption(
                     i.Id,
-                    i.Name,
+                    i.WorkTypeId,
+                    i.WorkType!.Name,
                     i.Section!.Estimate!.Name,
                     i.Section!.Name,
                     i.MeasurementUnit!.Code,
