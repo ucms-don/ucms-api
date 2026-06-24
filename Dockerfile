@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # CPM va NuGet config (layer cache — bu fayllar kamdan-kam o'zgaradi)
-COPY Directory.Build.props Directory.Packages.props NuGet.Config ./
+COPY Directory.Build.props Directory.Packages.props NuGet.Config .editorconfig ./
 
 # Solution va har bir csproj alohida (restore cache uchun)
 COPY ucms-api.sln ./
