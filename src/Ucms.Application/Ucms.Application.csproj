@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <RootNamespace>Ucms.Application</RootNamespace>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

@@ -19,6 +19,17 @@ public class AccountTransferController(
     UpdateAccountTransfer.Handler update,
     DeleteAccountTransfer.Handler delete) : ControllerBase
 {
+
+    /// <summary>
+    /// Kassadan kassaga o'tkazmalarni olish.
+    /// </summary>
+    /// <param name="FromAccountId"></param>
+    /// <param name="ToAccountId"></param>
+    /// <param name="Amount"></param>
+    /// <param name="Commission"></param>
+    /// <param name="TransferredBy"></param>
+    /// <param name="Date"></param>
+    /// <param name="Note"></param>
     public record CreateRequest(
         Guid FromAccountId,
         Guid ToAccountId,
@@ -28,6 +39,16 @@ public class AccountTransferController(
         DateTimeOffset Date,
         string? Note);
 
+    /// <summary>
+    /// Kassadan kassaga o'tkazmalar ro'yxati.
+    /// </summary>
+    /// <param name="FromAccountId"></param>
+    /// <param name="ToAccountId"></param>
+    /// <param name="Amount"></param>
+    /// <param name="Commission"></param>
+    /// <param name="TransferredBy"></param>
+    /// <param name="Date"></param>
+    /// <param name="Note"></param>
     public record UpdateRequest(
         Guid FromAccountId,
         Guid ToAccountId,
