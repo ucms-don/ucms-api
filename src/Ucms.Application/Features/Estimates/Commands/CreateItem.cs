@@ -4,12 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Entities;
+using Ucms.Domain.Enums;
 
 public static class CreateItem
 {
     public record Command(
         Guid ProjectId, Guid EstimateId, Guid SectionId,
-        Guid WorkTypeId, string? Description, Guid MeasurementUnitId, decimal Volume,
+        Guid WorkTypeId, SurfaceType? SurfaceType, string? Description, Guid MeasurementUnitId, decimal Volume,
         decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
 
     public record Result(Guid Id, Guid WorkTypeId);
@@ -49,6 +50,7 @@ public static class CreateItem
                 Id                = Guid.NewGuid(),
                 SectionId         = cmd.SectionId,
                 WorkTypeId        = cmd.WorkTypeId,
+                SurfaceType       = cmd.SurfaceType,
                 Description       = cmd.Description,
                 MeasurementUnitId = cmd.MeasurementUnitId,
                 Volume            = cmd.Volume,

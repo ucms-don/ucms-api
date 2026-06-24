@@ -25,7 +25,8 @@ public static class GetSections
                 .OrderBy(s => s.Order)
                 .Select(s => (object)new
                 {
-                    s.Id, s.Name, s.Order,
+                    s.Id, s.Name, s.Order, s.ParentId,
+                    ChildCount    = db.EstimateSections.Count(c => c.ParentId == s.Id),
                     ItemCount     = s.EstimateItems.Count(),
                     ClientTotal   = s.EstimateItems.Sum(i => i.Volume * i.ClientUnitPrice),
                     BrigadeTotal  = s.EstimateItems.Sum(i => i.Volume * i.BrigadeUnitPrice),

@@ -6,7 +6,8 @@ using Ucms.Domain.Entities;
 
 public static class CreateWorkType
 {
-    public record Command(string Name, string NameRu, string? NameEn, string? NameKa);
+    public record Command(string Name, string NameRu, string? NameEn, string? NameKa,
+        Guid? MeasurementUnitId);
 
     public sealed class Handler(IUcmsDbContext db)
     {
@@ -18,6 +19,7 @@ public static class CreateWorkType
             var entity = new WorkType
             {
                 Name = cmd.Name, NameRu = cmd.NameRu, NameEn = cmd.NameEn, NameKa = cmd.NameKa,
+                MeasurementUnitId = cmd.MeasurementUnitId,
             };
             db.WorkTypes.Add(entity);
             await db.SaveChangesAsync(ct);

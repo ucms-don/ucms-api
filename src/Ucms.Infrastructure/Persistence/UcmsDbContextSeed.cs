@@ -106,19 +106,21 @@ public class UcmsDbContextSeed
     private static readonly Guid UnitKgId   = new("00000000-0000-0000-000A-000000000006");
     private static readonly Guid UnitTonId  = new("00000000-0000-0000-000A-000000000007");
 
-    // ── Ish turlari / spravochnik (fixed — idempotent seeding uchun) ──────────
-    private static readonly Guid WorkTypeFloorScreedId      = new("00000000-0000-0000-000B-000000000001");
-    private static readonly Guid WorkTypeTileLayingId       = new("00000000-0000-0000-000B-000000000002");
-    private static readonly Guid WorkTypeWallPlasterId      = new("00000000-0000-0000-000B-000000000003");
-    private static readonly Guid WorkTypePaintingId         = new("00000000-0000-0000-000B-000000000004");
-    private static readonly Guid WorkTypeDrywallId          = new("00000000-0000-0000-000B-000000000005");
-    private static readonly Guid WorkTypeWindowsId          = new("00000000-0000-0000-000B-000000000006");
-    private static readonly Guid WorkTypeDoorsId            = new("00000000-0000-0000-000B-000000000007");
-    private static readonly Guid WorkTypeVaporBarrierId     = new("00000000-0000-0000-000B-000000000008");
-    private static readonly Guid WorkTypeSemiDryScreedId    = new("00000000-0000-0000-000B-000000000009");
-    private static readonly Guid WorkTypePorcelainTileId    = new("00000000-0000-0000-000B-00000000000A");
-    private static readonly Guid WorkTypeGypsumPlasterId    = new("00000000-0000-0000-000B-00000000000B");
-    private static readonly Guid WorkTypeGypsumPuttyId      = new("00000000-0000-0000-000B-00000000000C");
+    // ── Ish turlari / spravochnik ────────────────────────────────────────────
+    // Demo smeta itemlari uchun PDF dagi ish turlariga (0012-*) aliaslar.
+    // Alohida demo ish turlari yaratilmaydi — faqat PDF dagilar ishlatiladi.
+    private static readonly Guid WorkTypeFloorScreedId      = new("00000000-0000-0000-0012-000000000002"); // Полусухая стяжка М150 — 84мм
+    private static readonly Guid WorkTypeTileLayingId       = new("00000000-0000-0000-0012-000000000009"); // Керамогранит 600х600х10
+    private static readonly Guid WorkTypeWallPlasterId      = new("00000000-0000-0000-0012-000000000018"); // Штукатурка гипс. улучш. 17мм
+    private static readonly Guid WorkTypePaintingId         = new("00000000-0000-0000-0012-00000000001D"); // Окраска воднодисперс. 1 слой
+    private static readonly Guid WorkTypeDrywallId          = new("00000000-0000-0000-0012-000000000022"); // Фальш стена из ГКЛВ
+    private static readonly Guid WorkTypeWindowsId          = new("00000000-0000-0000-0012-000000000031"); // Установка металлических дверей
+    private static readonly Guid WorkTypeDoorsId            = new("00000000-0000-0000-0012-000000000032"); // Установка межкомнатных дверей
+    private static readonly Guid WorkTypeVaporBarrierId     = new("00000000-0000-0000-0012-000000000001"); // Разделительный слой плёнка
+    private static readonly Guid WorkTypeSemiDryScreedId    = new("00000000-0000-0000-0012-000000000002"); // Полусухая стяжка М150 — 84мм
+    private static readonly Guid WorkTypePorcelainTileId    = new("00000000-0000-0000-0012-000000000009"); // Керамогранит 600х600х10
+    private static readonly Guid WorkTypeGypsumPlasterId    = new("00000000-0000-0000-0012-000000000018"); // Штукатурка гипс. улучш. 17мм
+    private static readonly Guid WorkTypeGypsumPuttyId      = new("00000000-0000-0000-0012-00000000001A"); // Шпатлевка гипс. 2мм
 
     // ── Omborlar / Kassalar / Postavshiklar / Ishlab chiqaruvchilar (fixed) ────
     private static readonly Guid T1MainStockId        = new("00000000-0000-0000-000C-000000000001");
@@ -258,24 +260,6 @@ public class UcmsDbContextSeed
     {
         var workTypes = new List<WorkType>
         {
-            new() { Id = WorkTypeFloorScreedId,   Name = "Pol shtukaturkasi (M-200 beton stяjka)", NameRu = "Стяжка пола (бетон М-200)", IsDeleted = false },
-            new() { Id = WorkTypeTileLayingId,    Name = "Keramik plitka qo'yish",                 NameRu = "Укладка керамической плитки", IsDeleted = false },
-            new() { Id = WorkTypeWallPlasterId,   Name = "Gips shtukaturka (devorlar)",            NameRu = "Гипсовая штукатурка (стены)", IsDeleted = false },
-            new() { Id = WorkTypePaintingId,      Name = "Bo'yoq (2 qavat)",                       NameRu = "Окраска (2 слоя)", IsDeleted = false },
-            new() { Id = WorkTypeDrywallId,       Name = "Gips karton (GKL) montaj",               NameRu = "Монтаж гипсокартона (ГКЛ)", IsDeleted = false },
-            new() { Id = WorkTypeWindowsId,       Name = "Derazalar almashtirish",                 NameRu = "Замена окон", IsDeleted = false },
-            new() { Id = WorkTypeDoorsId,         Name = "Eshiklar o'rnatish",                     NameRu = "Установка дверей", IsDeleted = false },
-            new() { Id = WorkTypeVaporBarrierId,  Name = "Ajratuvchi qatlam — polietilen plyonka T 0,200 (1 sort, 1 qavat)",
-                    NameRu = "Разделительный слой — полиэтиленовая плёнка Т 0,200", IsDeleted = false },
-            new() { Id = WorkTypeSemiDryScreedId, Name = "Yarim quruq sement-qum stяjka M150, fibrоvolokno bilan armirlangan — 84mm",
-                    NameRu = "Полусухая цементно-песчаная стяжка М150, армированная фиброволокном — 84мм", IsDeleted = false },
-            new() { Id = WorkTypePorcelainTileId, Name = "Keramogranit plitka 600x600x10, choklarini fugovka qilish bilan",
-                    NameRu = "Керамогранитная плитка 600x600x10 с расшивкой швов", IsDeleted = false },
-            new() { Id = WorkTypeGypsumPlasterId, Name = "Gips asosli shtukaturka (tekislash), yaxshilangan — 17mm",
-                    NameRu = "Гипсовая штукатурка (выравнивание), улучшенная — 17мм", IsDeleted = false },
-            new() { Id = WorkTypeGypsumPuttyId,   Name = "Gips asosli shpaklyovka — 2mm",
-                    NameRu = "Гипсовая шпаклёвка — 2мм", IsDeleted = false },
-
             // ── Pollar (Полы) ──────────────────────────────────────────────────
             new() { Id = new("00000000-0000-0000-0012-000000000001"),
                     Name = "Ajratuvchi qatlam — polietilen plyonka T, 0,200, 1-sort, 1 qavat",
@@ -469,15 +453,113 @@ public class UcmsDbContextSeed
                     NameRu = "Подвесной потолок \"Грилято\" 75х75х40 на мет. каркасе, класс пожарной опасности КМ0", IsDeleted = false },
         };
 
+        // PDF "Смета контракта" bo'yicha har bir ish turiga o'lchov birligi (ЕИ) va
+        // birlik narxi (Цена за ЕИ работы, RUB). "вкл"/0.00 → narx boshqa pozitsiyaga kiritilgan (0).
+        var unitPrice = new Dictionary<Guid, (Guid UnitId, decimal Price)>
+        {
+            // ── Pollar (Полы) ──────────────────────────────────────────────────
+            [new("00000000-0000-0000-0012-000000000001")] = (UnitM2Id,   25m),    // Разделительный слой плёнка
+            [new("00000000-0000-0000-0012-000000000002")] = (UnitM2Id,   420m),   // Стяжка М150 - 84мм
+            [new("00000000-0000-0000-0012-000000000003")] = (UnitM2Id,   420m),   // Стяжка М150 - 85мм
+            [new("00000000-0000-0000-0012-000000000004")] = (UnitM2Id,   420m),   // Стяжка М150 - 86мм
+            [new("00000000-0000-0000-0012-000000000005")] = (UnitM2Id,   420m),   // Стяжка М150 - 88мм
+            [new("00000000-0000-0000-0012-000000000006")] = (UnitM2Id,   420m),   // Стяжка М150 - 18мм
+            [new("00000000-0000-0000-0012-000000000007")] = (UnitM2Id,   0m),     // Грунтовка глубокого проникновения (вкл)
+            [new("00000000-0000-0000-0012-000000000008")] = (UnitM2Id,   0m),     // Плиточный клей, затирка
+            [new("00000000-0000-0000-0012-000000000009")] = (UnitM2Id,   650m),   // Керамогранит 600х600х10
+            [new("00000000-0000-0000-0012-00000000000A")] = (UnitM2Id,   650m),   // Керамогранит 300х300х10
+            [new("00000000-0000-0000-0012-00000000000B")] = (UnitM2Id,   650m),   // Керамогранит морозостойкий 300х300х10
+            [new("00000000-0000-0000-0012-00000000000C")] = (UnitM2Id,   100m),   // ТЕПОФОЛ ЭПП
+            [new("00000000-0000-0000-0012-00000000000D")] = (UnitM2Id,   0m),     // Подложка под ламинат - 3мм
+            [new("00000000-0000-0000-0012-00000000000E")] = (UnitM2Id,   290m),   // Полы из ламината класс 32 - 8мм
+            [new("00000000-0000-0000-0012-00000000000F")] = (UnitM2Id,   150m),   // Экструдированный пенополистирол - 200мм
+            [new("00000000-0000-0000-0012-000000000010")] = (UnitM2Id,   0m),     // Грунтовка Бетонконтакт (вкл)
+
+            // ── Plintuslar / profillar ───────────────────────────────────────────
+            [new("00000000-0000-0000-0012-000000000011")] = (UnitMpId,   100m),   // Плинтус ПВХ (Гостиная, спальня)
+            [new("00000000-0000-0000-0012-000000000012")] = (UnitMpId,   100m),   // Плинтус ПВХ (Кухня, Холл)
+            [new("00000000-0000-0000-0012-000000000013")] = (UnitMpId,   170m),   // Плинтус керамогранит 400х100х7
+            [new("00000000-0000-0000-0012-000000000014")] = (UnitMpId,   170m),   // Плинтус керамогранит 600х95х10
+            [new("00000000-0000-0000-0012-000000000015")] = (UnitMpId,   170m),   // Плинтус керамогранит 300х57х7
+            [new("00000000-0000-0000-0012-000000000016")] = (UnitMpId,   50m),    // Т-образный профиль 20х1800
+            [new("00000000-0000-0000-0012-000000000017")] = (UnitMpId,   150m),   // Калошница 100х50
+
+            // ── Devorlar (Стены) ─────────────────────────────────────────────────
+            [new("00000000-0000-0000-0012-000000000018")] = (UnitM2Id,   350m),   // Штукатурка гипс. улучш. - 17мм
+            [new("00000000-0000-0000-0012-000000000019")] = (UnitM2Id,   350m),   // Штукатурка гипс. улучш. - 10мм
+            [new("00000000-0000-0000-0012-00000000001A")] = (UnitM2Id,   180m),   // Шпатлевка гипс. - 2мм
+            [new("00000000-0000-0000-0012-00000000001B")] = (UnitM2Id,   0m),     // Клей для флизелиновых обоев
+            [new("00000000-0000-0000-0012-00000000001C")] = (UnitM2Id,   150m),   // Оклейка обоев - 2мм
+            [new("00000000-0000-0000-0012-00000000001D")] = (UnitM2Id,   120m),   // Окраска воднодисперс. - 1 слой
+            [new("00000000-0000-0000-0012-00000000001E")] = (UnitM2Id,   350m),   // Сплошное выравнивание ЦП - 14мм
+            [new("00000000-0000-0000-0012-00000000001F")] = (UnitM2Id,   230m),   // Сплошное выравнивание ЦП - 17мм (по мон.)
+            [new("00000000-0000-0000-0012-000000000020")] = (UnitM2Id,   400m),   // Сплошное выравнивание ЦП - 8мм
+            [new("00000000-0000-0000-0012-000000000021")] = (UnitM2Id,   400m),   // Сплошное выравнивание ЦП (без указ.)
+            [new("00000000-0000-0000-0012-000000000022")] = (UnitM2Id,   700m),   // Фальш стена из ГКЛВ
+            [new("00000000-0000-0000-0012-000000000023")] = (UnitM2Id,   230m),   // Шпатлевка ЦП по ГКЛ - 2мм
+            [new("00000000-0000-0000-0012-000000000024")] = (UnitM2Id,   100m),   // Гидроизоляция - 2 слоя
+            [new("00000000-0000-0000-0012-000000000025")] = (UnitM2Id,   750m),   // Керамогранит 200х300х7 (белый)
+            [new("00000000-0000-0000-0012-000000000026")] = (UnitM2Id,   350m),   // Штукатурка ЦП - 17мм (по кладке)
+            [new("00000000-0000-0000-0012-000000000027")] = (UnitM2Id,   400m),   // Штукатурка ЦП - 14мм
+            [new("00000000-0000-0000-0012-000000000028")] = (UnitM2Id,   230m),   // Шпатлевка ЦП - 2мм
+            [new("00000000-0000-0000-0012-000000000029")] = (UnitM2Id,   120m),   // Окраска фасадная Г1 - 1 слой
+            [new("00000000-0000-0000-0012-00000000002A")] = (UnitM2Id,   120m),   // Окраска фактурная Г1 - 1 слой
+            [new("00000000-0000-0000-0012-00000000002B")] = (UnitM2Id,   120m),   // Окраска простая водоэмульс. Г1 - 1 слой
+
+            // ── Otkoslar, eshiklar ────────────────────────────────────────────────
+            [new("00000000-0000-0000-0012-00000000002C")] = (UnitMpId,   0m),     // Грунтовка Бетонконтакт откосов (вкл)
+            [new("00000000-0000-0000-0012-00000000002D")] = (UnitMpId,   250m),   // Штукатурка откосов ЦП по сетке
+            [new("00000000-0000-0000-0012-00000000002E")] = (UnitMpId,   70m),    // Окраска откосов в 2 слоя
+            [new("00000000-0000-0000-0012-00000000002F")] = (UnitMpId,   100m),   // Обрамление откосов ПВХ уголками
+            [new("00000000-0000-0000-0012-000000000030")] = (UnitM2Id,   167.33m),// Сетка (перемычки, стыки стен)
+            [new("00000000-0000-0000-0012-000000000031")] = (UnitDonaId, 2500m),  // Установка металлических дверей
+            [new("00000000-0000-0000-0012-000000000032")] = (UnitDonaId, 2500m),  // Установка межкомнатных дверей
+
+            // ── Fasad ─────────────────────────────────────────────────────────────
+            [new("00000000-0000-0000-0012-000000000033")] = (UnitM2Id,   0m),     // Грунтовка фасадная универсальная (вкл)
+            [new("00000000-0000-0000-0012-000000000034")] = (UnitM2Id,   350m),   // Утеплитель ТЕХНОФАС 150мм + клей
+            [new("00000000-0000-0000-0012-000000000035")] = (UnitM2Id,   350m),   // Штукатурно-клеевой слой 210 - 8мм
+            [new("00000000-0000-0000-0012-000000000036")] = (UnitM2Id,   350m),   // Утеплитель базальт 150мм + клей
+            [new("00000000-0000-0000-0012-000000000037")] = (UnitM2Id,   350m),   // Штукатурно-клеевой слой 210 - 4мм
+            [new("00000000-0000-0000-0012-000000000038")] = (UnitM2Id,   350m),   // Утеплитель базальт 100мм + клей
+
+            // ── Shift (Потолки) ───────────────────────────────────────────────────
+            [new("00000000-0000-0000-0012-000000000039")] = (UnitM2Id,   0m),     // Грунтовка (пропитка акрил.) (вкл)
+            [new("00000000-0000-0000-0012-00000000003A")] = (UnitM2Id,   498.02m),// Натяжной потолок ПВХ
+            [new("00000000-0000-0000-0012-00000000003B")] = (UnitM2Id,   500m),   // Реечный потолок АЛБЕС
+            [new("00000000-0000-0000-0012-00000000003C")] = (UnitM2Id,   750m),   // Подвесной потолок "Грилято"
+        };
+
+        foreach (var wt in workTypes)
+            if (unitPrice.TryGetValue(wt.Id, out var up))
+                wt.MeasurementUnitId = up.UnitId;
+
+        // Yangi ish turlarini qo'shish
         var existingIds = await db.WorkTypes.Select(w => w.Id).ToListAsync();
         var newWorkTypes = workTypes.Where(w => !existingIds.Contains(w.Id)).ToList();
+        if (newWorkTypes.Count > 0)
+        {
+            await db.WorkTypes.AddRangeAsync(newWorkTypes);
+            await db.SaveChangesAsync();
+            logger?.LogInformation("[Seed] {N} ta yangi ish turi", newWorkTypes.Count);
+        }
 
-        if (newWorkTypes.Count == 0)
-            return;
-
-        await db.WorkTypes.AddRangeAsync(newWorkTypes);
-        await db.SaveChangesAsync();
-        logger?.LogInformation("[Seed] {N} ta yangi ish turi", newWorkTypes.Count);
+        // Avval seed qilingan ish turlariga o'lchov birligi/narxni to'ldirish (backfill)
+        var toBackfill = await db.WorkTypes.AsTracking()
+            .Where(w => w.MeasurementUnitId == null)
+            .ToListAsync();
+        var backfilled = 0;
+        foreach (var wt in toBackfill)
+            if (unitPrice.TryGetValue(wt.Id, out var up))
+            {
+                wt.MeasurementUnitId = up.UnitId;
+                backfilled++;
+            }
+        if (backfilled > 0)
+        {
+            await db.SaveChangesAsync();
+            logger?.LogInformation("[Seed] {N} ta ish turiga o'lchov birligi/narx qo'shildi", backfilled);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════════════

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.Estimates.Commands;
 using Ucms.Application.Features.Estimates.Queries;
+using Ucms.Domain.Enums;
 using GetProjectEstimateItemsQuery = Ucms.Application.Features.Estimates.Queries.GetProjectEstimateItems;
 
 /// <summary>
@@ -31,13 +32,13 @@ public class EstimateController(
 {
     public record CreateEstimateRequest(string Name, string? Description, int Order);
     public record UpdateEstimateRequest(string Name, string? Description, int Order);
-    public record CreateSectionRequest(string Name, int Order);
+    public record CreateSectionRequest(string Name, int Order, Guid? ParentId);
     public record UpdateSectionRequest(string Name, int Order);
     public record CreateItemRequest(
-        Guid SectionId, Guid WorkTypeId, string? Description, Guid MeasurementUnitId, decimal Volume,
+        Guid SectionId, Guid WorkTypeId, SurfaceType? SurfaceType, string? Description, Guid MeasurementUnitId, decimal Volume,
         decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
     public record UpdateItemRequest(
-        Guid WorkTypeId, string? Description, Guid MeasurementUnitId, decimal Volume,
+        Guid WorkTypeId, SurfaceType? SurfaceType, string? Description, Guid MeasurementUnitId, decimal Volume,
         decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
 
     // ── Flat items (WorkLog uchun) ─────────────────────────────────────────────
@@ -146,7 +147,7 @@ public class EstimateController(
         Guid projectId, Guid estimateId, [FromBody] CreateSectionRequest req, CancellationToken ct)
     {
         var (data, forbidden) = await createSection.HandleAsync(
-            new(projectId, estimateId, req.Name, req.Order), ct);
+            new(projectId, estimateId, req.Name, req.Order, req.ParentId), ct);
         if (forbidden) return Forbid();
         if (data is null) return NotFound();
         return StatusCode(201, data);
@@ -213,7 +214,7 @@ public class EstimateController(
         Guid projectId, Guid estimateId, [FromBody] CreateItemRequest req, CancellationToken ct)
     {
         var (data, forbidden, error) = await createItem.HandleAsync(
-            new(projectId, estimateId, req.SectionId, req.WorkTypeId, req.Description, req.MeasurementUnitId, req.Volume,
+            new(projectId, estimateId, req.SectionId, req.WorkTypeId, req.SurfaceType, req.Description, req.MeasurementUnitId, req.Volume,
                 req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.Order), ct);
         if (forbidden)         return Forbid();
         if (error is not null) return BadRequest(new { message = error });
@@ -232,7 +233,7 @@ public class EstimateController(
         [FromBody] UpdateItemRequest req, CancellationToken ct)
     {
         var (notFound, forbidden, error) = await updateItem.HandleAsync(
-            new(projectId, estimateId, itemId, req.WorkTypeId, req.Description, req.MeasurementUnitId, req.Volume,
+            new(projectId, estimateId, itemId, req.WorkTypeId, req.SurfaceType, req.Description, req.MeasurementUnitId, req.Volume,
                 req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.Order), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
