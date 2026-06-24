@@ -11,7 +11,7 @@ public static class GetProjects
 
     public record Item(
         Guid Id, string Name, string? ClientName, string? Address, string? ContractNumber,
-        decimal? ContractValue, ProjectStatus Status, string StatusString,
+        decimal? ContractValue, decimal EstimatesTotal, ProjectStatus Status, string StatusString,
         DateTimeOffset? StartDate, DateTimeOffset? EndDate,
         Guid OrganizationId, DateTimeOffset CreatedAt,
         Guid? CustomerId, string? CustomerName);
@@ -46,7 +46,10 @@ public static class GetProjects
                 .Skip((q.Page - 1) * q.Size).Take(q.Size)
                 .Select(p => new Item(
                     p.Id, p.Name, p.ClientName, p.Address, p.ContractNumber,
-                    p.ContractValue, p.Status, MapStatusToString(p.Status),
+                    p.ContractValue,
+                    p.Estimates.SelectMany(a => a.Sections).SelectMany(s => s.EstimateItems)
+                        .Sum(i => (decimal?)(i.Volume * i.ClientUnitPrice)) ?? 0m,
+                    p.Status, MapStatusToString(p.Status),
                     p.StartDate, p.EndDate, p.OrganizationId, p.CreatedAt,
                     p.CustomerId, p.Customer != null ? p.Customer.Name : null))
                 .ToListAsync(ct);

@@ -1,150 +1,140 @@
 # 🏗️ UCMS — Unified Construction Management System
 
-A REST API for managing construction projects, brigades, work logs, estimates, and payments.
+Construction management REST API for projects, 
+brigades, work logs, estimates, payments, and organizations.
 
-**Stack:** .NET 8 · PostgreSQL · EF Core 8 · ASP.NET Core Identity · JWT
+## Tech Stack
 
----
+- .NET 8 / ASP.NET Core Web API
+- Entity Framework Core 8
+- PostgreSQL
+- ASP.NET Core Identity + JWT Authentication
 
-## 📁 Project Structure
+## Architecture
 
 ```
 src/
-├── Ucms.Domain/          # Entities, enums, interfaces
-├── Ucms.Application/     # Services, abstractions
-├── Ucms.Infrastructure/  # EF DbContext, migrations, seed data
-└── Ucms.Api/             # Controllers, Swagger, Program.cs
+├── Ucms.Domain/          # Entities, enums, domain interfaces
+├── Ucms.Application/     # Business logic, services, abstractions
+├── Ucms.Infrastructure/  # Database, EF Core, migrations, seed data
+└── Ucms.Api/             # Controllers, authentication, Swagger
 ```
 
----
+## Getting Started
 
-## 🚀 Getting Started
+**Requirements:** .NET 8 SDK, PostgreSQL 14+
 
-### Prerequisites
-- [.NET 8 SDK](https://dotnet.microsoft.com/download)
-- PostgreSQL 14+
+**Database migration** — in Visual Studio's Package Manager 
+Console (Default project: `Ucms.Infrastructure`, Startup project: `Ucms.Api`):
 
-### 1. Apply migrations
-
-Open **Package Manager Console** in Visual Studio:
-
-```
-# Set PMC Default project → Ucms.Infrastructure
-# Set VS Startup project  → Ucms.Api
-
+```powershell
 Add-Migration InitialMigration
 Update-Database
 ```
 
-### 3. Seed data
-
-Make sure seed is enabled in `appsettings.json`:
+**Seed data** — enable in `appsettings.json`; 
+It runs automatically at startup:
 
 ```json
-"SeedData": {
-  "Enabled": true
-}
+{ "SeedData": { "Enabled": true } }
 ```
 
-Seed runs automatically on first launch.
+## Authentication
 
----
+JWT-based. Open Swagger at `https://localhost:{PORT}/swagger`, 
+click **Authorize**, and log in.
 
-## 🔐 Authentication
+## Test Accounts
 
-Click **Authorize** in Swagger UI, enter your credentials — JWT is set automatically.
+> ⚠️ Seed credentials for local development only. 
+Disable seeding (`SeedData.Enabled = false`) and rotate these before any deployment.
 
----
+| Username   | Password       | Role       | Scope                            |
+|------------|----------------|------------|----------------------------------|
+| sysadmin   | SysAdmin123!   | Admin      | All organizations (System Owner) |
+| admin      | Admin123!      | Admin      | Organization management          |
+| manager    | Manager123!    | Manager    | Projects, estimates, brigades    |
+| brigadir   | Brigadir123!   | Brigadir   | Work logs                        |
+| accountant | Accountant123! | Accountant | Acts and payments                |
 
-## 👥 Test Users
+## Main API Endpoints
 
-### 🔴 Owner — UCMS (system owner)
+| Method | Endpoint            | Description   |
+|--------|---------------------|---------------|
+| POST   | `/api/auth/login`   | Login         |
+| POST   | `/api/auth/refresh` | Refresh token |
+| GET    | `/api/projects`     | Projects      |
+| GET    | `/api/brigades`     | Brigades      |
+| GET    | `/api/worklogs`     | Work logs     |
+| GET    | `/api/payments`     | Payments      |
+| GET    | `/api/dashboard`    | Statistics    |
 
-Full access across all organizations.
+## Coding Style
 
-| Name               | Username   | Password       | Role  |
-|--------------------|------------|----------------|-------|
-| System Super Admin | `sysadmin` | `SysAdmin123!` | Admin |
+### XML Comments
 
----
+Use bilingual XML comments (Uzbek + Russian):
 
-### 🟢 Tenant 1 — Ihtiyor Qurilish Kompaniyasi
-
-Tashkent · `info@demo-qurilish.uz`
-
-| Name                | Username      | Password         | Role       |
-|---------------------|---------------|------------------|------------|
-| Ahmadov Bahodir     | `admin`       | `Admin123!`      | Admin      |
-| Ergashev Jahongir   | `manager`     | `Manager123!`    | Manager    |
-| Toshmatov Sherzod   | `brigadir`    | `Brigadir123!`   | Brigadir   |
-| Nazarova Gulnora    | `accountant`  | `Accountant123!` | Accountant |
-
-**Projects:** Yunusobod-14 repair *(InProgress)* · Sergeli office *(Planning)*
-
----
-
-### 🟡 Tenant 2 — IXTIYOR PUDRAT
-
-Toshkent · `ixtiyor.pudrat@gmail.com`
-
-| Name                      | Username           | Password      | Role  |
-|---------------------------|--------------------|---------------|-------|
-| Daminov Ixtiyor Jonovich  | `ixtiyor.direktor` | `Ixtiyor123!` | Admin |
-
-**Brigade:** Yusupov brigada — foreman/worker Yusupov Aziz Tursunovich (shtukatorchi)
-**Project:** Pivchenkova ko'chasi, 14-uy — 2,3-sektsiya otdelka *(InProgress)* · Client: OOO "IKS"
-
----
-
-## 🛡️ Roles
-
-| Role        | Permissions                    |
-|-------------|--------------------------------|
-| Admin       | Full org management            |
-| Manager     | Projects, estimates, brigades  |
-| Brigadir    | Work log entries               |
-| Accountant  | Acts and payments              |
-
-> **Owner** users bypass all organization filters and see data across all tenants.
-
----
-
-## 📡 API Endpoints
-
-| Method | URL                      | Description         |
-|--------|--------------------------|---------------------|
-| POST   | `/api/auth/login`        | Login               |
-| POST   | `/api/auth/refresh`      | Refresh token       |
-| GET    | `/api/organizations`     | List organizations  |
-| GET    | `/api/projects`          | List projects       |
-| GET    | `/api/brigades`          | List brigades       |
-| GET    | `/api/worklogs`          | Work log entries    |
-| GET    | `/api/payments/brigade`  | Brigade payments    |
-| GET    | `/api/payments/client`   | Client payments     |
-| GET    | `/api/clientacts`        | Client acts         |
-| GET    | `/api/dashboard`         | Statistics          |
-| GET    | `/api/users`             | Users (Admin)       |
-
-Swagger UI: `https://localhost:{PORT}/swagger`
-
----
-## Comment style
-
-```
+```csharp
 /// <summary>
-/// Ball yig'ish. 
+/// Ball yig'ish.
 /// Начислить баллы.
 /// </summary>
 ```
 
-### Method Style
+### Methods
 
-- Always use **block-bodied methods** (`{ }`).
-- Do not use **expression-bodied methods** (`=>`) for method declarations.
-- Use **explicit accessibility modifiers** instead of relying on default accessibility.
+Use block-bodied methods.
 
----
-## ✍️ Author
+```csharp
+// Preferred
+public void Execute()
+{
+}
 
-**Xabibullayev Davronbek**  
-📧 davronbekxabibullayev03.06.88@gmail.com
+// Avoid
+public void Execute() => DoSomething();
+```
+
+### Accessibility Modifiers
+
+Always specify explicit accessibility modifiers.
+
+```csharp
+// Preferred
+public class UserService
+{
+}
+
+// Avoid
+class UserService
+{
+}
+```
+
+### Constructors
+
+Use primary constructors (C# 12 / .NET 8). 
+Avoid explicit constructors unless additional initialization logic is required.
+
+```csharp
+// Preferred
+public class Service(ILogger<Service> logger)
+{
+}
+
+// Avoid
+public class Service
+{
+    private readonly ILogger<Service> _logger;
+
+    public Service(ILogger<Service> logger)
+    {
+        _logger = logger;
+    }
+}
+```
+
+## Author
+
+**Xabibullayev Davronbek** — davronbekxabibullayev03.06.88@gmail.com

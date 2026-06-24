@@ -27,6 +27,8 @@ public static class GetProjectById
                     p.ContractNumber,
                     p.ContractDate,
                     p.ContractValue,
+                    p.Estimates.SelectMany(a => a.Sections).SelectMany(s => s.EstimateItems)
+                        .Sum(i => (decimal?)(i.Volume * i.ClientUnitPrice)) ?? 0m,
                     p.StartDate,
                     p.EndDate,
                     p.Status,

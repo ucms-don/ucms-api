@@ -13,6 +13,7 @@ public record ProjectDetailDto(
     string?                        ContractNumber,
     DateTimeOffset?                ContractDate,
     decimal?                       ContractValue,
+    decimal                        EstimatesTotal,
     DateTimeOffset?                StartDate,
     DateTimeOffset?                EndDate,
     ProjectStatus                  Status,
