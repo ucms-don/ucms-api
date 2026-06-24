@@ -1,6 +1,7 @@
 namespace Ucms.Domain.Entities;
 
 using Ucms.Domain.Common;
+using Ucms.Domain.Enums;
 
 /// <summary>
 /// Smeta qatori — bir ish turi (e.g. "Стяжка пола", "Штукатурка стен")
@@ -18,6 +19,11 @@ public class EstimateItem : Entity
     public Guid? WorkTypeId { get; set; }
 
     public virtual WorkType? WorkType { get; set; }
+
+    /// <summary>
+    /// Тип покрытия — qaysi yuza (devor / pol / shift)
+    /// </summary>
+    public SurfaceType? SurfaceType { get; set; }
 
     /// <summary>
     /// Qo'shimcha izoh / tavsif

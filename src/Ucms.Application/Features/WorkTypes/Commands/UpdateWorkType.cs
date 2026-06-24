@@ -5,7 +5,8 @@ using Ucms.Application.Persistence;
 
 public static class UpdateWorkType
 {
-    public record Command(Guid Id, string Name, string NameRu, string? NameEn, string? NameKa);
+    public record Command(Guid Id, string Name, string NameRu, string? NameEn, string? NameKa,
+        Guid? MeasurementUnitId);
 
     public sealed class Handler(IUcmsDbContext db)
     {
@@ -18,6 +19,7 @@ public static class UpdateWorkType
             if (entity is null) return (true, null);
 
             entity.Name = cmd.Name; entity.NameRu = cmd.NameRu; entity.NameEn = cmd.NameEn; entity.NameKa = cmd.NameKa;
+            entity.MeasurementUnitId = cmd.MeasurementUnitId;
             await db.SaveChangesAsync(ct);
             return (false, null);
         }

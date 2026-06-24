@@ -11,4 +11,11 @@ public class WorkType : LocalizableEntity, IDeletable
     /// Удален или нет
     /// </summary>
     public bool IsDeleted { get; set; }
+
+    /// <summary>
+    /// O'lchov birligi (ЕИ — справочник). Ölchov birligi reference'iga havola.
+    /// </summary>
+    public Guid? MeasurementUnitId { get; set; }
+
+    public virtual MeasurementUnit? MeasurementUnit { get; set; }
 }

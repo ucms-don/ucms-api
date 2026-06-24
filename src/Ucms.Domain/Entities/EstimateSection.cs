@@ -22,6 +22,15 @@ public class EstimateSection : Entity
     /// </summary>
     public int Order { get; set; }
 
+    /// <summary>
+    /// Parent bo'limi (agar mavjud bo'lsa)
+    /// </summary>
+    public Guid? ParentId { get; set; }
+
+    public virtual EstimateSection? Parent { get; set; }
+
+    public List<EstimateSection> Children { get; set; } = [];
+
     public virtual Estimate? Estimate { get; set; }
     public virtual ICollection<EstimateItem> EstimateItems { get; set; } = [];
 }

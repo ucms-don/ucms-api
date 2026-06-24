@@ -3,12 +3,13 @@ namespace Ucms.Application.Features.Estimates.Commands;
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
 using Ucms.Application.Persistence;
+using Ucms.Domain.Enums;
 
 public static class UpdateItem
 {
     public record Command(
         Guid ProjectId, Guid EstimateId, Guid ItemId,
-        Guid WorkTypeId, string? Description, Guid MeasurementUnitId, decimal Volume,
+        Guid WorkTypeId, SurfaceType? SurfaceType, string? Description, Guid MeasurementUnitId, decimal Volume,
         decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
@@ -42,6 +43,7 @@ public static class UpdateItem
                 return (false, false, "Ish turi topilmadi");
 
             item.WorkTypeId        = cmd.WorkTypeId;
+            item.SurfaceType       = cmd.SurfaceType;
             item.Description       = cmd.Description;
             item.MeasurementUnitId = cmd.MeasurementUnitId;
             item.Volume            = cmd.Volume;

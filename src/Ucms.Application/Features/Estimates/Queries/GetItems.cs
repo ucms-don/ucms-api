@@ -26,6 +26,7 @@ public static class GetItems
                 .Select(i => (object)new
                 {
                     i.Id, i.Description, i.Order,
+                    i.SurfaceType,
                     WorkTypeId          = i.WorkTypeId,
                     WorkTypeName        = i.WorkType!.Name,
                     MeasurementUnitId   = i.MeasurementUnitId,

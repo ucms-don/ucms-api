@@ -5,4 +5,5 @@ public record WorkTypeModel(
     string Name,
     string NameRu,
     string? NameEn,
-    string? NameKa);
+    string? NameKa,
+    Guid? MeasurementUnitId);

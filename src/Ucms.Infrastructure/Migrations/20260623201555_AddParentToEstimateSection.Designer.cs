@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Ucms.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using Ucms.Infrastructure.Persistence;
 namespace Ucms.Infrastructure.Migrations
 {
     [DbContext(typeof(UcmsDbContext))]
-    partial class UcmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260623201555_AddParentToEstimateSection")]
+    partial class AddParentToEstimateSection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2048,8 +2051,6 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
-                    b.HasIndex("MeasurementUnitId");
-
                     b.ToTable("WorkTypes");
                 });
 
@@ -2702,15 +2703,6 @@ namespace Ucms.Infrastructure.Migrations
                     b.Navigation("EstimateItem");
 
                     b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("Ucms.Domain.Entities.WorkType", b =>
-                {
-                    b.HasOne("Ucms.Domain.Entities.MeasurementUnit", "MeasurementUnit")
-                        .WithMany()
-                        .HasForeignKey("MeasurementUnitId");
-
-                    b.Navigation("MeasurementUnit");
                 });
 
             modelBuilder.Entity("Ucms.Domain.Entities.Brigade", b =>

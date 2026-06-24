@@ -25,7 +25,30 @@ public static class DeleteSection
 
             if (section is null) return (true, false);
 
-            db.EstimateSections.Remove(section);
+            // Bo'lim va uning barcha ichki (avlod) bo'limlarini yig'amiz — self-FK buzilmasligi uchun
+            var estimateSections = await db.EstimateSections
+                .Where(s => s.EstimateId == cmd.EstimateId)
+                .Select(s => new { s.Id, s.ParentId })
+                .ToListAsync(ct);
+
+            var toDelete = new HashSet<Guid> { section.Id };
+            bool added;
+            do
+            {
+                added = false;
+                foreach (var s in estimateSections)
+                {
+                    if (s.ParentId is Guid pid && toDelete.Contains(pid) && toDelete.Add(s.Id))
+                        added = true;
+                }
+            } while (added);
+
+            // Avlodlardan ildizgacha o'chiramiz (chuqurroq bo'limlar avval) — FK cheklovi buzilmaydi
+            var sections = await db.EstimateSections
+                .Where(s => toDelete.Contains(s.Id))
+                .ToListAsync(ct);
+
+            db.EstimateSections.RemoveRange(sections);
             await db.SaveChangesAsync(ct);
             return (false, false);
         }
