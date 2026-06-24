@@ -20,6 +20,9 @@ public static class GetFilteredOutcomes
     {
         public async Task<PagedResult<OutcomeModel>> HandleAsync(Query q, CancellationToken ct)
         {
+            if (q.Paging is null)
+                return new PagedResult<OutcomeModel>();
+
             var query = db.Outcomes
                 .Include(i => i.Stock).Include(i => i.IncomeOutcome!.IncomeStock)
                 .Include(i => i.OutcomeItems).ThenInclude(th => th.MeasurementUnit)

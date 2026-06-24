@@ -7,32 +7,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Ucms.Domain.Exceptions;
 
-public class GlobalMiddlewareErrorHander
+public class GlobalMiddlewareErrorHander(RequestDelegate next, ILogger<GlobalMiddlewareErrorHander> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<GlobalMiddlewareErrorHander> _logger;
-
-    public GlobalMiddlewareErrorHander(RequestDelegate next, ILogger<GlobalMiddlewareErrorHander> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task Invoke(HttpContext context)
     {
         try
         {
-            await _next.Invoke(context);
+            await next.Invoke(context);
         }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex);
 
             if (IsCriticalException(ex))
-                _logger.LogError(ex, "Internal server error");
+                logger.LogError(ex, "Internal server error");
 
             else
-                _logger.LogInformation(ex, "Internal server error");
+                logger.LogInformation(ex, "Internal server error");
         }
     }
 

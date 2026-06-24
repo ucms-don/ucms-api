@@ -6,9 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
 using Ucms.Api.Middlewares;
+using Ucms.Application.Abstractions;
 using Ucms.Application.Features;
 using Ucms.Application.Features.MeasurementUnits.MappingProfiles;
 using Ucms.Infrastructure.Persistence;
+using Ucms.Infrastructure.Services;
 
 public static class WebApplicationExtensions
 {
@@ -32,7 +34,7 @@ public static class WebApplicationExtensions
         builder.Services.AddUcmsCors("UcmsCors");
         builder.Services.AddApplicationAuth(builder.Configuration);
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddScoped<Application.Abstractions.ICurrentContext, Infrastructure.Services.HttpCurrentContext>();
+        builder.Services.AddScoped<ICurrentContext, HttpCurrentContext>();
         builder.Services.AddUcmsInfrastructureServices();
         builder.Services.AddFluentValidationAutoValidation(options => options.DisableDataAnnotationsValidation = true);
         builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(MeasurementUnitProfile).Assembly));
@@ -58,7 +60,7 @@ public static class WebApplicationExtensions
         app.UseMiddleware<GlobalMiddlewareErrorHander>();
         app.UseStaticFiles();
 
-        var avatarsDir = Infrastructure.Services.AvatarPathResolver.Resolve(app.Configuration, app.Environment);
+        var avatarsDir = AvatarPathResolver.Resolve(app.Configuration, app.Environment);
         Directory.CreateDirectory(avatarsDir);
         app.UseStaticFiles(new StaticFileOptions
         {
