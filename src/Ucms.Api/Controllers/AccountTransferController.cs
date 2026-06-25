@@ -93,8 +93,8 @@ public class AccountTransferController(
             new(req.FromAccountId, req.ToAccountId, req.Amount, req.Commission, req.TransferredBy, req.Date, req.Note), ct);
 
         if (forbidden)     return Forbid();
-        if (fromNotFound)  return BadRequest(new { message = "Manba kassa/hisob topilmadi" });
-        if (toNotFound)    return BadRequest(new { message = "Maqsad kassa topilmadi" });
+        if (fromNotFound)  return BadRequest(new { message = "Manba kassa/hisob topilmadi. / Счёт-источник не найден." });
+        if (toNotFound)    return BadRequest(new { message = "Maqsad kassa topilmadi. / Счёт назначения не найден." });
         if (error != null) return BadRequest(new { message = error });
         return StatusCode(201, result);
     }
@@ -114,8 +114,8 @@ public class AccountTransferController(
 
         if (notFound)      return NotFound();
         if (forbidden)     return Forbid();
-        if (fromNotFound)  return BadRequest(new { message = "Manba kassa/hisob topilmadi" });
-        if (toNotFound)    return BadRequest(new { message = "Maqsad kassa topilmadi" });
+        if (fromNotFound)  return BadRequest(new { message = "Manba kassa/hisob topilmadi. / Счёт-источник не найден." });
+        if (toNotFound)    return BadRequest(new { message = "Maqsad kassa topilmadi. / Счёт назначения не найден." });
         if (error != null) return BadRequest(new { message = error });
         return NoContent();
     }

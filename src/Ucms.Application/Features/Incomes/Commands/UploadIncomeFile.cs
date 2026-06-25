@@ -21,7 +21,7 @@ public static class UploadIncomeFile
             if (income is null) return (null, "Topilmadi");
 
             var response = await storageClient.UploadAsync("incomes", $"{cmd.IncomeId}.pdf", cmd.File.OpenReadStream())
-                ?? throw new AppException("Faylni yuklashda xatolik yuz berdi");
+                ?? throw new AppException("Faylni yuklashda xatolik yuz berdi. / Ошибка при загрузке файла.");
 
             income.FilePath = response.FilePath;
             await db.SaveChangesAsync(ct);

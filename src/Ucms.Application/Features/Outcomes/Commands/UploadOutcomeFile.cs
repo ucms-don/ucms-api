@@ -21,7 +21,7 @@ public static class UploadOutcomeFile
             if (outcome is null) return (null, "Topilmadi");
 
             var response = await storageClient.UploadAsync("outcomes", $"{cmd.OutcomeId}.pdf", cmd.File.OpenReadStream())
-                ?? throw new AppException("Faylni yuklashda xatolik");
+                ?? throw new AppException("Faylni yuklashda xatolik. / Ошибка при загрузке файла.");
 
             outcome.FilePath = response.FilePath;
             await db.SaveChangesAsync(ct);

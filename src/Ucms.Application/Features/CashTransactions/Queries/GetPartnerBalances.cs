@@ -37,16 +37,25 @@ public static class GetPartnerBalances
             if (q.PartnerId.HasValue)
                 query = query.Where(t => t.PartnerId == q.PartnerId.Value);
 
-            var grouped = await query
-                .GroupBy(t => new { t.PartnerType, t.PartnerId })
-                .Select(g => new Item(
-                    g.Key.PartnerType, g.Key.PartnerId,
-                    g.Where(t => t.Direction == CashDirection.In).Sum(t => t.Amount),
-                    g.Where(t => t.Direction == CashDirection.Out).Sum(t => t.Amount),
-                    g.Sum(t => t.Direction == CashDirection.In ? t.Amount : -t.Amount),
-                    g.Count()))
-                .OrderByDescending(i => i.Balance)
+            // Bitta Select ichidagi bir nechta filtrlangan Sum'ni (Kirim/Chiqim alohida)
+            // EF Core + Npgsql SQL'ga tarjima qila olmaydi. Shu sababli bazadan faqat
+            // kerakli ustunlar (org/partner bo'yicha allaqachon filtrlangan) olinadi va
+            // guruhlash/yig'indi xotirada bajariladi — hajm bitta tashkilot doirasida.
+            var rows = await query
+                .Select(t => new { t.PartnerType, t.PartnerId, t.Direction, t.Amount })
                 .ToListAsync(ct);
+
+            var grouped = rows
+                .GroupBy(t => new { t.PartnerType, t.PartnerId })
+                .Select(g =>
+                {
+                    var totalIn  = g.Where(t => t.Direction == CashDirection.In).Sum(t => t.Amount);
+                    var totalOut = g.Where(t => t.Direction == CashDirection.Out).Sum(t => t.Amount);
+                    return new Item(g.Key.PartnerType, g.Key.PartnerId,
+                        totalIn, totalOut, totalIn - totalOut, g.Count());
+                })
+                .OrderByDescending(i => i.Balance)
+                .ToList();
 
             return (new Result(grouped), false);
         }

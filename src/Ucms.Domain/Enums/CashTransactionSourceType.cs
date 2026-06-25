@@ -38,4 +38,10 @@ public enum CashTransactionSourceType
     /// AccountTransfer.Id ga bog'langan — maqsad hisobga kirim (Amount)
     /// </summary>
     AccountTransferIn = 6,
+
+    /// <summary>
+    /// Sku.Id ga bog'langan — skladga material/tovar kiritilganda yetkazib beruvchiga
+    /// to'lov (chiqim). Sku qo'shilganda tanlangan kassa/bankdan Narx × Miqdor yechiladi.
+    /// </summary>
+    SkuPurchase = 7,
 }

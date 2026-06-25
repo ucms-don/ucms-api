@@ -134,9 +134,10 @@ public class OutcomeService(IUcmsDbContext dbContext, IMapper mapper) : IOutcome
 
     public async Task ValidateOutcomeItems(IEnumerable<CreateOutcomeItemModel> outcomeItems, Guid stockId, CancellationToken cancellationToken)
     {
-        var skuIds = outcomeItems.Select(s => s.SkuId).ToList();
         var measurementUnitIds = outcomeItems.Select(s => s.MeasurementUnitId).ToList();
         var measurementUnits = await dbContext.MeasurementUnits.Where(w => measurementUnitIds.Contains(w.Id)).ToListAsync(cancellationToken);
+
+        var insufficientSkuIds = new List<Guid>();
         foreach (var item in outcomeItems)
         {
             var measurementUnit = measurementUnits.FirstOrDefault(f => f.Id == item.MeasurementUnitId);
@@ -148,9 +149,20 @@ public class OutcomeService(IUcmsDbContext dbContext, IMapper mapper) : IOutcome
                             && a.SkuId == item.SkuId
                             && a.Amount >= item.Amount * measurementUnit.Multiplier, cancellationToken);
             if (!hasEnough)
-            {
-                throw new AppException("Some of items is not enough in stock");
-            }
+                insufficientSkuIds.Add(item.SkuId);
+        }
+
+        if (insufficientSkuIds.Count > 0)
+        {
+            var names = await dbContext.Skus
+                .Where(s => insufficientSkuIds.Contains(s.Id))
+                .Select(s => s.NameRu ?? s.Name)
+                .ToListAsync(cancellationToken);
+
+            var list = string.Join(", ", names);
+            throw new AppException(string.IsNullOrWhiteSpace(list)
+                ? "На выбранном складе недостаточно количества товара"
+                : $"На выбранном складе недостаточно количества товара: {list}");
         }
     }
 

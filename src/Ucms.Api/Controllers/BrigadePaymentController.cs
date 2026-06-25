@@ -64,9 +64,9 @@ public class BrigadePaymentController(
             new(req.ProjectId, req.BrigadeId, req.Date, req.Amount,
                 req.PaymentMethod, req.WorkLogIds ?? [], req.Note, req.CashAccountId), ct);
 
-        if (projectNotFound) return NotFound(new { message = "Loyiha topilmadi" });
+        if (projectNotFound) return NotFound(new { message = "Loyiha topilmadi. / Проект не найден." });
         if (forbidden)       return Forbid();
-        if (cashNotFound)    return BadRequest(new { message = "Kassa hisobi topilmadi" });
+        if (cashNotFound)    return BadRequest(new { message = "Kassa hisobi topilmadi. / Кассовый счёт не найден." });
         if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
         return StatusCode(201, data);
     }
