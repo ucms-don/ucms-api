@@ -44,8 +44,19 @@ public class ProjectController(
         DateTimeOffset? StartDate,
         DateTimeOffset? EndDate,
         decimal? ContractValue,
-        ProjectStatus Status,
+        string? Status,
         Guid? CustomerId);
+
+    private static ProjectStatus MapStatusStringToEnum(string? status) =>
+        (status ?? string.Empty).ToLowerInvariant() switch
+        {
+            "planning"  => ProjectStatus.Planning,
+            "active"    => ProjectStatus.InProgress,
+            "completed" => ProjectStatus.Completed,
+            "suspended" => ProjectStatus.Suspended,
+            "archived"  => ProjectStatus.Cancelled,
+            _           => ProjectStatus.Planning,
+        };
 
     /// <summary>
     /// Loyihalar ro'yxati (sahifalash va holat filtri bilan).
@@ -110,7 +121,8 @@ public class ProjectController(
     {
         var (notFound, forbidden, customerNotFound) = await update.HandleAsync(
             new(id, req.Name, req.ClientName, req.Address, req.Description, req.ContractNumber,
-                req.ContractDate, req.StartDate, req.EndDate, req.ContractValue, req.Status, req.CustomerId), ct);
+                req.ContractDate, req.StartDate, req.EndDate, req.ContractValue,
+                MapStatusStringToEnum(req.Status), req.CustomerId), ct);
 
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
