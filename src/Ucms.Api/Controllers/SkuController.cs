@@ -88,7 +88,8 @@ public class SkuController(
 
     public record CreateSkuRequest(string Name, string NameRu, string? NameEn, string? NameKa,
         string SerialNumber, Guid ProductId, Guid? ManufacturerId, Guid MeasurementUnitId,
-        Guid? SupplierId, decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status);
+        Guid? SupplierId, decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status,
+        Guid? CashAccountId, Guid? StockId);
 
     [HttpPost]
     [ProducesResponseType(typeof(Guid), 201)]
@@ -97,23 +98,25 @@ public class SkuController(
         var (id, error) = await create.HandleAsync(
             new(req.Name, req.NameRu, req.NameEn, req.NameKa, req.SerialNumber,
                 req.ProductId, req.ManufacturerId, req.MeasurementUnitId, req.SupplierId,
-                req.Price, req.Amount, req.ExpirationDate, req.Status), ct);
-        return error is not null ? Conflict(error) : Ok(id);
+                req.Price, req.Amount, req.ExpirationDate, req.Status, req.CashAccountId, req.StockId), ct);
+        return error is not null ? BadRequest(new { message = error }) : Ok(id);
     }
 
     public record UpdateSkuRequest(Guid Id, string Name, string NameRu, string? NameEn, string? NameKa,
         string SerialNumber, Guid ProductId, Guid? ManufacturerId, Guid MeasurementUnitId,
-        Guid? SupplierId, decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status);
+        Guid? SupplierId, decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status,
+        Guid? CashAccountId);
 
     [HttpPut]
     [ProducesResponseType(typeof(Guid), 202)]
     public async Task<IActionResult> UpdateSku([FromBody] UpdateSkuRequest req, CancellationToken ct = default)
     {
-        var ok = await update.HandleAsync(
+        var (found, error) = await update.HandleAsync(
             new(req.Id, req.Name, req.NameRu, req.NameEn, req.NameKa, req.SerialNumber,
                 req.ProductId, req.ManufacturerId, req.MeasurementUnitId, req.SupplierId,
-                req.Price, req.Amount, req.ExpirationDate, req.Status), ct);
-        return ok ? Ok(req.Id) : NotFound();
+                req.Price, req.Amount, req.ExpirationDate, req.Status, req.CashAccountId), ct);
+        if (!found) return NotFound();
+        return error is not null ? BadRequest(new { message = error }) : Ok(req.Id);
     }
 
     [HttpDelete("{id:guid}")]
@@ -121,14 +124,14 @@ public class SkuController(
     {
         var (notFound, error) = await delete.HandleAsync(new(id), ct);
         if (notFound) return NotFound();
-        return error is not null ? Conflict(error) : NoContent();
+        return error is not null ? BadRequest(new { message = error }) : NoContent();
     }
 
     [HttpPost("delete-range")]
     public async Task<IActionResult> DeleteSkus([FromBody] Guid[] ids, CancellationToken ct = default)
     {
         var (_, error) = await deleteRange.HandleAsync(new(ids), ct);
-        return error is not null ? Conflict(error) : NoContent();
+        return error is not null ? BadRequest(new { message = error }) : NoContent();
     }
 }
 

@@ -26,4 +26,10 @@ public record SkuModel
     public DateTimeOffset ExpirationDate { get; set; }
     public ProductType ProductType { get; set; }
     public SkuStatus Status { get; set; }
+
+    /// <summary>
+    /// Skladga material kiritilganda to'lov yechilgan kassa/bank hisobi (agar bog'langan bo'lsa).
+    /// CashTransaction (SourceType=SkuPurchase) dan olinadi — edit oynasida preload uchun.
+    /// </summary>
+    public Guid? CashAccountId { get; set; }
 }

@@ -37,10 +37,10 @@ public class AuthController(
                 ?? await userManager.FindByEmailAsync(req.UserName);
 
         if (user is null || !await userManager.CheckPasswordAsync(user, req.Password))
-            return Unauthorized(new { message = "Login yoki parol noto'g'ri" });
+            return Unauthorized(new { message = "Login yoki parol noto'g'ri. / Неверный логин или пароль." });
 
         if (await userManager.IsLockedOutAsync(user))
-            return Unauthorized(new { message = "Hisob vaqtincha bloklangan. Keyinroq urinib ko'ring." });
+            return Unauthorized(new { message = "Hisob vaqtincha bloklangan. Keyinroq urinib ko'ring. / Аккаунт временно заблокирован. Попробуйте позже." });
 
         return Ok(await BuildAuthResponseAsync(user, ct));
     }
@@ -83,21 +83,21 @@ public class AuthController(
     {
         var principal = tokenService.GetPrincipalFromExpiredToken(req.AccessToken);
         if (principal is null)
-            return BadRequest(new { message = "Access token noto'g'ri" });
+            return BadRequest(new { message = "Access token noto'g'ri. / Неверный access-токен." });
 
         var userId = principal.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (!Guid.TryParse(userId, out var uid))
-            return BadRequest(new { message = "Token ichida foydalanuvchi topilmadi" });
+            return BadRequest(new { message = "Token ichida foydalanuvchi topilmadi. / Пользователь в токене не найден." });
 
         var storedToken = await db.RefreshTokens
             .FirstOrDefaultAsync(rt => rt.UserId == uid && rt.Token == req.RefreshToken, ct);
 
         if (storedToken is null || !storedToken.IsActive)
-            return Unauthorized(new { message = "Refresh token yaroqsiz yoki muddati o'tgan" });
+            return Unauthorized(new { message = "Refresh token yaroqsiz yoki muddati o'tgan. / Refresh-токен недействителен или истёк." });
 
         var user = await userManager.FindByIdAsync(uid.ToString());
         if (user is null)
-            return Unauthorized(new { message = "Foydalanuvchi topilmadi" });
+            return Unauthorized(new { message = "Foydalanuvchi topilmadi. / Пользователь не найден." });
 
         // Eski tokenni bekor qilish
         storedToken.IsRevoked = true;
@@ -119,7 +119,7 @@ public class AuthController(
     {
         var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (!Guid.TryParse(userId, out var uid))
-            return BadRequest(new { message = "Foydalanuvchi aniqlanmadi" });
+            return BadRequest(new { message = "Foydalanuvchi aniqlanmadi. / Пользователь не определён." });
 
         var tokens = await db.RefreshTokens
             .Where(rt => rt.UserId == uid && !rt.IsRevoked)
