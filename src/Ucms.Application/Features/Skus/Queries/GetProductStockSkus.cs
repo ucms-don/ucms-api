@@ -30,13 +30,13 @@ public static class GetProductStockSkus
             {
                 var name = q.Search.ToLower();
                 query = query.Where(w =>
-                    w.Sku!.Name.ToLower().Contains(name) || w.Sku!.NameEn!.ToLower().Contains(name) ||
-                    w.Sku!.NameRu.ToLower().Contains(name) || w.Sku!.NameKa!.ToLower().Contains(name) ||
+                    w.Sku!.Product!.Name.ToLower().Contains(name) || w.Sku!.Product!.NameEn!.ToLower().Contains(name) ||
+                    w.Sku!.Product!.NameRu.ToLower().Contains(name) || w.Sku!.Product!.NameKa!.ToLower().Contains(name) ||
                     w.Sku!.SerialNumber.Contains(name));
             }
 
             var stockSkus = await query
-                .OrderBy(o => o.Sku!.Name)
+                .OrderBy(o => o.Sku!.SerialNumber)
                 .Skip(q.Paging.Page).Take(q.Paging.PageSize)
                 .ToListAsync(ct);
 

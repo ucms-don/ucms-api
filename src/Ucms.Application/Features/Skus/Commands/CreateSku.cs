@@ -4,27 +4,34 @@ using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
 using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
+using Ucms.Application.Services;
 using Ucms.Domain.Entities;
 using Ucms.Domain.Enums;
 
 public static class CreateSku
 {
     public record Command(
-        string Name, string NameRu, string? NameEn, string? NameKa,
-        string SerialNumber, Guid ProductId, Guid? ManufacturerId,
+        string? SerialNumber, Guid ProductId, Guid? ManufacturerId,
         Guid MeasurementUnitId, Guid? SupplierId,
         decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status,
         Guid? CashAccountId, Guid? StockId);
 
-    public sealed class Handler(IUcmsDbContext db, IWorkContext workContext)
+    public sealed class Handler(IUcmsDbContext db, IWorkContext workContext, ISkuSerialNumberGenerator serialGenerator)
     {
         public async Task<(Guid? Id, string? Error)> HandleAsync(Command cmd, CancellationToken ct)
         {
-            if (await db.Skus.AnyAsync(f => f.SerialNumber == cmd.SerialNumber, ct))
-                return (null, $"'{cmd.SerialNumber}' seriya raqami allaqachon mavjud");
+            // SerialNumber qo'lda kiritilmagan bo'lsa, mahsulot (Product.Code) asosida
+            // avtomatik va noyob seriya raqami generatsiya qilinadi.
+            var serialNumber = string.IsNullOrWhiteSpace(cmd.SerialNumber)
+                ? await serialGenerator.GenerateAsync(cmd.ProductId, ct)
+                : cmd.SerialNumber.Trim();
+
+            if (await db.Skus.AnyAsync(f => f.SerialNumber == serialNumber, ct))
+                return (null, $"'{serialNumber}' seriya raqami allaqachon mavjud");
 
             var orgId  = workContext.TenantId!.Value;
             var userId = workContext.UserId ?? Guid.Empty;
+            var product = await db.Products.FirstOrDefaultAsync(p => p.Id == cmd.ProductId, ct);
 
             // Skladga material kiritilayotganda to'lov qilinadigan kassa/bank ko'rsatilgan bo'lsa,
             // o'sha hisobdan Narx × Miqdor summasi yechiladi (chiqim — yetkazib beruvchiga to'lov).
@@ -41,8 +48,7 @@ public static class CreateSku
             var sku = new Sku
             {
                 Id = Guid.NewGuid(),
-                Name = cmd.Name, NameRu = cmd.NameRu, NameEn = cmd.NameEn, NameKa = cmd.NameKa,
-                SerialNumber = cmd.SerialNumber, Price = cmd.Price, Amount = cmd.Amount,
+                SerialNumber = serialNumber, Price = cmd.Price, Amount = cmd.Amount,
                 ExpirationDate = cmd.ExpirationDate, ProductId = cmd.ProductId,
                 ManufacturerId = cmd.ManufacturerId, MeasurementUnitId = cmd.MeasurementUnitId,
                 SupplierId = cmd.SupplierId, Status = cmd.Status
@@ -56,7 +62,7 @@ public static class CreateSku
                     orgId, cmd.CashAccountId.Value,
                     CashDirection.Out, CashTransactionType.SupplierPayment,
                     FinancePartnerType.Supplier, cmd.SupplierId,
-                    totalCost, DateTimeOffset.UtcNow, null, $"Sklad: {cmd.Name} ({cmd.SerialNumber})",
+                    totalCost, DateTimeOffset.UtcNow, null, $"Sklad: {product?.Name} ({serialNumber})",
                     userId, ct);
             }
 

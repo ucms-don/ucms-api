@@ -2,17 +2,15 @@ namespace Ucms.Application.Features.Skus.DTOs;
 
 using Ucms.Application.Features.Manufacturers.DTOs;
 using Ucms.Application.Features.MeasurementUnits.DTOs;
+using Ucms.Application.Features.Products.DTOs;
 using Ucms.Application.Features.Suppliers.DTOs;
 using Ucms.Domain.Enums;
 
 public record SkuModel
 {
     public Guid Id { get; set; }
-    public string Name { get; set; } = default!;
-    public string NameRu { get; set; } = default!;
-    public string? NameEn { get; set; }
-    public string? NameKa { get; set; }
     public string SerialNumber { get; set; } = default!;
+    public ProductModel Product { get; set; } = default!;
     public ManufacturerModel Manufacturer { get; set; } = default!;
     public MeasurementUnitModel MeasurementUnit { get; set; } = default!;
     public SupplierModel Supplier { get; set; } = default!;

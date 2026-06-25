@@ -9,8 +9,7 @@ using Ucms.Domain.Enums;
 public static class UpdateSku
 {
     public record Command(
-        Guid Id, string Name, string NameRu, string? NameEn, string? NameKa,
-        string SerialNumber, Guid ProductId, Guid? ManufacturerId,
+        Guid Id, string SerialNumber, Guid ProductId, Guid? ManufacturerId,
         Guid MeasurementUnitId, Guid? SupplierId,
         decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status,
         Guid? CashAccountId);
@@ -25,6 +24,7 @@ public static class UpdateSku
             var orgId  = workContext.TenantId!.Value;
             var userId = workContext.UserId ?? Guid.Empty;
             var totalCost = cmd.Price * cmd.Amount;
+            var product = await db.Products.FirstOrDefaultAsync(p => p.Id == cmd.ProductId, ct);
 
             // Kassa/bank ko'rsatilgan bo'lsa, bog'langan chiqim (yetkazib beruvchiga to'lov)
             // yangi Narx × Miqdor bo'yicha qayta sinxronlanadi. Balansni tekshirishda shu Sku'ning
@@ -40,7 +40,6 @@ public static class UpdateSku
                     return (true, "Kassada mablag' yetarli emas. / Недостаточно средств на счёте.");
             }
 
-            sku.Name = cmd.Name; sku.NameRu = cmd.NameRu; sku.NameEn = cmd.NameEn; sku.NameKa = cmd.NameKa;
             sku.SerialNumber = cmd.SerialNumber; sku.Price = cmd.Price; sku.Amount = cmd.Amount;
             sku.ExpirationDate = cmd.ExpirationDate; sku.ProductId = cmd.ProductId;
             sku.ManufacturerId = cmd.ManufacturerId; sku.MeasurementUnitId = cmd.MeasurementUnitId;
@@ -53,7 +52,7 @@ public static class UpdateSku
                     orgId, cmd.CashAccountId.Value,
                     CashDirection.Out, CashTransactionType.SupplierPayment,
                     FinancePartnerType.Supplier, cmd.SupplierId,
-                    totalCost, DateTimeOffset.UtcNow, null, $"Sklad: {cmd.Name} ({cmd.SerialNumber})",
+                    totalCost, DateTimeOffset.UtcNow, null, $"Sklad: {product?.Name} ({cmd.SerialNumber})",
                     userId, ct);
             }
             else

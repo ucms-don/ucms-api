@@ -10,17 +10,17 @@ public class StockBalanceRegister : Entity, IDeletable
     /// <summary>
     /// Идентификатор склада
     /// </summary>
-    public Guid StockId { get; set; } = default!;
+    public required Guid StockId { get; set; }
 
     /// <summary>
     /// Идентификатор единицы складского учета
     /// </summary>
-    public Guid SkuId { get; set; } = default!;
+    public required Guid SkuId { get; set; }
 
     /// <summary>
     /// Идентификатор продукта
     /// </summary>
-    public Guid ProductId { get; set; } = default!;
+    public required Guid ProductId { get; set; }
 
     /// <summary>
     /// Идентификатор единицы измерение

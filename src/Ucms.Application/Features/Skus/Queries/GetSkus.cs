@@ -15,8 +15,9 @@ public static class GetSkus
         public async Task<List<SkuModel>> HandleAsync(Query q, CancellationToken ct)
         {
             var skus = await db.OrganizationSkus
+                .Include(i => i.Sku!.Product)
                 .Where(w => w.OrganizationId == workContext.TenantId)
-                .OrderBy(a => a.Sku!.Name)
+                .OrderBy(a => a.Sku!.SerialNumber)
                 .Select(s => s.Sku)
                 .ToListAsync(ct);
             return mapper.Map<List<SkuModel>>(skus);

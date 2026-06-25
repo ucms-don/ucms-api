@@ -25,7 +25,7 @@ public static class CreateStockDemand
                 Name = cmd.Name, Note = cmd.Note, DemandStatus = cmd.DemandStatus,
                 DemandDate = cmd.DemandDate, SenderId = cmd.SenderId, RecipientId = cmd.RecipientId,
                 EmployeeId = workContext.EmployeeId,
-                EmployeeName = await organizationService.GetEmployeeName(workContext.EmployeeId)
+                EmployeeName = await organizationService.GetEmployeeName(workContext.EmployeeId, ct)
             };
             foreach (var item in cmd.Items)
                 demand.StockDemandItems.Add(new StockDemandItem

@@ -20,7 +20,7 @@ public static class UploadOutcomeFile
             var outcome = await db.Outcomes.AsTracking().FirstOrDefaultAsync(a => a.Id == cmd.OutcomeId, ct);
             if (outcome is null) return (null, "Topilmadi");
 
-            var response = await storageClient.UploadAsync("outcomes", $"{cmd.OutcomeId}.pdf", cmd.File.OpenReadStream())
+            var response = await storageClient.UploadAsync("outcomes", $"{cmd.OutcomeId}.pdf", cmd.File.OpenReadStream(), ct)
                 ?? throw new AppException("Faylni yuklashda xatolik. / Ошибка при загрузке файла.");
 
             outcome.FilePath = response.FilePath;

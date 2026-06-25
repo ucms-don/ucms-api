@@ -13,7 +13,7 @@ public static class FindSkuBySerial
     {
         public async Task<SkuModel?> HandleAsync(Query q, CancellationToken ct)
         {
-            var sku = await db.Skus.FirstOrDefaultAsync(f => f.SerialNumber == q.SerialNumber, ct);
+            var sku = await db.Skus.Include(s => s.Product).FirstOrDefaultAsync(f => f.SerialNumber == q.SerialNumber, ct);
             return sku is null ? null : mapper.Map<SkuModel>(sku);
         }
     }

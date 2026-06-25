@@ -86,8 +86,7 @@ public class SkuController(
             return Ok(await checkUsed.HandleAsync(new(id), ct));
         }
 
-    public record CreateSkuRequest(string Name, string NameRu, string? NameEn, string? NameKa,
-        string SerialNumber, Guid ProductId, Guid? ManufacturerId, Guid MeasurementUnitId,
+    public record CreateSkuRequest(string? SerialNumber, Guid ProductId, Guid? ManufacturerId, Guid MeasurementUnitId,
         Guid? SupplierId, decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status,
         Guid? CashAccountId, Guid? StockId);
 
@@ -96,14 +95,13 @@ public class SkuController(
     public async Task<IActionResult> CreateSku([FromBody] CreateSkuRequest req, CancellationToken ct = default)
     {
         var (id, error) = await create.HandleAsync(
-            new(req.Name, req.NameRu, req.NameEn, req.NameKa, req.SerialNumber,
+            new(req.SerialNumber,
                 req.ProductId, req.ManufacturerId, req.MeasurementUnitId, req.SupplierId,
                 req.Price, req.Amount, req.ExpirationDate, req.Status, req.CashAccountId, req.StockId), ct);
         return error is not null ? BadRequest(new { message = error }) : Ok(id);
     }
 
-    public record UpdateSkuRequest(Guid Id, string Name, string NameRu, string? NameEn, string? NameKa,
-        string SerialNumber, Guid ProductId, Guid? ManufacturerId, Guid MeasurementUnitId,
+    public record UpdateSkuRequest(Guid Id, string SerialNumber, Guid ProductId, Guid? ManufacturerId, Guid MeasurementUnitId,
         Guid? SupplierId, decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status,
         Guid? CashAccountId);
 
@@ -112,7 +110,7 @@ public class SkuController(
     public async Task<IActionResult> UpdateSku([FromBody] UpdateSkuRequest req, CancellationToken ct = default)
     {
         var (found, error) = await update.HandleAsync(
-            new(req.Id, req.Name, req.NameRu, req.NameEn, req.NameKa, req.SerialNumber,
+            new(req.Id, req.SerialNumber,
                 req.ProductId, req.ManufacturerId, req.MeasurementUnitId, req.SupplierId,
                 req.Price, req.Amount, req.ExpirationDate, req.Status, req.CashAccountId), ct);
         if (!found) return NotFound();

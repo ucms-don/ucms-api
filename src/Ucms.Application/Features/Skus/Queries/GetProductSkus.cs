@@ -15,10 +15,11 @@ public static class GetProductSkus
         public async Task<List<SkuModel>> HandleAsync(Query q, CancellationToken ct)
         {
             var skus = await db.OrganizationSkus
+                .Include(i => i.Sku!.Product)
                 .Include(i => i.Sku!.MeasurementUnit)
                 .Where(w => w.OrganizationId == workContext.TenantId && w.Sku!.ProductId == q.ProductId)
                 .Select(w => w.Sku!)
-                .OrderBy(a => a.Name)
+                .OrderBy(a => a.SerialNumber)
                 .ToListAsync(ct);
             return mapper.Map<List<SkuModel>>(skus);
         }

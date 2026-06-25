@@ -154,12 +154,12 @@ public class OutcomeService(IUcmsDbContext dbContext, IMapper mapper) : IOutcome
 
         if (insufficientSkuIds.Count > 0)
         {
-            var names = await dbContext.Skus
+            var numbers = await dbContext.Skus
                 .Where(s => insufficientSkuIds.Contains(s.Id))
-                .Select(s => s.NameRu ?? s.Name)
+                .Select(s => s.SerialNumber)
                 .ToListAsync(cancellationToken);
 
-            var list = string.Join(", ", names);
+            var list = string.Join(", ", numbers);
             throw new AppException(string.IsNullOrWhiteSpace(list)
                 ? "На выбранном складе недостаточно количества товара"
                 : $"На выбранном складе недостаточно количества товара: {list}");

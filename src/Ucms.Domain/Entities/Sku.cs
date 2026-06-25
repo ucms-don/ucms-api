@@ -6,7 +6,7 @@ using Ucms.Domain.Enums;
 /// <summary>
 /// Единица складского учета
 /// </summary>
-public class Sku : LocalizableEntity, IDeletable
+public class Sku : Entity, IDeletable
 {
     /// <summary>
     /// Сериа номер Единицы складского учета

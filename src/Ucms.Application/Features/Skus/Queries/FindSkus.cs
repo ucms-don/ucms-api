@@ -15,11 +15,12 @@ public static class FindSkus
         {
             var s = q.Search.ToLower();
             var skus = await db.Skus
+                .Include(a => a.Product)
                 .Where(a =>
-                    a.Name.ToLower().Contains(s) || a.NameEn!.ToLower().Contains(s) ||
-                    a.NameRu.ToLower().Contains(s) || a.NameKa!.ToLower().Contains(s) ||
+                    a.Product!.Name.ToLower().Contains(s) || a.Product!.NameEn!.ToLower().Contains(s) ||
+                    a.Product!.NameRu.ToLower().Contains(s) || a.Product!.NameKa!.ToLower().Contains(s) ||
                     a.SerialNumber.Contains(s))
-                .OrderBy(a => a.Name)
+                .OrderBy(a => a.SerialNumber)
                 .ToListAsync(ct);
             return mapper.Map<List<SkuModel>>(skus);
         }

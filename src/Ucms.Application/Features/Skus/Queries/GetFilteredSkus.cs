@@ -20,6 +20,7 @@ public static class GetFilteredSkus
         public async Task<PagedResult<SkuModel>> HandleAsync(Query q, CancellationToken ct)
         {
             var query = db.OrganizationSkus
+                .Include(i => i.Sku!.Product)
                 .Include(i => i.Sku!.Manufacturer)
                 .Include(i => i.Sku!.MeasurementUnit)
                 .Include(i => i.Sku!.Supplier)
@@ -30,8 +31,9 @@ public static class GetFilteredSkus
             {
                 var s = q.Search.ToLowerInvariant().Trim();
                 query = query.Where(x =>
-                    x.Name.ToLower().Contains(s) || x.NameRu.ToLower().Contains(s) ||
-                    x.NameKa!.ToLower().Contains(s) || x.NameEn!.ToLower().Contains(s));
+                    x.Product!.Name.ToLower().Contains(s) || x.Product!.NameRu.ToLower().Contains(s) ||
+                    x.Product!.NameKa!.ToLower().Contains(s) || x.Product!.NameEn!.ToLower().Contains(s) ||
+                    x.SerialNumber.ToLower().Contains(s));
             }
             if (!string.IsNullOrEmpty(q.SerialNumber))
             {

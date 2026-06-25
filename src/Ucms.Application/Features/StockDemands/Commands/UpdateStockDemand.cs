@@ -27,7 +27,7 @@ public static class UpdateStockDemand
             demand.Name = cmd.Name; demand.Note = cmd.Note; demand.DemandStatus = cmd.DemandStatus;
             demand.DemandDate = cmd.DemandDate; demand.SenderId = cmd.SenderId; demand.RecipientId = cmd.RecipientId;
             demand.EmployeeId = workContext.EmployeeId;
-            demand.EmployeeName = await organizationService.GetEmployeeName(workContext.EmployeeId);
+            demand.EmployeeName = await organizationService.GetEmployeeName(workContext.EmployeeId, ct);
             demand.StockDemandItems.Clear();
             foreach (var item in cmd.Items)
                 demand.StockDemandItems.Add(new StockDemandItem

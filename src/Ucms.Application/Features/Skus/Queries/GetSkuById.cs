@@ -14,7 +14,7 @@ public static class GetSkuById
     {
         public async Task<SkuModel?> HandleAsync(Query q, CancellationToken ct)
         {
-            var sku = await db.Skus.FirstOrDefaultAsync(f => f.Id == q.Id, ct);
+            var sku = await db.Skus.Include(s => s.Product).FirstOrDefaultAsync(f => f.Id == q.Id, ct);
             if (sku is null) return null;
 
             var model = mapper.Map<SkuModel>(sku);

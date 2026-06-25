@@ -21,11 +21,12 @@ public static class GetStockInventory
             if (q.StockId.HasValue) query = query.Where(w => w.StockId == q.StockId);
             if (q.ProductId.HasValue) query = query.Where(w => w.Sku!.ProductId == q.ProductId);
 
-            var result = await query.OrderBy(o => o.Sku!.NameRu)
+            var result = await query.OrderBy(o => o.Sku!.Product!.NameRu)
                 .Select(s => new StockInventoryDataModel
                 {
                     Amount = s.Amount, ProductId = s.Sku!.ProductId, MeasurementUnitId = s.MeasurementUnitId,
-                    SkuName = s.Sku!.Name, SkuNameEn = s.Sku!.NameEn, SkuNameRu = s.Sku!.NameRu, SkuNameKa = s.Sku!.NameKa,
+                    SkuName = s.Sku!.Product!.Name, SkuNameEn = s.Sku!.Product!.NameEn,
+                    SkuNameRu = s.Sku!.Product!.NameRu, SkuNameKa = s.Sku!.Product!.NameKa,
                     MeasurementUnitName = s.MeasurementUnit!.Name, MeasurementUnitNameEn = s.MeasurementUnit!.NameEn,
                     MeasurementUnitNameRu = s.MeasurementUnit!.NameRu, MeasurementUnitNameKa = s.MeasurementUnit!.NameKa,
                     MeasurementUnitType = s.MeasurementUnit!.Type
