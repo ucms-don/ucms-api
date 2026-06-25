@@ -35,9 +35,10 @@ public class StubOrganizationClient(IUcmsDbContext db, ICurrentContext context) 
             .ToListAsync();
     }
 
-    public async Task<bool> CheckOrganizationBrigadeStock(Guid stockId)
+    public Task<bool> CheckOrganizationBrigadeStock(Guid stockId)
     {
-        return await db.Stocks
-            .AnyAsync(s => s.Id == stockId && !s.IsDeleted);
+        // Stub: brigada integratsiyasi hali yo'q. Hech qaysi ombor brigadaga
+        // biriktirilmagan deb hisoblanadi (aks holda barcha omborlarni o'chirish bloklanardi).
+        return Task.FromResult(false);
     }
 }
