@@ -47,6 +47,24 @@ public static class WebApplicationExtensions
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             });
 
+        // Model-validation xatolari HAR DOIM ikki tilda (o'zbek + rus) qaytsin.
+        // Ошибки валидации модели ВСЕГДА возвращаются на двух языках (узбекский + русский).
+        builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var details = context.ModelState
+                    .Where(kvp => kvp.Value is not null && kvp.Value.Errors.Count > 0)
+                    .SelectMany(kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage))
+                    .Where(m => !string.IsNullOrWhiteSpace(m))
+                    .Distinct()
+                    .ToList();
+
+                var message = "Ma'lumotlar noto'g'ri to'ldirilgan. / Введены некорректные данные.";
+                return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(new { message, errors = details });
+            };
+        });
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddUcmsSwagger(builder.Configuration);
         builder.Services.AddApplicationHealthChecks();
