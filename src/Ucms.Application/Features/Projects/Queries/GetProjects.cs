@@ -81,6 +81,4 @@ public static class GetProjects
                 "archived"  => ProjectStatus.Cancelled,
                 _           => null,
             };
-        }
-    }
-}
+        

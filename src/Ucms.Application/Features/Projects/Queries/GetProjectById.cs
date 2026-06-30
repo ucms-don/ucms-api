@@ -65,8 +65,4 @@ public static class GetProjectById
                 ProjectStatus.Completed  => "completed",
                 ProjectStatus.Suspended  => "suspended",
                 ProjectStatus.Cancelled  => "archived",
-                _                        => "planning",
-            };
-        }
-    }
-}
+                _                        => "plann

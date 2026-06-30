@@ -55,7 +55,4 @@ public static class GetFinancialSummary
                 BrigadeDebt        = workedBrigadeTotal - brigadePaid,
 
                 NetBalance = clientReceived - brigadePaid,
-            }, false, false);
-        }
-    }
-}
+            }, false, 

@@ -16,7 +16,8 @@ using Ucms.Domain.Enums;
 [Authorize]
 public class BrigadePaymentController(
     GetAllBrigadePayments.Handler getAll,
-    CreateBrigadePayment.Handler  create) : ControllerBase
+    CreateBrigadePayment.Handler  create,
+    UpdateBrigadePayment.Handler  update) : ControllerBase
 {
     public record CreateBrigadePaymentRequest(
         Guid            ProjectId,
@@ -68,6 +69,4 @@ public class BrigadePaymentController(
         if (forbidden)       return Forbid();
         if (cashNotFound)    return BadRequest(new { message = "Kassa hisobi topilmadi. / Кассовый счёт не найден." });
         if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
-        return StatusCode(201, data);
-    }
-}
+      

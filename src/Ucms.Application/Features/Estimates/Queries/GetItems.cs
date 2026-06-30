@@ -44,7 +44,4 @@ public static class GetItems
                 })
                 .ToListAsync(ct);
 
-            return (items, false);
-        }
-    }
-}
+ 
