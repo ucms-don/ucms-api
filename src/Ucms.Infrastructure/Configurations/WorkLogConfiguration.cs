@@ -14,7 +14,7 @@ public class WorkLogConfiguration : IEntityTypeConfiguration<WorkLog>
         builder.HasIndex(e => e.EstimateItemId);
         builder.HasIndex(e => e.BrigadePaymentId);
 
-        builder.Property(e => e.Volume).HasPrecision(18, 4);
+        builder.Property(e => e.Volume).HasPrecision(28, 12);
         builder.Property(e => e.BrigadeUnitPrice).HasPrecision(18, 2);
         builder.Property(e => e.TotalAmount).HasPrecision(18, 2);
         builder.Property(e => e.Note).HasMaxLength(1024);

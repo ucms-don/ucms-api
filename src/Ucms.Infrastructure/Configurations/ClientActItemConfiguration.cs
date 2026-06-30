@@ -10,7 +10,7 @@ public class ClientActItemConfiguration : IEntityTypeConfiguration<ClientActItem
     {
         builder.HasIndex(e => e.ActId);
         builder.HasIndex(e => e.EstimateItemId);
-        builder.Property(e => e.Volume).HasPrecision(18, 4);
+        builder.Property(e => e.Volume).HasPrecision(28, 12);
         builder.Property(e => e.UnitPrice).HasPrecision(18, 2);
         builder.Property(e => e.TotalAmount).HasPrecision(18, 2);
     }

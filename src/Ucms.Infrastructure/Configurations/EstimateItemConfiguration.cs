@@ -11,7 +11,7 @@ public class EstimateItemConfiguration : IEntityTypeConfiguration<EstimateItem>
         builder.HasIndex(e => e.Id);
         builder.HasIndex(e => e.SectionId);
         builder.Property(e => e.Description).HasMaxLength(2048);
-        builder.Property(e => e.Volume).HasPrecision(18, 4);
+        builder.Property(e => e.Volume).HasPrecision(28, 12);
 
         builder.HasOne(e => e.WorkType)
             .WithMany()
