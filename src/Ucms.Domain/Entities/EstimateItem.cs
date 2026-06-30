@@ -58,6 +58,12 @@ public class EstimateItem : Entity
     public decimal MaterialUnitPrice { get; set; }
 
     /// <summary>
+    /// NDS (QQS) foizi — foiz sifatida (masalan: 20 = 20%).
+    /// NDS summasi va NDS bilan umumiy summa hisoblangan qiymat sifatida chiqariladi.
+    /// </summary>
+    public decimal VatRate { get; set; }
+
+    /// <summary>
     /// Tartib raqami
     /// </summary>
     public int Order { get; set; }

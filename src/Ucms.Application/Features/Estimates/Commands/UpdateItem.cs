@@ -10,7 +10,7 @@ public static class UpdateItem
     public record Command(
         Guid ProjectId, Guid EstimateId, Guid ItemId,
         Guid WorkTypeId, SurfaceType? SurfaceType, string? Description, Guid MeasurementUnitId, decimal Volume,
-        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
+        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, decimal VatRate, int Order);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
@@ -50,6 +50,7 @@ public static class UpdateItem
             item.ClientUnitPrice   = cmd.ClientUnitPrice;
             item.BrigadeUnitPrice  = cmd.BrigadeUnitPrice;
             item.MaterialUnitPrice = cmd.MaterialUnitPrice;
+            item.VatRate           = cmd.VatRate;
             item.Order             = cmd.Order;
 
             db.EstimateItems.Update(item);

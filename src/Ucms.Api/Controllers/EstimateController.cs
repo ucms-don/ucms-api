@@ -36,10 +36,10 @@ public class EstimateController(
     public record UpdateSectionRequest(string Name, int Order);
     public record CreateItemRequest(
         Guid SectionId, Guid WorkTypeId, SurfaceType? SurfaceType, string? Description, Guid MeasurementUnitId, decimal Volume,
-        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
+        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, decimal VatRate, int Order);
     public record UpdateItemRequest(
         Guid WorkTypeId, SurfaceType? SurfaceType, string? Description, Guid MeasurementUnitId, decimal Volume,
-        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
+        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, decimal VatRate, int Order);
 
     // ── Flat items (WorkLog uchun) ─────────────────────────────────────────────
 
@@ -215,7 +215,7 @@ public class EstimateController(
     {
         var (data, forbidden, error) = await createItem.HandleAsync(
             new(projectId, estimateId, req.SectionId, req.WorkTypeId, req.SurfaceType, req.Description, req.MeasurementUnitId, req.Volume,
-                req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.Order), ct);
+                req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.VatRate, req.Order), ct);
         if (forbidden)         return Forbid();
         if (error is not null) return BadRequest(new { message = error });
         if (data is null)      return NotFound();
@@ -234,7 +234,7 @@ public class EstimateController(
     {
         var (notFound, forbidden, error) = await updateItem.HandleAsync(
             new(projectId, estimateId, itemId, req.WorkTypeId, req.SurfaceType, req.Description, req.MeasurementUnitId, req.Volume,
-                req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.Order), ct);
+                req.ClientUnitPrice, req.BrigadeUnitPrice, req.MaterialUnitPrice, req.VatRate, req.Order), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
         if (error is not null) return BadRequest(new { message = error });

@@ -11,7 +11,7 @@ public static class CreateItem
     public record Command(
         Guid ProjectId, Guid EstimateId, Guid SectionId,
         Guid WorkTypeId, SurfaceType? SurfaceType, string? Description, Guid MeasurementUnitId, decimal Volume,
-        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, int Order);
+        decimal ClientUnitPrice, decimal BrigadeUnitPrice, decimal MaterialUnitPrice, decimal VatRate, int Order);
 
     public record Result(Guid Id, Guid WorkTypeId);
 
@@ -57,6 +57,7 @@ public static class CreateItem
                 ClientUnitPrice   = cmd.ClientUnitPrice,
                 BrigadeUnitPrice  = cmd.BrigadeUnitPrice,
                 MaterialUnitPrice = cmd.MaterialUnitPrice,
+                VatRate           = cmd.VatRate,
                 Order             = cmd.Order,
             };
 

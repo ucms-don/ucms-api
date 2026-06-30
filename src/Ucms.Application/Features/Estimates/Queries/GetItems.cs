@@ -35,9 +35,12 @@ public static class GetItems
                     i.ClientUnitPrice,
                     i.BrigadeUnitPrice,
                     i.MaterialUnitPrice,
-                    ClientTotal   = i.Volume * i.ClientUnitPrice,
-                    BrigadeTotal  = i.Volume * i.BrigadeUnitPrice,
-                    MaterialTotal = i.Volume * i.MaterialUnitPrice,
+                    i.VatRate,
+                    ClientTotal    = i.Volume * i.ClientUnitPrice,
+                    BrigadeTotal   = i.Volume * i.BrigadeUnitPrice,
+                    MaterialTotal  = i.Volume * i.MaterialUnitPrice,
+                    VatAmount      = i.Volume * i.ClientUnitPrice * i.VatRate / 100,
+                    TotalWithVat   = i.Volume * i.ClientUnitPrice * (1 + i.VatRate / 100),
                 })
                 .ToListAsync(ct);
 
