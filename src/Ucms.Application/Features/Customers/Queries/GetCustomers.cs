@@ -10,7 +10,8 @@ public static class GetCustomers
 
     public record Item(
         Guid Id, string Name, string? Phone, string? TaxId, string? Address,
-        bool IsActive, int ProjectsCount, DateTimeOffset CreatedAt);
+        bool IsActive, int ProjectsCount, DateTimeOffset CreatedAt,
+        string? DirectorName, string? DirectorPosition, string? DirectorPhone);
 
     public record Result(int Total, int Page, int Size, List<Item> Items);
 
@@ -41,7 +42,8 @@ public static class GetCustomers
                 .Skip((q.Page - 1) * q.Size).Take(q.Size)
                 .Select(c => new Item(
                     c.Id, c.Name, c.Phone, c.TaxId, c.Address,
-                    c.IsActive, c.Projects.Count(p => !p.IsDeleted), c.CreatedAt))
+                    c.IsActive, c.Projects.Count(p => !p.IsDeleted), c.CreatedAt,
+                    c.DirectorName, c.DirectorPosition, c.DirectorPhone))
                 .ToListAsync(ct);
 
             return (new Result(total, q.Page, q.Size, items), false);

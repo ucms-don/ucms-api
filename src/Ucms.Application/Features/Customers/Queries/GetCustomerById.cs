@@ -13,7 +13,8 @@ public static class GetCustomerById
     public record CustomerDetailDto(
         Guid Id, string Name, string? Phone, string? TaxId, string? Address, string? Notes,
         bool IsActive, Guid OrganizationId, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt,
-        List<ProjectSummary> Projects);
+        List<ProjectSummary> Projects,
+        string? DirectorName, string? DirectorPosition, string? DirectorPhone);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
@@ -26,7 +27,8 @@ public static class GetCustomerById
                     c.IsActive, c.OrganizationId, c.CreatedAt, c.UpdatedAt,
                     c.Projects.Where(p => !p.IsDeleted)
                         .Select(p => new ProjectSummary(p.Id, p.Name, p.ContractNumber, p.ContractValue))
-                        .ToList()))
+                        .ToList(),
+                    c.DirectorName, c.DirectorPosition, c.DirectorPhone))
                 .FirstOrDefaultAsync(ct);
 
             if (customer is null) return (null, false);

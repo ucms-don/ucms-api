@@ -6,7 +6,9 @@ using Ucms.Domain.Entities;
 
 public static class CreateCustomer
 {
-    public record Command(string Name, string? Phone, string? TaxId, string? Address, string? Notes);
+    public record Command(
+        string Name, string? Phone, string? TaxId, string? Address, string? Notes,
+        string? DirectorName = null, string? DirectorPosition = null, string? DirectorPhone = null);
 
     public record Result(Guid Id, string Name);
 
@@ -29,6 +31,9 @@ public static class CreateCustomer
                 TaxId          = cmd.TaxId,
                 Address        = cmd.Address,
                 Notes          = cmd.Notes,
+                DirectorName     = cmd.DirectorName,
+                DirectorPosition = cmd.DirectorPosition,
+                DirectorPhone    = cmd.DirectorPhone,
                 IsActive       = true,
                 IsDeleted      = false,
                 CreatedAt      = now, UpdatedAt = now,

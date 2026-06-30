@@ -5,7 +5,9 @@ using Ucms.Application.Persistence;
 
 public static class UpdateCustomer
 {
-    public record Command(Guid Id, string Name, string? Phone, string? TaxId, string? Address, string? Notes, bool IsActive);
+    public record Command(
+        Guid Id, string Name, string? Phone, string? TaxId, string? Address, string? Notes, bool IsActive,
+        string? DirectorName = null, string? DirectorPosition = null, string? DirectorPhone = null);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
@@ -20,6 +22,9 @@ public static class UpdateCustomer
             customer.TaxId     = cmd.TaxId;
             customer.Address   = cmd.Address;
             customer.Notes     = cmd.Notes;
+            customer.DirectorName     = cmd.DirectorName;
+            customer.DirectorPosition = cmd.DirectorPosition;
+            customer.DirectorPhone    = cmd.DirectorPhone;
             customer.IsActive  = cmd.IsActive;
             customer.UpdatedAt = DateTimeOffset.UtcNow;
             customer.UpdatedBy = ctx.UserId ?? Guid.Empty;

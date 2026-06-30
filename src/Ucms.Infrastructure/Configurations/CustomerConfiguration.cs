@@ -15,6 +15,9 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
         builder.Property(e => e.TaxId).HasMaxLength(64);
         builder.Property(e => e.Address).HasMaxLength(1024);
         builder.Property(e => e.Notes).HasMaxLength(1024);
+        builder.Property(e => e.DirectorName).HasMaxLength(256);
+        builder.Property(e => e.DirectorPosition).HasMaxLength(128);
+        builder.Property(e => e.DirectorPhone).HasMaxLength(64);
 
         builder.HasQueryFilter(x => !x.IsDeleted);
 

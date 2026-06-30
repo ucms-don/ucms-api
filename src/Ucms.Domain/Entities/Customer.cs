@@ -39,6 +39,21 @@ public class Customer : AuditableEntity, IDeletable, IHasOrganization
     public string? Notes { get; set; }
 
     /// <summary>
+    /// Mas'ul shaxs / Direktor F.I.Sh
+    /// </summary>
+    public string? DirectorName { get; set; }
+
+    /// <summary>
+    /// Mas'ul shaxsning lavozimi (masalan: Direktor)
+    /// </summary>
+    public string? DirectorPosition { get; set; }
+
+    /// <summary>
+    /// Mas'ul shaxsning telefon raqami
+    /// </summary>
+    public string? DirectorPhone { get; set; }
+
+    /// <summary>
     /// Faol yoki yo'q
     /// </summary>
     public bool IsActive { get; set; } = true;

@@ -20,9 +20,13 @@ public class CustomerController(
     UpdateCustomer.Handler  update,
     DeleteCustomer.Handler  delete) : ControllerBase
 {
-    public record CreateCustomerRequest(string Name, string? Phone, string? TaxId, string? Address, string? Notes);
+    public record CreateCustomerRequest(
+        string Name, string? Phone, string? TaxId, string? Address, string? Notes,
+        string? DirectorName = null, string? DirectorPosition = null, string? DirectorPhone = null);
 
-    public record UpdateCustomerRequest(string Name, string? Phone, string? TaxId, string? Address, string? Notes, bool IsActive);
+    public record UpdateCustomerRequest(
+        string Name, string? Phone, string? TaxId, string? Address, string? Notes, bool IsActive,
+        string? DirectorName = null, string? DirectorPosition = null, string? DirectorPhone = null);
 
     /// <summary>
     /// Buyurtmachilar ro'yxati (qidiruv va faollik filtri bilan).
@@ -67,7 +71,9 @@ public class CustomerController(
     [ProducesResponseType(400)]
     public async Task<IActionResult> Create([FromBody] CreateCustomerRequest req, CancellationToken ct)
     {
-        var result = await create.HandleAsync(new(req.Name, req.Phone, req.TaxId, req.Address, req.Notes), ct);
+        var result = await create.HandleAsync(new(
+            req.Name, req.Phone, req.TaxId, req.Address, req.Notes,
+            req.DirectorName, req.DirectorPosition, req.DirectorPhone), ct);
         if (result is null) return BadRequest(new { message = "Foydalanuvchiga tashkilot biriktirilmagan. / Пользователю не привязана организация." });
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
@@ -83,7 +89,8 @@ public class CustomerController(
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCustomerRequest req, CancellationToken ct)
     {
         var (notFound, forbidden) = await update.HandleAsync(
-            new(id, req.Name, req.Phone, req.TaxId, req.Address, req.Notes, req.IsActive), ct);
+            new(id, req.Name, req.Phone, req.TaxId, req.Address, req.Notes, req.IsActive,
+                req.DirectorName, req.DirectorPosition, req.DirectorPhone), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
         return NoContent();
