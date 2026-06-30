@@ -26,8 +26,8 @@ public static class GetProjectDetail
                 .GroupBy(_ => true)
                 .Select(g => new
                 {
-                    ClientTotal  = g.Sum(i => i.Volume * i.ClientUnitPrice),
-                    BrigadeTotal = g.Sum(i => i.Volume * i.BrigadeUnitPrice),
+                    ClientTotal  = Math.Round(g.Sum(i => i.Volume * i.ClientUnitPrice),  2),
+                    BrigadeTotal = Math.Round(g.Sum(i => i.Volume * i.BrigadeUnitPrice), 2),
                 })
                 .FirstOrDefaultAsync(ct)
                 ?? new { ClientTotal = 0m, BrigadeTotal = 0m };

@@ -28,9 +28,9 @@ public static class GetSections
                     s.Id, s.Name, s.Order, s.ParentId,
                     ChildCount    = db.EstimateSections.Count(c => c.ParentId == s.Id),
                     ItemCount     = s.EstimateItems.Count(),
-                    ClientTotal   = s.EstimateItems.Sum(i => i.Volume * i.ClientUnitPrice),
-                    BrigadeTotal  = s.EstimateItems.Sum(i => i.Volume * i.BrigadeUnitPrice),
-                    MaterialTotal = s.EstimateItems.Sum(i => i.Volume * i.MaterialUnitPrice),
+                    ClientTotal   = Math.Round(s.EstimateItems.Sum(i => i.Volume * i.ClientUnitPrice),   2),
+                    BrigadeTotal  = Math.Round(s.EstimateItems.Sum(i => i.Volume * i.BrigadeUnitPrice),  2),
+                    MaterialTotal = Math.Round(s.EstimateItems.Sum(i => i.Volume * i.MaterialUnitPrice), 2),
                 })
                 .ToListAsync(ct);
 

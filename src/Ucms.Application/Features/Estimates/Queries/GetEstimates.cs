@@ -27,15 +27,9 @@ public static class GetEstimates
                 {
                     e.Id, e.Name, e.Description, e.Order,
                     SectionCount  = e.Sections.Count,
-                    ClientTotal   = e.Sections
-                        .SelectMany(s => s.EstimateItems)
-                        .Sum(i => i.Volume * i.ClientUnitPrice),
-                    BrigadeTotal  = e.Sections
-                        .SelectMany(s => s.EstimateItems)
-                        .Sum(i => i.Volume * i.BrigadeUnitPrice),
-                    MaterialTotal = e.Sections
-                        .SelectMany(s => s.EstimateItems)
-                        .Sum(i => i.Volume * i.MaterialUnitPrice),
+                    ClientTotal   = Math.Round(e.Sections.SelectMany(s => s.EstimateItems).Sum(i => i.Volume * i.ClientUnitPrice),   2),
+                    BrigadeTotal  = Math.Round(e.Sections.SelectMany(s => s.EstimateItems).Sum(i => i.Volume * i.BrigadeUnitPrice),  2),
+                    MaterialTotal = Math.Round(e.Sections.SelectMany(s => s.EstimateItems).Sum(i => i.Volume * i.MaterialUnitPrice), 2),
                     CreatedAt = e.CreatedAt,
                 })
                 .ToListAsync(ct);

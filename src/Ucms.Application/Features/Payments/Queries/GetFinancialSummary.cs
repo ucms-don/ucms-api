@@ -30,13 +30,13 @@ public static class GetFinancialSummary
                 .Where(p => p.Id == q.ProjectId)
                 .SelectMany(p => p.Estimates.SelectMany(a => a.Sections))
                 .SelectMany(s => s.EstimateItems)
-                .SumAsync(i => i.Volume * i.ClientUnitPrice, ct);
+                .SumAsync(i => Math.Round(i.Volume * i.ClientUnitPrice, 2), ct);
 
             var estimateBrigadeTotal = await db.Projects
                 .Where(p => p.Id == q.ProjectId)
                 .SelectMany(p => p.Estimates.SelectMany(a => a.Sections))
                 .SelectMany(s => s.EstimateItems)
-                .SumAsync(i => i.Volume * i.BrigadeUnitPrice, ct);
+                .SumAsync(i => Math.Round(i.Volume * i.BrigadeUnitPrice, 2), ct);
 
             var workedBrigadeTotal = await db.WorkLogs
                 .Where(w => w.ProjectId == q.ProjectId).SumAsync(w => w.TotalAmount, ct);

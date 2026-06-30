@@ -48,7 +48,7 @@ public static class GetProjects
                     p.Id, p.Name, p.Address, p.ContractNumber,
                     p.ContractValue,
                     p.Estimates.SelectMany(a => a.Sections).SelectMany(s => s.EstimateItems)
-                        .Sum(i => (decimal?)(i.Volume * i.ClientUnitPrice)) ?? 0m,
+                        .Sum(i => (decimal?)Math.Round(i.Volume * i.ClientUnitPrice, 2)) ?? 0m,
                     p.Status, MapStatusToString(p.Status),
                     p.StartDate, p.EndDate, p.OrganizationId, p.CreatedAt,
                     p.CustomerId, p.Customer != null ? p.Customer.Name : null))

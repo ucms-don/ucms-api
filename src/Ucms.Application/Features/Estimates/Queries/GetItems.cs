@@ -36,11 +36,11 @@ public static class GetItems
                     i.BrigadeUnitPrice,
                     i.MaterialUnitPrice,
                     i.VatRate,
-                    ClientTotal    = i.Volume * i.ClientUnitPrice,
-                    BrigadeTotal   = i.Volume * i.BrigadeUnitPrice,
-                    MaterialTotal  = i.Volume * i.MaterialUnitPrice,
-                    VatAmount      = i.Volume * i.ClientUnitPrice * i.VatRate / 100,
-                    TotalWithVat   = i.Volume * i.ClientUnitPrice * (1 + i.VatRate / 100),
+                    ClientTotal    = Math.Round(i.Volume * i.ClientUnitPrice,    2),
+                    BrigadeTotal   = Math.Round(i.Volume * i.BrigadeUnitPrice,   2),
+                    MaterialTotal  = Math.Round(i.Volume * i.MaterialUnitPrice,  2),
+                    VatAmount      = Math.Round(i.Volume * i.ClientUnitPrice * i.VatRate / 100m,           2),
+                    TotalWithVat   = Math.Round(i.Volume * i.ClientUnitPrice * (1m + i.VatRate / 100m),    2),
                 })
                 .ToListAsync(ct);
 

@@ -27,7 +27,7 @@ public static class GetProjectById
                     p.ContractDate,
                     p.ContractValue,
                     p.Estimates.SelectMany(a => a.Sections).SelectMany(s => s.EstimateItems)
-                        .Sum(i => (decimal?)(i.Volume * i.ClientUnitPrice)) ?? 0m,
+                        .Sum(i => (decimal?)Math.Round(i.Volume * i.ClientUnitPrice, 2)) ?? 0m,
                     p.StartDate,
                     p.EndDate,
                     p.Status,
@@ -46,8 +46,8 @@ public static class GetProjectById
                             i.Volume,
                             i.ClientUnitPrice,
                             i.BrigadeUnitPrice,
-                            i.Volume * i.ClientUnitPrice,
-                            i.Volume * i.BrigadeUnitPrice,
+                            Math.Round(i.Volume * i.ClientUnitPrice,  2),
+                            Math.Round(i.Volume * i.BrigadeUnitPrice, 2),
                             i.Order)))))))
                 .FirstOrDefaultAsync(ct);
 
