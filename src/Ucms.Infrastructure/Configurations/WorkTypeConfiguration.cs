@@ -10,5 +10,8 @@ public class WorkTypeConfiguration : LocalizableConfiguration<WorkType>
     {
         base.Configure(builder);
         builder.HasQueryFilter(x => !x.IsDeleted);
+
+        builder.Property(e => e.Code).HasMaxLength(32);
+        builder.HasIndex(e => e.Code).IsUnique();
     }
 }

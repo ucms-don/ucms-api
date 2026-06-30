@@ -21,9 +21,9 @@ public class WorkTypeController(
     DeleteWorkType.Handler  deleteOne) : ControllerBase
 {
     public record CreateWorkTypeRequest(string Name, string NameRu, string? NameEn, string? NameKa,
-        Guid? MeasurementUnitId);
+        Guid? MeasurementUnitId, string? Code);
     public record UpdateWorkTypeRequest(string Name, string NameRu, string? NameEn, string? NameKa,
-        Guid? MeasurementUnitId);
+        Guid? MeasurementUnitId, string? Code);
 
     /// <summary>
     /// Barcha ish turlari ro'yxati.
@@ -59,7 +59,7 @@ public class WorkTypeController(
     [ProducesResponseType(409)]
     public async Task<IActionResult> Create([FromBody] CreateWorkTypeRequest req, CancellationToken ct)
     {
-        var (id, error) = await create.HandleAsync(new(req.Name, req.NameRu, req.NameEn, req.NameKa, req.MeasurementUnitId), ct);
+        var (id, error) = await create.HandleAsync(new(req.Name, req.NameRu, req.NameEn, req.NameKa, req.MeasurementUnitId, req.Code), ct);
         if (error is not null) return Conflict(error);
         return StatusCode(201, id);
     }
@@ -75,7 +75,7 @@ public class WorkTypeController(
     [ProducesResponseType(409)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateWorkTypeRequest req, CancellationToken ct)
     {
-        var (notFound, error) = await update.HandleAsync(new(id, req.Name, req.NameRu, req.NameEn, req.NameKa, req.MeasurementUnitId), ct);
+        var (notFound, error) = await update.HandleAsync(new(id, req.Name, req.NameRu, req.NameEn, req.NameKa, req.MeasurementUnitId, req.Code), ct);
         if (notFound) return NotFound();
         if (error is not null) return Conflict(error);
         return NoContent();

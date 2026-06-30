@@ -6,4 +6,5 @@ public record WorkTypeModel(
     string NameRu,
     string? NameEn,
     string? NameKa,
-    Guid? MeasurementUnitId);
+    Guid? MeasurementUnitId,
+    string? Code);
