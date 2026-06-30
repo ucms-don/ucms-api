@@ -39,8 +39,8 @@ public static class GetItems
                     ClientTotal    = Math.Round(i.Volume * i.ClientUnitPrice,    2),
                     BrigadeTotal   = Math.Round(i.Volume * i.BrigadeUnitPrice,   2),
                     MaterialTotal  = Math.Round(i.Volume * i.MaterialUnitPrice,  2),
-                    VatAmount      = Math.Round(i.Volume * i.ClientUnitPrice * i.VatRate / 100m,           2),
-                    TotalWithVat   = Math.Round(i.Volume * i.ClientUnitPrice * (1m + i.VatRate / 100m),    2),
+                    VatAmount      = Math.Round(i.Volume * i.ClientUnitPrice * i.VatRate / 100m,                                     2),
+                    TotalWithVat   = Math.Round(i.Volume * i.MaterialUnitPrice + i.Volume * i.ClientUnitPrice * (1m + i.VatRate / 100m), 2),
                 })
                 .ToListAsync(ct);
 
