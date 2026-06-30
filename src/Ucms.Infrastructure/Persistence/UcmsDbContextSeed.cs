@@ -1449,7 +1449,6 @@ public class UcmsDbContextSeed
             Name           = "Pivchenkova ko'chasi, 14-uy — 2,3-sektsiya otdelka",
             Address        = "Moskva sh., G'arbiy ma.okrugi, Fili-Davydkovo tumani, Pivchenkova ko'chasi, 14-uy",
             Description    = "Tipik qavatlarni otdelka qilish bo'yicha pudrat ishlari kompleksi (2,3-sektsiyalar)",
-            ClientName     = "OOO \"IKS\"",
             ContractNumber = "2026/2-3",
             ContractDate   = D(2026, 1, 10),
             ContractValue  = 16_061_329.00m,

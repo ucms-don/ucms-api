@@ -10,7 +10,7 @@ public static class GetProjects
     public record Query(ProjectStatus? Status, string? StatusString, int Page, int Size);
 
     public record Item(
-        Guid Id, string Name, string? ClientName, string? Address, string? ContractNumber,
+        Guid Id, string Name, string? Address, string? ContractNumber,
         decimal? ContractValue, decimal EstimatesTotal, ProjectStatus Status, string StatusString,
         DateTimeOffset? StartDate, DateTimeOffset? EndDate,
         Guid OrganizationId, DateTimeOffset CreatedAt,
@@ -45,7 +45,7 @@ public static class GetProjects
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip((q.Page - 1) * q.Size).Take(q.Size)
                 .Select(p => new Item(
-                    p.Id, p.Name, p.ClientName, p.Address, p.ContractNumber,
+                    p.Id, p.Name, p.Address, p.ContractNumber,
                     p.ContractValue,
                     p.Estimates.SelectMany(a => a.Sections).SelectMany(s => s.EstimateItems)
                         .Sum(i => (decimal?)(i.Volume * i.ClientUnitPrice)) ?? 0m,

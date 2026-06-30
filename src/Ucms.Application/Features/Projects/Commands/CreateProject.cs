@@ -9,7 +9,7 @@ using Ucms.Domain.Enums;
 public static class CreateProject
 {
     public record Command(
-        string Name, string? ClientName, string? Address, string? Description,
+        string Name, string? Address, string? Description,
         string? ContractNumber, DateTimeOffset? ContractDate,
         DateTimeOffset? StartDate, DateTimeOffset? EndDate,
         decimal? ContractValue, Guid? CustomerId);
@@ -38,7 +38,6 @@ public static class CreateProject
                 Id             = Guid.NewGuid(),
                 OrganizationId = orgId.Value,
                 Name           = cmd.Name,
-                ClientName     = cmd.ClientName,
                 CustomerId     = cmd.CustomerId,
                 Address        = cmd.Address,
                 Description    = cmd.Description,

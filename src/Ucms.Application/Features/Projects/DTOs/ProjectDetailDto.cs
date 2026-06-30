@@ -5,7 +5,6 @@ using Ucms.Domain.Enums;
 public record ProjectDetailDto(
     Guid                           Id,
     string                         Name,
-    string?                        ClientName,
     Guid?                          CustomerId,
     string?                        CustomerName,
     string?                        Address,

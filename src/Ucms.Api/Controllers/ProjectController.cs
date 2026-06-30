@@ -24,7 +24,6 @@ public class ProjectController(
 {
     public record CreateProjectRequest(
         string Name,
-        string? ClientName,
         string? Address,
         string? Description,
         string? ContractNumber,
@@ -36,7 +35,6 @@ public class ProjectController(
 
     public record UpdateProjectRequest(
         string Name,
-        string? ClientName,
         string? Address,
         string? Description,
         string? ContractNumber,
@@ -101,7 +99,7 @@ public class ProjectController(
     public async Task<IActionResult> Create([FromBody] CreateProjectRequest req, CancellationToken ct)
     {
         var result = await create.HandleAsync(
-            new(req.Name, req.ClientName, req.Address, req.Description, req.ContractNumber,
+            new(req.Name, req.Address, req.Description, req.ContractNumber,
                 req.ContractDate, req.StartDate, req.EndDate, req.ContractValue, req.CustomerId), ct);
 
         if (result is null) return BadRequest(new { message = "Foydalanuvchiga tashkilot biriktirilmagan yoki buyurtmachi topilmadi. / Пользователю не привязана организация, или заказчик не найден." });
@@ -120,7 +118,7 @@ public class ProjectController(
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProjectRequest req, CancellationToken ct)
     {
         var (notFound, forbidden, customerNotFound) = await update.HandleAsync(
-            new(id, req.Name, req.ClientName, req.Address, req.Description, req.ContractNumber,
+            new(id, req.Name, req.Address, req.Description, req.ContractNumber,
                 req.ContractDate, req.StartDate, req.EndDate, req.ContractValue,
                 MapStatusStringToEnum(req.Status), req.CustomerId), ct);
 

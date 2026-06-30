@@ -8,7 +8,7 @@ using Ucms.Domain.Enums;
 public static class UpdateProject
 {
     public record Command(
-        Guid Id, string Name, string? ClientName, string? Address, string? Description,
+        Guid Id, string Name, string? Address, string? Description,
         string? ContractNumber, DateTimeOffset? ContractDate,
         DateTimeOffset? StartDate, DateTimeOffset? EndDate,
         decimal? ContractValue, ProjectStatus Status, Guid? CustomerId);
@@ -29,7 +29,6 @@ public static class UpdateProject
             }
 
             project.Name           = cmd.Name;
-            project.ClientName     = cmd.ClientName;
             project.CustomerId     = cmd.CustomerId;
             project.Address        = cmd.Address;
             project.Description    = cmd.Description;

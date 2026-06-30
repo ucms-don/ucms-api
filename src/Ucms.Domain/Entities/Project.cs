@@ -49,12 +49,6 @@ public class Project : AuditableEntity, IDeletable
     public DateTimeOffset? EndDate { get; set; }
 
     /// <summary>
-    /// Buyurtmachi nomi (legacy — Customer entity qo'shilishidan oldin ishlatilgan, hozir saqlanadi
-    /// orqaga moslik uchun, lekin yangi yozuvlarda CustomerId ishlatilishi tavsiya etiladi)
-    /// </summary>
-    public string? ClientName { get; set; }
-
-    /// <summary>
     /// Buyurtmachi ID (ixtiyoriy — Customer entity'ga bog'lanish)
     /// </summary>
     public Guid? CustomerId { get; set; }

@@ -19,7 +19,6 @@ public static class GetProjectById
                 .Select(p => new ProjectDetailDto(
                     p.Id,
                     p.Name,
-                    p.ClientName,
                     p.CustomerId,
                     p.Customer != null ? p.Customer.Name : null,
                     p.Address,
