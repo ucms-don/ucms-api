@@ -1431,9 +1431,6 @@ namespace Ucms.Infrastructure.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)");
 
-                    b.Property<string>("ClientName")
-                        .HasColumnType("text");
-
                     b.Property<DateTimeOffset?>("ContractDate")
                         .HasColumnType("timestamp with time zone");
 
