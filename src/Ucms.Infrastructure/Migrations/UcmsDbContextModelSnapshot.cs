@@ -2837,4 +2837,11 @@ namespace Ucms.Infrastructure.Migrations
                     b.Navigation("Childs");
                 });
 
-            modelBuilder.Entity("Ucms.Domain.Entities.StockDemand", 
+            modelBuilder.Entity("Ucms.Domain.Entities.StockDemand", b =>
+                {
+                    b.Navigation("StockDemandItems");
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}

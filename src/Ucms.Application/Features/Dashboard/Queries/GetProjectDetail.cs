@@ -98,4 +98,7 @@ public static class GetProjectDetail
                     NetBalance     = clientReceived - brigadePaid,
                 },
                 BrigadeBreakdown = brigadeBreakdown,
-            }, false,
+            }, false, false);
+        }
+    }
+}
