@@ -31,6 +31,8 @@ public static class GetSections
                     ClientTotal   = Math.Round(s.EstimateItems.Sum(i => i.Volume * i.ClientUnitPrice),   2),
                     BrigadeTotal  = Math.Round(s.EstimateItems.Sum(i => i.Volume * i.BrigadeUnitPrice),  2),
                     MaterialTotal = Math.Round(s.EstimateItems.Sum(i => i.Volume * i.MaterialUnitPrice), 2),
+                    VatAmount     = Math.Round(s.EstimateItems.Sum(i => i.Volume * i.ClientUnitPrice * i.VatRate / 100m), 2),
+                    TotalWithVat  = Math.Round(s.EstimateItems.Sum(i => i.Volume * i.MaterialUnitPrice + i.Volume * i.ClientUnitPrice * (1m + i.VatRate / 100m)), 2),
                 })
                 .ToListAsync(ct);
 
