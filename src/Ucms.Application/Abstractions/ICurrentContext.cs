@@ -40,4 +40,10 @@ public interface ICurrentContext
     /// Foydalanuvchi rollari
     /// </summary>
     public IReadOnlyList<string> Roles { get; }
+
+    /// <summary>
+    /// Joriy UI tili: "uz" | "ru" | "en" | "ka"  (standart: "uz")
+    /// Accept-Language sarlavhasidan olinadi.
+    /// </summary>
+    public string Locale { get; }
 }

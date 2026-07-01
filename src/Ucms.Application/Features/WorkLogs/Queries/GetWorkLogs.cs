@@ -36,6 +36,7 @@ public static class GetWorkLogs
             if (q.From.HasValue)      query = query.Where(w => w.Date >= q.From.Value);
             if (q.To.HasValue)        query = query.Where(w => w.Date <= q.To.Value);
 
+            var locale = ctx.Locale;
             var total = await query.CountAsync(ct);
 
             var items = await query
@@ -55,8 +56,11 @@ public static class GetWorkLogs
                     w.BrigadePaymentId,
                     w.Brigade!.Name,
                     new WorkLogEstimateItemDto(
-                        w.EstimateItem!.WorkType!.Name,
-                        w.EstimateItem.MeasurementUnit!.Code)))
+                        locale == "ru" ? w.EstimateItem!.WorkType!.NameRu
+                      : locale == "en" ? (w.EstimateItem!.WorkType!.NameEn ?? w.EstimateItem!.WorkType!.Name)
+                      : locale == "ka" ? (w.EstimateItem!.WorkType!.NameKa ?? w.EstimateItem!.WorkType!.Name)
+                      : w.EstimateItem!.WorkType!.Name,
+                        w.EstimateItem!.MeasurementUnit!.Code)))
                 .ToListAsync(ct);
 
             return (new WorkLogPagedResult(total, q.Page, q.Size, items), false, false);

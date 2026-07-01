@@ -14,6 +14,7 @@ public static class GetProjectById
     {
         public async Task<(ProjectDetailDto? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
+            var locale = ctx.Locale;
             var project = await db.Projects
                 .Where(p => p.Id == q.Id && !p.IsDeleted)
                 .Select(p => new ProjectDetailDto(
@@ -41,7 +42,10 @@ public static class GetProjectById
                         s.Order,
                         s.EstimateItems.OrderBy(i => i.Order).Select(i => new ProjectEstimateItemDto(
                             i.Id,
-                            i.WorkType!.Name,
+                            locale == "ru" ? i.WorkType!.NameRu
+                          : locale == "en" ? (i.WorkType!.NameEn ?? i.WorkType!.Name)
+                          : locale == "ka" ? (i.WorkType!.NameKa ?? i.WorkType!.Name)
+                          : i.WorkType!.Name,
                             i.MeasurementUnit!.Code,
                             i.Volume,
                             i.ClientUnitPrice,

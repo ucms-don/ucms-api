@@ -20,6 +20,7 @@ public static class GetItems
             if (orgId is null || (!ctx.IsOwner && ctx.OrganizationId != orgId))
                 return (null, orgId is not null);
 
+            var locale = ctx.Locale;
             var items = await db.EstimateItems
                 .Where(i => i.SectionId == q.SectionId && i.Section!.EstimateId == q.EstimateId)
                 .OrderBy(i => i.Order)
@@ -28,10 +29,10 @@ public static class GetItems
                     i.Id, i.Description, i.Order,
                     i.SurfaceType,
                     i.WorkTypeId,
-                    WorkTypeName        = i.WorkType!.Name,
-                    WorkTypeNameRu      = i.WorkType!.NameRu,
-                    WorkTypeNameEn      = i.WorkType!.NameEn,
-                    WorkTypeNameKa      = i.WorkType!.NameKa,
+                    WorkTypeName = locale == "ru" ? i.WorkType!.NameRu
+                                 : locale == "en" ? (i.WorkType!.NameEn ?? i.WorkType!.Name)
+                                 : locale == "ka" ? (i.WorkType!.NameKa ?? i.WorkType!.Name)
+                                 : i.WorkType!.Name,
                     i.MeasurementUnitId,
                     MeasurementUnitCode = i.MeasurementUnit!.Code,
                     i.Volume,

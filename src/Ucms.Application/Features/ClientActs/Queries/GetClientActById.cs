@@ -21,6 +21,7 @@ public static class GetClientActById
             if (orgId is null) return (null, true, false);
             if (!ctx.IsOwner && ctx.OrganizationId != orgId) return (null, false, true);
 
+            var locale = ctx.Locale;
             var act = await db.ClientActs
                 .Where(a => a.Id == q.Id && a.ProjectId == q.ProjectId)
                 .Select(a => new ClientActDetailDto(
@@ -35,7 +36,10 @@ public static class GetClientActById
                     a.Items.Select(i => new ClientActItemDto(
                         i.Id,
                         i.EstimateItemId,
-                        i.EstimateItem!.WorkType!.Name,
+                        locale == "ru" ? i.EstimateItem!.WorkType!.NameRu
+                      : locale == "en" ? (i.EstimateItem!.WorkType!.NameEn ?? i.EstimateItem!.WorkType!.Name)
+                      : locale == "ka" ? (i.EstimateItem!.WorkType!.NameKa ?? i.EstimateItem!.WorkType!.Name)
+                      : i.EstimateItem!.WorkType!.Name,
                         i.EstimateItem.MeasurementUnit!.Code,
                         i.Volume,
                         i.UnitPrice,

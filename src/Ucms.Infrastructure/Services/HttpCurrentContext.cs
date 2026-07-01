@@ -48,4 +48,31 @@ public class HttpCurrentContext(IHttpContextAccessor httpContextAccessor) : ICur
     public IReadOnlyList<string> Roles =>
         User?.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList()
         ?? (IReadOnlyList<string>)[];
+
+    public string Locale
+    {
+        get
+        {
+            var header = httpContextAccessor.HttpContext?
+                .Request.Headers["Accept-Language"].ToString() ?? string.Empty;
+
+            // "ru-RU,ru;q=0.9,..." -> birinchi tag, primary subtag
+            var primary = header.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .FirstOrDefault()
+                                ?.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                                .FirstOrDefault()
+                                ?.Split('-', StringSplitOptions.RemoveEmptyEntries)
+                                .FirstOrDefault()
+                                ?.ToLowerInvariant()
+                         ?? "uz";
+
+            return primary switch
+            {
+                "ru" => "ru",
+                "en" => "en",
+                "ka" => "ka",
+                _    => "uz",
+            };
+        }
+    }
 }

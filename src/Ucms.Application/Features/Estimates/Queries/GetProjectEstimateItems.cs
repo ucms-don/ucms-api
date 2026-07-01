@@ -16,9 +16,6 @@ public static class GetProjectEstimateItems
         Guid    Id,
         Guid    WorkTypeId,
         string  WorkTypeName,
-        string  WorkTypeNameRu,
-        string? WorkTypeNameEn,
-        string? WorkTypeNameKa,
         string  EstimateName,
         string  SectionName,
         string  MeasurementUnitCode,
@@ -36,6 +33,7 @@ public static class GetProjectEstimateItems
             if (orgId is null) return (null, false);
             if (!ctx.IsOwner && ctx.OrganizationId != orgId) return (null, true);
 
+            var locale = ctx.Locale;
             var items = await db.EstimateItems
                 .Where(i => i.Section!.Estimate!.ProjectId == q.ProjectId && !i.Section.Estimate.IsDeleted)
                 .OrderBy(i => i.Section!.Estimate!.Order)
@@ -44,10 +42,10 @@ public static class GetProjectEstimateItems
                 .Select(i => new ItemOption(
                     i.Id,
                     i.WorkTypeId!.Value,
-                    i.WorkType!.Name,
-                    i.WorkType!.NameRu,
-                    i.WorkType!.NameEn,
-                    i.WorkType!.NameKa,
+                    locale == "ru" ? i.WorkType!.NameRu
+                  : locale == "en" ? (i.WorkType!.NameEn ?? i.WorkType!.Name)
+                  : locale == "ka" ? (i.WorkType!.NameKa ?? i.WorkType!.Name)
+                  : i.WorkType!.Name,
                     i.Section!.Estimate!.Name,
                     i.Section!.Name,
                     i.MeasurementUnit!.Code,

@@ -14,7 +14,8 @@ public static class GetDashboard
     {
         public async Task<DashboardDto> HandleAsync(Query _, CancellationToken ct)
         {
-            var orgId = ctx.OrganizationId;
+            var orgId  = ctx.OrganizationId;
+            var locale = ctx.Locale;
 
             var projectsQuery = db.Projects.Where(p => !p.IsDeleted);
             if (orgId.HasValue) projectsQuery = projectsQuery.Where(p => p.OrganizationId == orgId.Value);
@@ -89,7 +90,10 @@ public static class GetDashboard
                     w.Status,
                     w.Project!.Name,
                     w.Brigade!.Name,
-                    w.EstimateItem!.WorkType!.Name))
+                    locale == "ru" ? w.EstimateItem!.WorkType!.NameRu
+                  : locale == "en" ? (w.EstimateItem!.WorkType!.NameEn ?? w.EstimateItem!.WorkType!.Name)
+                  : locale == "ka" ? (w.EstimateItem!.WorkType!.NameKa ?? w.EstimateItem!.WorkType!.Name)
+                  : w.EstimateItem!.WorkType!.Name))
                 .ToListAsync(ct);
 
             var recentPayments = await db.ClientPayments

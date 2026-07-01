@@ -44,6 +44,7 @@ public static class GetAllWorkLogs
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
+            var locale = ctx.Locale;
 
             var query = db.WorkLogs.Where(w => !w.Project!.IsDeleted);
 
@@ -78,7 +79,12 @@ public static class GetAllWorkLogs
                     w.Room,
                     w.Note,
                     w.BrigadePaymentId,
-                    new EstimateItemInfo(w.EstimateItem!.WorkType!.Name, w.EstimateItem.MeasurementUnit!.Code),
+                    new EstimateItemInfo(
+                        locale == "ru" ? w.EstimateItem!.WorkType!.NameRu
+                      : locale == "en" ? (w.EstimateItem!.WorkType!.NameEn ?? w.EstimateItem!.WorkType!.Name)
+                      : locale == "ka" ? (w.EstimateItem!.WorkType!.NameKa ?? w.EstimateItem!.WorkType!.Name)
+                      : w.EstimateItem!.WorkType!.Name,
+                        w.EstimateItem!.MeasurementUnit!.Code),
                     w.CreatedAt))
                 .ToListAsync(ct);
 

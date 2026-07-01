@@ -19,7 +19,7 @@ public static class CreateCashTransaction
     {
         public async Task<(Result? Data, bool CashAccountNotFound, bool ProjectNotFound, bool Forbidden)> HandleAsync(Command cmd, CancellationToken ct)
         {
-            var orgId = ctx.IsOwner ? (Guid?)null : ctx.OrganizationId;
+            var orgId = ctx.IsOwner ? null : ctx.OrganizationId;
 
             var account = await db.CashAccounts
                 .Where(a => a.Id == cmd.CashAccountId && !a.IsDeleted)
@@ -53,7 +53,6 @@ public static class CreateCashTransaction
                 Date            = cmd.Date,
                 ProjectId       = cmd.ProjectId,
                 Note            = cmd.Note,
-                IsDeleted       = false,
                 CreatedAt       = now, UpdatedAt = now,
                 CreatedBy       = userId, UpdatedBy = userId,
             };
