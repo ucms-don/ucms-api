@@ -27,12 +27,12 @@ public static class GetItems
                 {
                     i.Id, i.Description, i.Order,
                     i.SurfaceType,
-                    WorkTypeId          = i.WorkTypeId,
+                    i.WorkTypeId,
                     WorkTypeName        = i.WorkType!.Name,
                     WorkTypeNameRu      = i.WorkType!.NameRu,
                     WorkTypeNameEn      = i.WorkType!.NameEn,
                     WorkTypeNameKa      = i.WorkType!.NameKa,
-                    MeasurementUnitId   = i.MeasurementUnitId,
+                    i.MeasurementUnitId,
                     MeasurementUnitCode = i.MeasurementUnit!.Code,
                     i.Volume,
                     i.ClientUnitPrice,
@@ -42,9 +42,9 @@ public static class GetItems
                     ClientTotal      = Math.Round(i.Volume * i.ClientUnitPrice,    2),
                     BrigadeTotal     = Math.Round(i.Volume * i.BrigadeUnitPrice,   2),
                     MaterialTotal    = Math.Round(i.Volume * i.MaterialUnitPrice,  2),
-                    WorkMaterialTotal = Math.Round(i.Volume * i.ClientUnitPrice + i.Volume * i.MaterialUnitPrice, 2),
-                    VatAmount      = Math.Round((i.Volume * i.ClientUnitPrice + i.Volume * i.MaterialUnitPrice) * i.VatRate / 100m,      2),
-                    TotalWithVat   = Math.Round((i.Volume * i.ClientUnitPrice + i.Volume * i.MaterialUnitPrice) * (1m + i.VatRate / 100m), 2),
+                    WorkMaterialTotal = Math.Round((i.Volume * i.ClientUnitPrice) + (i.Volume * i.MaterialUnitPrice), 2),
+                    VatAmount      = Math.Round(((i.Volume * i.ClientUnitPrice) + (i.Volume * i.MaterialUnitPrice)) * i.VatRate / 100m,      2),
+                    TotalWithVat   = Math.Round(((i.Volume * i.ClientUnitPrice) + (i.Volume * i.MaterialUnitPrice)) * (1m + (i.VatRate / 100m)), 2),
                 })
                 .ToListAsync(ct);
 

@@ -115,9 +115,9 @@ public static class WebApplicationExtensions
             var config = services.GetRequiredService<IConfiguration>();
             if (config.GetValue<bool>("Database:EnabledDataSeeding"))
             {
-                new UcmsDbContextSeed()
-                    .SeedAsync(services)
-                    .Wait();
+                Task.Run(async () => await new UcmsDbContextSeed().SeedAsync(services))
+                    .GetAwaiter()
+                    .GetResult();
             }
         });
 

@@ -226,7 +226,7 @@ public class UcmsDbContextSeed
 
     private static async Task SeedMeasurementUnitsAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.MeasurementUnits.AnyAsync())
+        if (await db.MeasurementUnits.IgnoreQueryFilters().AnyAsync())
             return;
 
         var units = new List<MeasurementUnit>
@@ -248,7 +248,7 @@ public class UcmsDbContextSeed
         };
 
         await db.MeasurementUnits.AddRangeAsync(units);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] {N} ta o'lchov birligi", units.Count);
     }
 
@@ -535,17 +535,17 @@ public class UcmsDbContextSeed
                 wt.MeasurementUnitId = up.UnitId;
 
         // Yangi ish turlarini qo'shish
-        var existingIds = await db.WorkTypes.Select(w => w.Id).ToListAsync();
+        var existingIds = await db.WorkTypes.IgnoreQueryFilters().Select(w => w.Id).ToListAsync();
         var newWorkTypes = workTypes.Where(w => !existingIds.Contains(w.Id)).ToList();
         if (newWorkTypes.Count > 0)
         {
             await db.WorkTypes.AddRangeAsync(newWorkTypes);
-            await db.SaveChangesAsync();
+            await SaveAsync(db, logger);
             logger?.LogInformation("[Seed] {N} ta yangi ish turi", newWorkTypes.Count);
         }
 
         // Avval seed qilingan ish turlariga o'lchov birligi/narxni to'ldirish (backfill)
-        var toBackfill = await db.WorkTypes.AsTracking()
+        var toBackfill = await db.WorkTypes.IgnoreQueryFilters().AsTracking()
             .Where(w => w.MeasurementUnitId == null)
             .ToListAsync();
         var backfilled = 0;
@@ -557,7 +557,7 @@ public class UcmsDbContextSeed
             }
         if (backfilled > 0)
         {
-            await db.SaveChangesAsync();
+            await SaveAsync(db, logger);
             logger?.LogInformation("[Seed] {N} ta ish turiga o'lchov birligi/narx qo'shildi", backfilled);
         }
     }
@@ -568,7 +568,7 @@ public class UcmsDbContextSeed
 
     private static async Task SeedOwnerOrgAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Organizations.AnyAsync(o => o.Id == OwnerOrgId))
+        if (await db.Organizations.IgnoreQueryFilters().AnyAsync(o => o.Id == OwnerOrgId))
             return;
 
         var now = Now();
@@ -585,7 +585,7 @@ public class UcmsDbContextSeed
             CreatedAt = now, UpdatedAt = now,
             CreatedBy = SysAdminId, UpdatedBy = SysAdminId,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] OWNER tashkilot yaratildi");
     }
 
@@ -615,7 +615,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedOwnerEmployeeAsync(UcmsDbContext db, UserManager<User> um, ILogger? logger)
     {
-        if (await db.Employees.AnyAsync(e => e.Id == OwnerEmployeeId))
+        if (await db.Employees.IgnoreQueryFilters().AnyAsync(e => e.Id == OwnerEmployeeId))
             return;
 
         var now = Now();
@@ -630,7 +630,7 @@ public class UcmsDbContextSeed
             CreatedAt      = now, UpdatedAt = now,
             CreatedBy      = SysAdminId, UpdatedBy = SysAdminId,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         await db.Employees.AddAsync(new Employee
         {
@@ -644,7 +644,7 @@ public class UcmsDbContextSeed
             CreatedAt      = now, UpdatedAt = now,
             CreatedBy      = SysAdminId, UpdatedBy = SysAdminId,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         // sysadmin User yozuvini Employee bilan bog'lash (teskari havola)
         var sysadmin = await um.FindByIdAsync(SysAdminId.ToString());
@@ -663,7 +663,7 @@ public class UcmsDbContextSeed
 
     private static async Task SeedTenant1OrgAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Organizations.AnyAsync(o => o.Id == T1OrgId))
+        if (await db.Organizations.IgnoreQueryFilters().AnyAsync(o => o.Id == T1OrgId))
             return;
 
         var now = Now();
@@ -681,7 +681,7 @@ public class UcmsDbContextSeed
             CreatedAt = now, UpdatedAt = now,
             CreatedBy = T1AdminId, UpdatedBy = T1AdminId,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] TENANT-1 tashkilot yaratildi");
     }
 
@@ -732,7 +732,7 @@ public class UcmsDbContextSeed
 
     private static async Task SeedTenant1ProjectsAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Projects.AnyAsync(p => p.Id == T1Project1Id))
+        if (await db.Projects.IgnoreQueryFilters().AnyAsync(p => p.Id == T1Project1Id))
             return;
 
         var now = Now();
@@ -826,23 +826,23 @@ public class UcmsDbContextSeed
         };
 
         await db.Projects.AddRangeAsync(p1, p2);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         await db.Estimates.AddRangeAsync(est1, est2);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         await db.EstimateSections.AddRangeAsync(s1, s2, s3);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         await db.EstimateItems.AddRangeAsync(items1);
         await db.EstimateItems.AddRangeAsync(items2);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] TENANT-1: 2 ta loyiha va smeta yaratildi");
     }
 
     private static async Task SeedTenant1BrigadesAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Brigades.AnyAsync(b => b.Id == T1Brigade1Id))
+        if (await db.Brigades.IgnoreQueryFilters().AnyAsync(b => b.Id == T1Brigade1Id))
             return;
 
         var now = Now();
@@ -871,13 +871,13 @@ public class UcmsDbContextSeed
                 CreatedBy      = T1AdminId, UpdatedBy = T1AdminId,
             }
         );
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] TENANT-1: 2 ta brigada yaratildi");
     }
 
     private static async Task SeedTenant1WorkLogsAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.WorkLogs.AnyAsync(w => w.Id == T1WL1Id))
+        if (await db.WorkLogs.IgnoreQueryFilters().AnyAsync(w => w.Id == T1WL1Id))
             return;
 
         var now = Now();
@@ -961,13 +961,13 @@ public class UcmsDbContextSeed
         };
 
         await db.WorkLogs.AddRangeAsync(wl1, wl2, wl3, wl4, wl5);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] TENANT-1: 5 ta work log yaratildi");
     }
 
     private static async Task SeedTenant1FinanceAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.BrigadePayments.AnyAsync(b => b.Id == T1BP1Id))
+        if (await db.BrigadePayments.IgnoreQueryFilters().AnyAsync(b => b.Id == T1BP1Id))
             return;
 
         var now = Now();
@@ -1034,20 +1034,20 @@ public class UcmsDbContextSeed
         };
 
         await db.BrigadePayments.AddAsync(bp1);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         // WL3 ni BrigadePayment ga bog'lash (FK tartib muammosi sababli bu yerda qilinadi)
         var wl3 = await db.WorkLogs.FindAsync(T1WL3Id);
         if (wl3 is not null)
         {
             wl3.BrigadePaymentId = T1BP1Id;
-            await db.SaveChangesAsync();
+            await SaveAsync(db, logger);
         }
 
         await db.ClientActs.AddAsync(act1);
         await db.ClientActItems.AddRangeAsync(actItem1, actItem2);
         await db.ClientPayments.AddAsync(cp1);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] TENANT-1: moliyaviy ma'lumotlar yaratildi (akt + to'lovlar)");
     }
 
@@ -1070,7 +1070,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedTenant1StocksAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Stocks.AnyAsync(s => s.Id == T1MainStockId))
+        if (await db.Stocks.IgnoreQueryFilters().AnyAsync(s => s.Id == T1MainStockId))
             return;
 
         await db.Stocks.AddAsync(new Stock
@@ -1086,7 +1086,7 @@ public class UcmsDbContextSeed
             StockCategory    = StockCategory.Central,
             IsDeleted        = false,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] TENANT-1: Asosiy ombor yaratildi");
     }
 
@@ -1096,7 +1096,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedTenant1CashAccountsAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.CashAccounts.AnyAsync(c => c.Id == T1CashAccountCashId))
+        if (await db.CashAccounts.IgnoreQueryFilters().AnyAsync(c => c.Id == T1CashAccountCashId))
             return;
 
         var now = Now();
@@ -1127,7 +1127,7 @@ public class UcmsDbContextSeed
                 CreatedAt = now, UpdatedAt = now, CreatedBy = T1AdminId, UpdatedBy = T1AdminId,
             }
         );
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] TENANT-1: 2 ta kassa hisobi yaratildi (naqd + hisob raqam)");
     }
 
@@ -1136,7 +1136,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedSuppliersAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Suppliers.AnyAsync(s => s.Id == Supplier1Id))
+        if (await db.Suppliers.IgnoreQueryFilters().AnyAsync(s => s.Id == Supplier1Id))
             return;
 
         await db.Suppliers.AddAsync(new Supplier
@@ -1148,7 +1148,7 @@ public class UcmsDbContextSeed
             NameEn    = "Construction Materials Trade LLC",
             IsDeleted = false,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] Postavshik yaratildi");
     }
 
@@ -1157,7 +1157,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedManufacturersAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Manufacturers.AnyAsync(m => m.Id == Manufacturer1Id))
+        if (await db.Manufacturers.IgnoreQueryFilters().AnyAsync(m => m.Id == Manufacturer1Id))
             return;
 
         await db.Manufacturers.AddAsync(new Manufacturer
@@ -1169,7 +1169,7 @@ public class UcmsDbContextSeed
             NameEn    = "Construction Materials Manufacturing Plant",
             IsDeleted = false,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] Ishlab chiqaruvchi yaratildi");
     }
 
@@ -1179,7 +1179,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedProductsAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Products.AnyAsync(p => p.Id == ProductCementId))
+        if (await db.Products.IgnoreQueryFilters().AnyAsync(p => p.Id == ProductCementId))
             return;
 
         await db.Products.AddRangeAsync(
@@ -1308,7 +1308,7 @@ public class UcmsDbContextSeed
             }
         );
 
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] 5 ta mahsulot va SKU yaratildi (sement, g'isht, armatura, plitka, bo'yoq)");
     }
 
@@ -1318,7 +1318,7 @@ public class UcmsDbContextSeed
 
     private static async Task SeedIhtiyorOrgAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Organizations.AnyAsync(o => o.Id == IhtiyorOrgId))
+        if (await db.Organizations.IgnoreQueryFilters().AnyAsync(o => o.Id == IhtiyorOrgId))
             return;
 
         var now = Now();
@@ -1335,7 +1335,7 @@ public class UcmsDbContextSeed
             UpdatedAt = now,
             CreatedBy = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] IXTIYOR tashkilot yaratildi");
     }
 
@@ -1366,7 +1366,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedIhtiyorEmployeesAsync(UcmsDbContext db, UserManager<User> um, ILogger? logger)
     {
-        if (await db.Employees.AnyAsync(e => e.Id == IhtiyorDirectorEmpId))
+        if (await db.Employees.IgnoreQueryFilters().AnyAsync(e => e.Id == IhtiyorDirectorEmpId))
             return;
 
         var now = Now();
@@ -1383,7 +1383,7 @@ public class UcmsDbContextSeed
             CreatedAt      = now, UpdatedAt = now,
             CreatedBy      = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         await db.Employees.AddRangeAsync(
             // Direktor — Daminov Ixtiyor, User bilan bog'langan
@@ -1417,7 +1417,7 @@ public class UcmsDbContextSeed
                 UpdatedBy = IhtiyorDirectorUserId,
             }
         );
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         // direktor User yozuvini Employee bilan bog'lash (teskari havola)
         var director = await um.FindByIdAsync(IhtiyorDirectorUserId.ToString());
@@ -1437,7 +1437,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedIhtiyorProjectAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Projects.AnyAsync(p => p.Id == IhtiyorProjectId))
+        if (await db.Projects.IgnoreQueryFilters().AnyAsync(p => p.Id == IhtiyorProjectId))
             return;
 
         var now = Now();
@@ -1500,16 +1500,16 @@ public class UcmsDbContextSeed
         };
 
         await db.Projects.AddAsync(project);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         await db.Estimates.AddAsync(est);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         await db.EstimateSections.AddRangeAsync(sec1, sec2);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         await db.EstimateItems.AddRangeAsync(items);
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
 
         logger?.LogInformation("[Seed] IXTIYOR: loyiha va smeta (2 bo'lim, 5 ish turi) yaratildi");
     }
@@ -1529,7 +1529,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedIhtiyorStockAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.Stocks.AnyAsync(s => s.Id == IhtiyorStockId))
+        if (await db.Stocks.IgnoreQueryFilters().AnyAsync(s => s.Id == IhtiyorStockId))
             return;
 
         await db.Stocks.AddAsync(new Stock
@@ -1545,7 +1545,7 @@ public class UcmsDbContextSeed
             StockCategory    = StockCategory.Central,
             IsDeleted        = false,
         });
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] IXTIYOR: Asosiy ombor yaratildi");
     }
 
@@ -1555,7 +1555,7 @@ public class UcmsDbContextSeed
     /// </summary>
     private static async Task SeedIhtiyorCashAccountsAsync(UcmsDbContext db, ILogger? logger)
     {
-        if (await db.CashAccounts.AnyAsync(c => c.Id == IhtiyorCashAccountCashId))
+        if (await db.CashAccounts.IgnoreQueryFilters().AnyAsync(c => c.Id == IhtiyorCashAccountCashId))
             return;
 
         var now = Now();
@@ -1586,7 +1586,7 @@ public class UcmsDbContextSeed
                 CreatedAt = now, UpdatedAt = now, CreatedBy = IhtiyorDirectorUserId, UpdatedBy = IhtiyorDirectorUserId,
             }
         );
-        await db.SaveChangesAsync();
+        await SaveAsync(db, logger);
         logger?.LogInformation("[Seed] IXTIYOR: 2 ta kassa hisobi yaratildi (naqd + hisob raqam)");
     }
 
@@ -1614,6 +1614,24 @@ public class UcmsDbContextSeed
 
         await um.AddToRoleAsync(user, role);
         logger?.LogInformation("[Seed] User: {User} / {Pwd} [{Role}]", user.UserName, password, role);
+    }
+
+    /// <summary>
+    /// SaveChangesAsync — 23505 (duplicate key) xatosini e'tiborsiz qoldiradi.
+    /// Seed ishlanganda jadvalda allaqachon ma'lumot bo'lsa xato chiqarmaydi.
+    /// </summary>
+    private static async Task SaveAsync(UcmsDbContext db, ILogger? logger)
+    {
+        try
+        {
+            await db.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+            when (ex.InnerException is NpgsqlException { SqlState: "23505" })
+        {
+            logger?.LogWarning("[Seed] Duplicate key — allaqachon mavjud, o'tkazib yuborildi");
+            db.ChangeTracker.Clear();
+        }
     }
 
     private static EstimateSection Sec(Guid id, Guid estimateId, string name, int order)

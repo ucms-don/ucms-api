@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.Estimates.Commands;
 using Ucms.Application.Features.Estimates.Queries;
 using Ucms.Domain.Enums;
-using GetProjectEstimateItemsQuery = Ucms.Application.Features.Estimates.Queries.GetProjectEstimateItems;
+using GetProjectEstimateItemsQuery = Application.Features.Estimates.Queries.GetProjectEstimateItems;
 
 /// <summary>
 /// Loyiha smeta hujjatlarini boshqarish.
