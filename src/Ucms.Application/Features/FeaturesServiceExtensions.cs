@@ -15,7 +15,7 @@ public static class FeaturesServiceExtensions
         var handlers = assembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && t.Name == "Handler"
                      && t.IsNested
-                     && t.DeclaringType?.Namespace?.StartsWith("Ucms.Application.Features") == true);
+                    && t.DeclaringType?.Namespace?.StartsWith("Ucms.Application.Features", StringComparison.Ordinal) == true);
 
         foreach (var handler in handlers)
             services.AddScoped(handler);

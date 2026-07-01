@@ -13,12 +13,15 @@ public static class GetProjectEstimateItems
     public record Query(Guid ProjectId);
 
     public record ItemOption(
-        Guid   Id,
-        Guid   WorkTypeId,
-        string WorkTypeName,
-        string EstimateName,
-        string SectionName,
-        string MeasurementUnitCode,
+        Guid    Id,
+        Guid    WorkTypeId,
+        string  WorkTypeName,
+        string  WorkTypeNameRu,
+        string? WorkTypeNameEn,
+        string? WorkTypeNameKa,
+        string  EstimateName,
+        string  SectionName,
+        string  MeasurementUnitCode,
         decimal BrigadeUnitPrice);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
@@ -42,6 +45,9 @@ public static class GetProjectEstimateItems
                     i.Id,
                     i.WorkTypeId!.Value,
                     i.WorkType!.Name,
+                    i.WorkType!.NameRu,
+                    i.WorkType!.NameEn,
+                    i.WorkType!.NameKa,
                     i.Section!.Estimate!.Name,
                     i.Section!.Name,
                     i.MeasurementUnit!.Code,
