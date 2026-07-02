@@ -19,6 +19,11 @@ public class Sku : Entity, IDeletable
     public DateTimeOffset ExpirationDate { get; set; }
 
     /// <summary>
+    /// Sana — material omborga qabul qilingan sana (standart: yaratilgan vaqt)
+    /// </summary>
+    public DateTimeOffset PurchaseDate { get; set; } = DateTimeOffset.UtcNow;
+
+    /// <summary>
     /// Удален или нет
     /// </summary>
     public bool IsDeleted { get; set; }

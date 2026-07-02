@@ -13,7 +13,7 @@ using Ucms.Domain.Enums;
 
 public static class GetFilteredSkus
 {
-    public record Query(PagedRequest Paging, string? Search, string? SerialNumber);
+    public record Query(PagedRequest Paging, string? Search, string? SerialNumber, DateTime? From, DateTime? To);
 
     public sealed class Handler(IUcmsDbContext db, IMapper mapper, IWorkContext workContext)
     {
@@ -39,6 +39,12 @@ public static class GetFilteredSkus
             {
                 var sn = q.SerialNumber.ToLowerInvariant().Trim();
                 query = query.Where(w => w.SerialNumber.ToLower().Contains(sn));
+            }
+            if (q.From != null && q.To != null)
+            {
+                var from = new DateTime(q.From.Value.Ticks, DateTimeKind.Local);
+                var to   = new DateTime(q.To.Value.Ticks, DateTimeKind.Local);
+                query = query.Where(w => w.PurchaseDate >= from && w.PurchaseDate <= to);
             }
             var result = await query.ToPagedResultAsync<Sku, SkuModel>(q.Paging, mapper, ct);
 

@@ -49,7 +49,8 @@ public static class CreateSku
             {
                 Id = Guid.NewGuid(),
                 SerialNumber = serialNumber, Price = cmd.Price, Amount = cmd.Amount,
-                ExpirationDate = cmd.ExpirationDate, ProductId = cmd.ProductId,
+                ExpirationDate = cmd.ExpirationDate, PurchaseDate = DateTimeOffset.UtcNow,
+                ProductId = cmd.ProductId,
                 ManufacturerId = cmd.ManufacturerId, MeasurementUnitId = cmd.MeasurementUnitId,
                 SupplierId = cmd.SupplierId, Status = cmd.Status
             };

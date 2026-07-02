@@ -22,6 +22,7 @@ public record SkuModel
     public decimal Amount { get; set; }
     public decimal StockSkuAmount { get; set; }
     public DateTimeOffset ExpirationDate { get; set; }
+    public DateTimeOffset PurchaseDate { get; set; }
     public ProductType ProductType { get; set; }
     public SkuStatus Status { get; set; }
 

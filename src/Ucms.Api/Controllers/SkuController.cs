@@ -37,7 +37,7 @@ public class SkuController(
     [ProducesResponseType(typeof(PagedResult<SkuModel>), 200)]
     public async Task<IActionResult> SearchSkus([FromBody] GetSkusRequest req, CancellationToken ct = default)
         {
-            return Ok(await getFiltered.HandleAsync(new(req, req.Query, req.Seria), ct));
+            return Ok(await getFiltered.HandleAsync(new(req, req.Query, req.Seria, req.From, req.To), ct));
         }
 
     [HttpGet("{id:guid}")]
@@ -136,6 +136,8 @@ public class SkuController(
 // Inline request type for table-list
 public class GetSkusRequest : PagedRequest
 {
-    public string? Query { get; init; }
-    public string? Seria { get; init; }
+    public string?   Query { get; init; }
+    public string?   Seria { get; init; }
+    public DateTime? From  { get; init; }
+    public DateTime? To    { get; init; }
 }

@@ -1625,6 +1625,10 @@ namespace Ucms.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("ExpirationDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset>("PurchaseDate")
+                        .HasDefaultValueSql("now()")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
