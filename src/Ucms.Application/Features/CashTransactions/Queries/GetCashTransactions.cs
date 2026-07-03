@@ -52,10 +52,10 @@ public static class GetCashTransactions
                 query = query.Where(t => t.TransactionType == q.TransactionType.Value);
 
             if (q.DateFrom.HasValue)
-                query = query.Where(t => t.Date >= q.DateFrom.Value);
+                query = query.Where(t => t.CreatedAt >= q.DateFrom.Value);
 
             if (q.DateTo.HasValue)
-                query = query.Where(t => t.Date <= q.DateTo.Value);
+                query = query.Where(t => t.CreatedAt <= q.DateTo.Value);
 
             var total    = await query.CountAsync(ct);
             var totalIn  = await query.Where(t => t.Direction == CashDirection.In).SumAsync(t => t.Amount, ct);
