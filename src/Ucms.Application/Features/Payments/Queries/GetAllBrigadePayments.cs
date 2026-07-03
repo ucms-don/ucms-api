@@ -31,8 +31,8 @@ public static class GetAllBrigadePayments
 
             if (q.BrigadeId.HasValue)  query = query.Where(p => p.BrigadeId  == q.BrigadeId.Value);
             if (q.ProjectId.HasValue)  query = query.Where(p => p.ProjectId  == q.ProjectId.Value);
-            if (q.From.HasValue)       query = query.Where(p => p.Date       >= q.From.Value);
-            if (q.To.HasValue)         query = query.Where(p => p.Date       <= q.To.Value);
+            if (q.From.HasValue)       query = query.Where(p => p.CreatedAt >= q.From.Value);
+            if (q.To.HasValue)         query = query.Where(p => p.CreatedAt <= q.To.Value);
 
             var total       = await query.CountAsync(ct);
             var totalAmount = total > 0 ? await query.SumAsync(p => p.Amount, ct) : 0;
