@@ -34,7 +34,7 @@ public static class DeleteSalary
                 db.Salaries.Update(s);
 
                 await CashTransactionLinker.RemoveAsync(
-                    db, balanceService, CashTransactionSourceType.Salary, cmd.Id, userId, ct);
+                    db, balanceService, CashTransactionSourceType.Salary, cmd.Id, ct);
 
                 await db.SaveChangesAsync(ct);
                 await tx.CommitAsync(ct);

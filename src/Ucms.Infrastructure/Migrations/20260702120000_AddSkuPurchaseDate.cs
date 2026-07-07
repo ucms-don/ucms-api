@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Ucms.Infrastructure.Migrations
 {
-    /// <inheritdoc />
     public partial class AddSkuPurchaseDate : Migration
     {
         /// <inheritdoc />

@@ -18,7 +18,8 @@ public static class GetOrganizations
     {
         public async Task<List<Item>> HandleAsync(Query _, CancellationToken ct)
         {
-            var query = db.Organizations;
+            var query = db.Organizations
+                .AsQueryable();
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(o => o.Id == ctx.OrganizationId.Value);

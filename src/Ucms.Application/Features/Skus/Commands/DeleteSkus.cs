@@ -35,7 +35,7 @@ public static class DeleteSkus
                 {
                     s.IsDeleted = true;
                     await CashTransactionLinker.RemoveAsync(
-                        db, balanceService, CashTransactionSourceType.SkuPurchase, s.Id, userId, ct);
+                        db, balanceService, CashTransactionSourceType.SkuPurchase, s.Id, ct);
                 }
 
                 await db.SaveChangesAsync(ct);

@@ -17,8 +17,12 @@ public static class GetDashboard
             var orgId  = ctx.OrganizationId;
             var locale = ctx.Locale;
 
-            var projectsQuery = db.Projects;
-            if (orgId.HasValue) projectsQuery = projectsQuery.Where(p => p.OrganizationId == orgId.Value);
+            var projectsQuery = db.Projects
+                .AsQueryable();
+
+            if (orgId.HasValue)
+                projectsQuery = projectsQuery
+                    .Where(p => p.OrganizationId == orgId.Value);
 
             var ps = await projectsQuery
                 .GroupBy(_ => true)
@@ -39,7 +43,9 @@ public static class GetDashboard
                 ps?.Completed  ?? 0,
                 ps?.Suspended  ?? 0);
 
-            var brigadesQuery = db.Brigades;
+            var brigadesQuery = db.Brigades
+                .AsQueryable();
+
             if (orgId.HasValue) brigadesQuery = brigadesQuery.Where(b => b.OrganizationId == orgId.Value);
 
             var bs = await brigadesQuery

@@ -21,7 +21,8 @@ public static class GetCustomers
         {
             if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
 
-            var query = db.Customers;
+            var query = db.Customers
+                .AsQueryable();
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(c => c.OrganizationId == ctx.OrganizationId.Value);

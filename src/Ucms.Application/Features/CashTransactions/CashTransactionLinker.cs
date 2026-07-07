@@ -19,9 +19,11 @@ public static class CashTransactionLinker
     /// Berilgan kassa/hisob shu tashkilotda mavjud va o'chirilmaganligini tekshiradi.
     /// </summary>
     public static Task<bool> CashAccountExistsAsync(
-        IUcmsDbContext db, Guid cashAccountId, Guid organizationId, CancellationToken ct) =>
-        db.CashAccounts.AnyAsync(
+        IUcmsDbContext db, Guid cashAccountId, Guid organizationId, CancellationToken ct)
+    {
+        return db.CashAccounts.AnyAsync(
             a => a.Id == cashAccountId && a.OrganizationId == organizationId, ct);
+    }
 
     /// <summary>
     /// (SourceType, SourceId) bo'yicha bog'langan CashTransaction'ni topadi va yangilaydi,
@@ -56,22 +58,24 @@ public static class CashTransactionLinker
 
             await db.CashTransactions.AddAsync(new CashTransaction
             {
-                Id              = Guid.NewGuid(),
-                OrganizationId  = organizationId,
-                CashAccountId   = cashAccountId,
-                Direction       = direction,
+                Id = Guid.NewGuid(),
+                OrganizationId = organizationId,
+                CashAccountId = cashAccountId,
+                Direction = direction,
                 TransactionType = transactionType,
-                PartnerType     = partnerType,
-                PartnerId       = partnerId,
-                Amount          = amount,
-                Date            = date,
-                ProjectId       = projectId,
-                Note            = note,
-                SourceType      = sourceType,
-                SourceId        = sourceId,
-                IsDeleted       = false,
-                CreatedAt       = now, UpdatedAt = now,
-                CreatedBy       = userId, UpdatedBy = userId,
+                PartnerType = partnerType,
+                PartnerId = partnerId,
+                Amount = amount,
+                Date = date,
+                ProjectId = projectId,
+                Note = note,
+                SourceType = sourceType,
+                SourceId = sourceId,
+                IsDeleted = false,
+                CreatedAt = now,
+                UpdatedAt = now,
+                CreatedBy = userId,
+                UpdatedBy = userId,
             }, ct);
         }
         else
@@ -80,14 +84,14 @@ public static class CashTransactionLinker
             {
                 // Bir xil hisob: faqat net delta qo'llaniladi
                 var oldSigned = existing.Direction == CashDirection.In
-                    ?  existing.Amount
+                    ? existing.Amount
                     : -existing.Amount;
                 var newSigned = direction == CashDirection.In ? amount : -amount;
                 var netSigned = newSigned - oldSigned;
 
                 if (netSigned != 0)
                 {
-                    var netAmount    = Math.Abs(netSigned);
+                    var netAmount = Math.Abs(netSigned);
                     var netDirection = netSigned > 0 ? CashDirection.In : CashDirection.Out;
                     await balanceService.ApplyDeltaAsync(cashAccountId, netAmount, netDirection, ct: ct);
                 }
@@ -103,17 +107,17 @@ public static class CashTransactionLinker
                 await balanceService.ApplyDeltaAsync(cashAccountId, amount, direction, ct: ct);
             }
 
-            existing.CashAccountId   = cashAccountId;
-            existing.Direction       = direction;
+            existing.CashAccountId = cashAccountId;
+            existing.Direction = direction;
             existing.TransactionType = transactionType;
-            existing.PartnerType     = partnerType;
-            existing.PartnerId       = partnerId;
-            existing.Amount          = amount;
-            existing.Date            = date;
-            existing.ProjectId       = projectId;
-            existing.Note            = note;
-            existing.UpdatedAt       = now;
-            existing.UpdatedBy       = userId;
+            existing.PartnerType = partnerType;
+            existing.PartnerId = partnerId;
+            existing.Amount = amount;
+            existing.Date = date;
+            existing.ProjectId = projectId;
+            existing.Note = note;
+            existing.UpdatedAt = now;
+            existing.UpdatedBy = userId;
         }
     }
 
@@ -124,14 +128,16 @@ public static class CashTransactionLinker
     public static async Task RemoveAsync(
         IUcmsDbContext db,
         ICashBalanceService balanceService,
-        CashTransactionSourceType sourceType, Guid sourceId,
-        Guid userId, CancellationToken ct)
+        CashTransactionSourceType sourceType,
+        Guid sourceId,
+        CancellationToken ct)
     {
         var existing = await db.CashTransactions
             .FirstOrDefaultAsync(
                 t => t.SourceType == sourceType && t.SourceId == sourceId, ct);
 
-        if (existing is null) return;
+        if (existing is null)
+            return;
 
         // Eski deltani qaytarish (overdraft ruxsat beriladi — tuzatish operatsiyasi)
         var reverseDir = existing.Direction == CashDirection.In ? CashDirection.Out : CashDirection.In;
@@ -140,4 +146,5 @@ public static class CashTransactionLinker
 
         existing.IsDeleted = true;
         existing.UpdatedAt = DateTimeOffset.UtcNow;
- 
+    }
+}

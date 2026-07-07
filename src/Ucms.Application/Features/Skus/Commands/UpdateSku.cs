@@ -74,7 +74,7 @@ public static class UpdateSku
                     {
                         // Hisob tozalangan — bog'langan to'lovni bekor qilamiz
                         await CashTransactionLinker.RemoveAsync(
-                            db, balanceService, CashTransactionSourceType.SkuPurchase, cmd.Id, userId, ct);
+                            db, balanceService, CashTransactionSourceType.SkuPurchase, cmd.Id, ct);
                     }
 
                     await db.SaveChangesAsync(ct);

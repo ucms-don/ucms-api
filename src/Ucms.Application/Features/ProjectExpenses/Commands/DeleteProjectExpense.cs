@@ -37,7 +37,7 @@ public static class DeleteProjectExpense
                 db.ProjectExpenses.Update(e);
 
                 await CashTransactionLinker.RemoveAsync(
-                    db, balanceService, CashTransactionSourceType.ProjectExpense, cmd.Id, userId, ct);
+                    db, balanceService, CashTransactionSourceType.ProjectExpense, cmd.Id, ct);
 
                 await db.SaveChangesAsync(ct);
                 await tx.CommitAsync(ct);

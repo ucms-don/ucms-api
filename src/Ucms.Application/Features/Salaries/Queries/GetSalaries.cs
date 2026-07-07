@@ -21,7 +21,8 @@ public static class GetSalaries
         {
             if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
 
-            var query = db.Salaries;
+            var query = db.Salaries
+                .AsQueryable();
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(s => s.OrganizationId == ctx.OrganizationId.Value);

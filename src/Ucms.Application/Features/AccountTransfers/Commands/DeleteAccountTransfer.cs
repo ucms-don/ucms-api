@@ -36,9 +36,9 @@ public static class DeleteAccountTransfer
                 db.AccountTransfers.Update(t);
 
                 await CashTransactionLinker.RemoveAsync(
-                    db, balanceService, CashTransactionSourceType.AccountTransferOut, cmd.Id, userId, ct);
+                    db, balanceService, CashTransactionSourceType.AccountTransferOut, cmd.Id, ct);
                 await CashTransactionLinker.RemoveAsync(
-                    db, balanceService, CashTransactionSourceType.AccountTransferIn, cmd.Id, userId, ct);
+                    db, balanceService, CashTransactionSourceType.AccountTransferIn, cmd.Id, ct);
 
                 await db.SaveChangesAsync(ct);
                 await tx.CommitAsync(ct);

@@ -17,7 +17,8 @@ public static class GetBrigades
     {
         public async Task<List<Item>> HandleAsync(Query q, CancellationToken ct)
         {
-            var query = db.Brigades;
+            var query = db.Brigades
+                .AsQueryable();
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(b => b.OrganizationId == ctx.OrganizationId.Value);

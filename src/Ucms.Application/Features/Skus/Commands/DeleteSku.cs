@@ -35,7 +35,7 @@ public static class DeleteSku
                 s.IsDeleted = true;
 
                 await CashTransactionLinker.RemoveAsync(
-                    db, balanceService, CashTransactionSourceType.SkuPurchase, cmd.Id, userId, ct);
+                    db, balanceService, CashTransactionSourceType.SkuPurchase, cmd.Id, ct);
 
                 await db.SaveChangesAsync(ct);
                 await tx.CommitAsync(ct);
