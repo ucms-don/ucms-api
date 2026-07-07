@@ -13,6 +13,7 @@ using Ucms.Domain.Enums;
 [Route("api/worklogs")]
 [Tags("WorkLog")]
 [Authorize]
+[Authorize(Policy = "projects.view")]
 public class GlobalWorkLogController(
     GetAllWorkLogs.Handler getAll) : ControllerBase
 {

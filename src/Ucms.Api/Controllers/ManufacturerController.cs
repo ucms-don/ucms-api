@@ -15,6 +15,7 @@ using Ucms.Application.Features.Manufacturers.Queries;
 [Route("api/manufacturers")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "refs.view")]
 public class ManufacturerController(
     GetManufacturers.Handler getAll,
     GetStockSkuManufacturers.Handler getStockSku,

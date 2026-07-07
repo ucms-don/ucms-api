@@ -11,7 +11,8 @@ public static class GetEmployees
     public record Item(
         Guid Id, string Name, string? Position, string? Phone, string? Notes,
         bool IsActive, Guid? BrigadeId, string? BrigadeName,
-        Guid? UserId, Guid OrganizationId, DateTimeOffset CreatedAt);
+        Guid? UserId, string? UserName, string? UserEmail,
+        Guid OrganizationId, DateTimeOffset CreatedAt);
 
     public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
     {
@@ -34,7 +35,10 @@ public static class GetEmployees
                 .Select(e => new Item(
                     e.Id, e.Name, e.Position, e.Phone, e.Notes,
                     e.IsActive, e.BrigadeId, e.Brigade != null ? e.Brigade.Name : null,
-                    e.UserId, e.OrganizationId, e.CreatedAt))
+                    e.UserId,
+                    e.UserId != null ? db.Users.Where(u => u.Id == e.UserId).Select(u => u.UserName).FirstOrDefault() : null,
+                    e.UserId != null ? db.Users.Where(u => u.Id == e.UserId).Select(u => u.Email).FirstOrDefault() : null,
+                    e.OrganizationId, e.CreatedAt))
                 .ToListAsync(ct);
         }
     }

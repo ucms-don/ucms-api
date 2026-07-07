@@ -7,6 +7,7 @@ using Ucms.Application.Abstractions.Auth;
 using Ucms.Application.Abstractions.Authorization;
 using Ucms.Application.Abstractions.Organization;
 using Ucms.Application.Abstractions.Storage;
+using Ucms.Application.Features.CashAccounts;
 using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Entities.Identity;
@@ -73,6 +74,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFileStorageClient, StubFileStorageClient>();
         services.AddScoped<IAvatarStorageClient, LocalAvatarStorageClient>();
         services.AddScoped<ICashBalanceService, CashBalanceService>();
+        services.AddScoped<ICashBalanceReconciliationService, CashBalanceReconciliationService>();
+        services.AddHostedService<CashBalanceReconciliationJob>();
         return services;
     }
 

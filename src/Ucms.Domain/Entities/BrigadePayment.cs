@@ -6,7 +6,7 @@ using Ucms.Domain.Enums;
 /// <summary>
 /// Brigadaga to'langan to'lov
 /// </summary>
-public class BrigadePayment : AuditableEntity
+public class BrigadePayment : CancellableEntity
 {
     /// <summary>
     /// Loyiha ID

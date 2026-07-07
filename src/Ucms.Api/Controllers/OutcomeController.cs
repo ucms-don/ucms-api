@@ -17,6 +17,7 @@ using Ucms.Domain.Enums;
 [Route("api/outcome")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "warehouse.view")]
 public class OutcomeController(
     GetOutcomeById.Handler getById,
     GetOutcomeByExecutionId.Handler getByExecutionId,

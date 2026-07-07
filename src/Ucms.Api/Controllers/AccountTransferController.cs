@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.AccountTransfers.Commands;
 using Ucms.Application.Features.AccountTransfers.Queries;
+using Ucms.Domain.Constants;
 
 /// <summary>
 /// Kassadan kassaga o'tkazmalar (bank → naqd va aksincha).
@@ -13,11 +14,13 @@ using Ucms.Application.Features.AccountTransfers.Queries;
 [Route("api/account-transfers")]
 [Tags("AccountTransfer")]
 [Authorize]
+[Authorize(Policy = "finance.view")]
 public class AccountTransferController(
-    GetAccountTransfers.Handler  getAll,
+    GetAccountTransfers.Handler   getAll,
     CreateAccountTransfer.Handler create,
     UpdateAccountTransfer.Handler update,
-    DeleteAccountTransfer.Handler delete) : ControllerBase
+    DeleteAccountTransfer.Handler delete,
+    CancelAccountTransfer.Handler cancel) : ControllerBase
 {
 
     /// <summary>
@@ -132,6 +135,21 @@ public class AccountTransferController(
         var (notFound, forbidden) = await delete.HandleAsync(new(id), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        return NoContent();
+    }
+
+    /// <summary>O'tkazmani bekor qilish. Ikkala kassa balansi tiklanadi.</summary>
+    [HttpPost("{id:guid}/cancel")]
+    [Authorize(Policy = Permissions.Finance.Cancel)]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(409)]
+    public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
+    {
+        var (notFound, forbidden, alreadyCancelled) = await cancel.HandleAsync(new(id), ct);
+        if (notFound)         return NotFound(new { message = "O'tkazma topilmadi." });
+        if (forbidden)        return Forbid();
+        if (alreadyCancelled) return Conflict(new { message = "O'tkazma allaqachon bekor qilingan." });
         return NoContent();
     }
 }

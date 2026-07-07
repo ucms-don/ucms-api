@@ -13,6 +13,7 @@ using Ucms.Application.Features.WorkTypes.Queries;
 [Route("api/work-types")]
 [Tags("Lookup")]
 [Authorize]
+[Authorize(Policy = "refs.view")]
 public class WorkTypeController(
     GetWorkTypes.Handler    getAll,
     GetWorkTypeById.Handler getById,

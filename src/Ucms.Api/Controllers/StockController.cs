@@ -12,6 +12,7 @@ using Ucms.Domain.Enums;
 [Route("api/stock")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "warehouse.view")]
 public class StockController(
     GetStocks.Handler getAll,
     GetFilteredStocks.Handler getFiltered,

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.ProjectExpenses.Commands;
 using Ucms.Application.Features.ProjectExpenses.Queries;
+using Ucms.Domain.Constants;
 
 /// <summary>
 /// Loyiha xarajatlarini boshqarish (materiallar, transport, boshqalar).
@@ -13,12 +14,14 @@ using Ucms.Application.Features.ProjectExpenses.Queries;
 [Route("api/projects/{projectId:guid}/expenses")]
 [Tags("ProjectExpense")]
 [Authorize]
+[Authorize(Policy = "projects.view")]
 public class ProjectExpenseController(
     GetProjectExpenses.Handler    getAll,
     GetProjectExpenseById.Handler getById,
     CreateProjectExpense.Handler  create,
     UpdateProjectExpense.Handler  update,
-    DeleteProjectExpense.Handler  delete) : ControllerBase
+    DeleteProjectExpense.Handler  delete,
+    CancelProjectExpense.Handler  cancel) : ControllerBase
 {
     public record CreateExpenseRequest(
         DateTimeOffset Date, string Category, decimal Amount,
@@ -123,6 +126,21 @@ public class ProjectExpenseController(
         var (notFound, forbidden) = await delete.HandleAsync(new(projectId, id), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        return NoContent();
+    }
+
+    /// <summary>Xarajatni bekor qilish. Kassa balansi tiklanadi.</summary>
+    [HttpPost("{id:guid}/cancel")]
+    [Authorize(Policy = Permissions.Finance.Cancel)]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(409)]
+    public async Task<IActionResult> Cancel(Guid projectId, Guid id, CancellationToken ct)
+    {
+        var (notFound, forbidden, alreadyCancelled) = await cancel.HandleAsync(new(id), ct);
+        if (notFound)         return NotFound(new { message = "Xarajat topilmadi." });
+        if (forbidden)        return Forbid();
+        if (alreadyCancelled) return Conflict(new { message = "Xarajat allaqachon bekor qilingan." });
         return NoContent();
     }
 }

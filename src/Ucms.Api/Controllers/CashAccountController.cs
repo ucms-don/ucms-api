@@ -14,6 +14,7 @@ using Ucms.Domain.Enums;
 [Route("api/cash-accounts")]
 [Tags("CashAccount")]
 [Authorize]
+[Authorize(Policy = "finance.view")]
 public class CashAccountController(
     GetCashAccounts.Handler    getAll,
     GetCashAccountById.Handler getById,

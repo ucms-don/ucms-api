@@ -13,6 +13,7 @@ using Ucms.Application.Features.Employees.Queries;
 [Route("api/employees")]
 [Tags("Employee")]
 [Authorize]
+[Authorize(Policy = "personnel.view")]
 public class EmployeeController(
     GetEmployees.Handler    getAll,
     GetEmployeeById.Handler getById,

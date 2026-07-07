@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.Payments.Commands;
 using Ucms.Application.Features.Payments.Queries;
+using Ucms.Domain.Constants;
 using Ucms.Domain.Enums;
 
 /// <summary>
@@ -14,9 +15,11 @@ using Ucms.Domain.Enums;
 [Route("api/projects/{projectId:guid}/payments")]
 [Tags("Payment")]
 [Authorize]
+[Authorize(Policy = "finance.view")]
 public class PaymentController(
     GetClientPayments.Handler    getClientPayments,
     CreateClientPayment.Handler  createClientPayment,
+    CancelClientPayment.Handler  cancelClientPayment,
     GetBrigadePayments.Handler   getBrigadePayments,
     CreateBrigadePayment.Handler createBrigadePayment,
     GetFinancialSummary.Handler  getFinancialSummary) : ControllerBase
@@ -66,6 +69,23 @@ public class PaymentController(
         if (forbidden) return Forbid();
         if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         return StatusCode(201, data);
+    }
+
+    /// <summary>
+    /// Mijoz to'lovini bekor qilish. Kassa balansi tiklanadi.
+    /// </summary>
+    [HttpPost("client/{id:guid}/cancel")]
+    [Authorize(Policy = Permissions.Finance.Cancel)]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(409)]
+    public async Task<IActionResult> CancelClient(Guid projectId, Guid id, CancellationToken ct)
+    {
+        var (notFound, forbidden, alreadyCancelled) = await cancelClientPayment.HandleAsync(new(id), ct);
+        if (notFound)         return NotFound(new { message = "To'lov topilmadi." });
+        if (forbidden)        return Forbid();
+        if (alreadyCancelled) return Conflict(new { message = "To'lov allaqachon bekor qilingan." });
+        return NoContent();
     }
 
     /// <summary>

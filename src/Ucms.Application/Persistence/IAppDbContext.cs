@@ -82,6 +82,7 @@ public interface IUcmsDbContext
     public DbSet<Role>         Roles         { get; set; }
     public DbSet<UserRole>     UserRoles     { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<RoleClaim> RoleClaims { get; set; }
 
     public int SaveChanges();
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

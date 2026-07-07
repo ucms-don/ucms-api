@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.Payments.Commands;
 using Ucms.Application.Features.Payments.Queries;
+using Ucms.Domain.Constants;
 using Ucms.Domain.Enums;
 
 /// <summary>
@@ -14,10 +15,12 @@ using Ucms.Domain.Enums;
 [Route("api/brigade-payments")]
 [Tags("BrigadePayment")]
 [Authorize]
+[Authorize(Policy = "brigades.view")]
 public class BrigadePaymentController(
-    GetAllBrigadePayments.Handler getAll,
-    CreateBrigadePayment.Handler  create,
-    UpdateBrigadePayment.Handler  update) : ControllerBase
+    GetAllBrigadePayments.Handler  getAll,
+    CreateBrigadePayment.Handler   create,
+    UpdateBrigadePayment.Handler   update,
+    CancelBrigadePayment.Handler   cancel) : ControllerBase
 {
     public record CreateBrigadePaymentRequest(
         Guid            ProjectId,
@@ -95,6 +98,23 @@ public class BrigadePaymentController(
         if (notFound)           return NotFound(new { message = "To'lov topilmadi. / Выплата не найдена." });
         if (forbidden)          return Forbid();
         if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Brigada to'lovini bekor qilish. Kassa balansi tiklanadi, WorkLoglar Confirmed holatga qaytadi.
+    /// </summary>
+    [HttpPost("{id:guid}/cancel")]
+    [Authorize(Policy = Permissions.Finance.Cancel)]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(409)]
+    public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
+    {
+        var (notFound, forbidden, alreadyCancelled) = await cancel.HandleAsync(new(id), ct);
+        if (notFound)         return NotFound(new { message = "To'lov topilmadi." });
+        if (forbidden)        return Forbid();
+        if (alreadyCancelled) return Conflict(new { message = "To'lov allaqachon bekor qilingan." });
         return NoContent();
     }
 }

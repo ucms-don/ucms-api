@@ -15,6 +15,7 @@ using Ucms.Domain.Enums;
 [Route("api/projects/{projectId:guid}/worklogs")]
 [Tags("WorkLog")]
 [Authorize]
+[Authorize(Policy = "brigades.view")]
 public class WorkLogController(
     GetWorkLogs.Handler       getAll,
     GetWorkLogById.Handler    getById,

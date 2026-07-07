@@ -13,6 +13,7 @@ using Ucms.Application.Features.Customers.Queries;
 [Route("api/customers")]
 [Tags("Customer")]
 [Authorize]
+[Authorize(Policy = "refs.view")]
 public class CustomerController(
     GetCustomers.Handler    getAll,
     GetCustomerById.Handler getById,

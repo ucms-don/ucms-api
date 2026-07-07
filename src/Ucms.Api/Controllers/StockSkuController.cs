@@ -10,6 +10,7 @@ using Ucms.Application.Features.StockSkus.Queries;
 [Route("api/stock-sku")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "warehouse.view")]
 public class StockSkuController(
     GetStockSkus.Handler getStockSkus,
     GetCaseSkus.Handler getCaseSkus,

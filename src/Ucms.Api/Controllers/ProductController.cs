@@ -12,6 +12,7 @@ using Ucms.Domain.Enums;
 [Route("api/products")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "refs.view")]
 public class ProductController(
     GetProducts.Handler getProducts,
     GetFilteredProducts.Handler getFiltered,

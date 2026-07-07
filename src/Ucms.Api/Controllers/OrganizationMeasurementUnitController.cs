@@ -12,6 +12,7 @@ using Ucms.Domain.Enums;
 [Route("api/organization-measurement-unit")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "refs.view")]
 public class OrganizationMeasurementUnitController(
     GetOrganizationMeasurementUnitById.Handler getById,
     GetFilteredOrganizationMeasurementUnits.Handler getFiltered,

@@ -2,7 +2,9 @@ namespace Ucms.Api.Extensions;
 
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using Ucms.Api.Authorization;
 
 public static class PermissionsConfiguration
 {
@@ -32,6 +34,9 @@ public static class PermissionsConfiguration
                 };
             });
 
+        // Dinamik permission policy provider
+        services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+        services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         services.AddAuthorization();
 
         return services;

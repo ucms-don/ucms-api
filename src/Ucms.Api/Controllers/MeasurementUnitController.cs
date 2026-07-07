@@ -14,6 +14,7 @@ using Ucms.Domain.Enums;
 [Route("api/measurement-units")]
 [Tags("Lookup")]
 [Authorize]
+[Authorize(Policy = "refs.view")]
 public class MeasurementUnitController(
     GetMeasurementUnits.Handler     getAll,
     GetFilteredMeasurementUnits.Handler getFiltered,

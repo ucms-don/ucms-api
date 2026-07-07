@@ -9,7 +9,7 @@ using Ucms.Domain.Enums;
 /// ular o'zgarishsiz qoladi (ADR-0001, Option A'). CashTransaction faqat hozircha alohida
 /// entity'si yo'q operatsiyalar uchun: Supplier to'lovi, Loan, Owner investitsiyasi.
 /// </summary>
-public class CashTransaction : AuditableEntity, IDeletable, IHasOrganization
+public class CashTransaction : CancellableEntity, IDeletable, IHasOrganization
 {
     /// <summary>
     /// Tashkilot ID

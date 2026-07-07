@@ -13,6 +13,7 @@ using Ucms.Application.Features.Brigades.Queries;
 [Route("api/brigades")]
 [Tags("Brigade")]
 [Authorize]
+[Authorize(Policy = "brigades.view")]
 public class BrigadeController(
     GetBrigades.Handler              getAll,
     GetBrigadeById.Handler           getById,

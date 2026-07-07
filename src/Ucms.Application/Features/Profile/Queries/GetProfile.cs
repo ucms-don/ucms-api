@@ -3,6 +3,7 @@ namespace Ucms.Application.Features.Profile.Queries;
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
 using Ucms.Application.Persistence;
+using Ucms.Domain.Constants;
 
 public static class GetProfile
 {
@@ -14,9 +15,9 @@ public static class GetProfile
         {
             if (ctx.UserId is null) return null;
 
-            return await db.Users
+            var user = await db.Users
                 .Where(u => u.Id == ctx.UserId)
-                .Select(u => (object)new
+                .Select(u => new
                 {
                     u.Id, u.UserName, u.FullName, u.Email, u.PhoneNumber,
                     u.OrganizationId, u.CreatedAt, u.AvatarUrl,
@@ -29,9 +30,31 @@ public static class GetProfile
                         .Where(ur => ur.UserId == u.Id)
                         .Join(db.Roles, ur => ur.RoleId, r => r.Id, (_, r) => r.Name)
                         .ToList(),
-                    IsAdmin = ctx.IsAdmin,
+                    RoleIds = db.UserRoles
+                        .Where(ur => ur.UserId == u.Id)
+                        .Select(ur => ur.RoleId)
+                        .ToList(),
                 })
                 .FirstOrDefaultAsync(ct);
+
+            if (user is null) return null;
+
+            // Foydalanuvchi rollaridan permission claimlarini yuklash
+            var permissions = await db.RoleClaims
+                .Where(rc => user.RoleIds.Contains(rc.RoleId) && rc.ClaimType == Permissions.ClaimType)
+                .Select(rc => rc.ClaimValue)
+                .Distinct()
+                .ToListAsync(ct);
+
+            return new
+            {
+                user.Id, user.UserName, user.FullName, user.Email, user.PhoneNumber,
+                user.OrganizationId, user.CreatedAt, user.AvatarUrl,
+                user.Organization,
+                user.Roles,
+                Permissions = permissions,
+                ctx.IsAdmin,
+            };
         }
     }
 }

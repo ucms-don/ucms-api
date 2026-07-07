@@ -17,6 +17,7 @@ using Ucms.Domain.Enums;
 [Route("api/income")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "finance.view")]
 public class IncomeController(
     GetIncomeById.Handler      getById,
     FindIncome.Handler         findByName,

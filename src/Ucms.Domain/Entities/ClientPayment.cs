@@ -6,7 +6,7 @@ using Ucms.Domain.Enums;
 /// <summary>
 /// Zakazchikdan tushgan to'lov
 /// </summary>
-public class ClientPayment : AuditableEntity
+public class ClientPayment : CancellableEntity
 {
     /// <summary>
     /// Loyiha ID

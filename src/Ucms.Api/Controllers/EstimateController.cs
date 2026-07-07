@@ -15,6 +15,7 @@ using GetProjectEstimateItemsQuery = Application.Features.Estimates.Queries.GetP
 [Route("api/projects/{projectId:guid}/estimates")]
 [Tags("Estimate")]
 [Authorize(Roles = "Admin,Manager")]
+[Authorize(Policy = "projects.view")]
 public class EstimateController(
     GetEstimates.Handler   getEstimates,
     CreateEstimate.Handler createEstimate,

@@ -8,6 +8,7 @@ using Ucms.Application.Abstractions.Auth;
 using Ucms.Application.Features.Auth.DTOs;
 using Ucms.Application.Features.Auth.Queries;
 using Ucms.Application.Persistence;
+using Ucms.Domain.Constants;
 using Ucms.Domain.Entities.Identity;
 using Ucms.Domain.Enums;
 
@@ -154,7 +155,19 @@ public class AuthController(
             orgType = type?.ToString(); // "Owner" yoki "Tenant"
         }
 
-        var accessToken  = tokenService.GenerateAccessToken(user, roles, orgType);
+        // Foydalanuvchi rollariga biriktirilgan permission claimlarini yuklash
+        var roleIds = await db.UserRoles
+            .Where(ur => ur.UserId == user.Id)
+            .Select(ur => ur.RoleId)
+            .ToListAsync(ct);
+
+        var permissions = await db.RoleClaims
+            .Where(rc => roleIds.Contains(rc.RoleId) && rc.ClaimType == Permissions.ClaimType)
+            .Select(rc => rc.ClaimValue!)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var accessToken  = tokenService.GenerateAccessToken(user, roles, orgType, permissions);
         var refreshToken = tokenService.GenerateRefreshToken();
 
         var storedToken = new RefreshToken

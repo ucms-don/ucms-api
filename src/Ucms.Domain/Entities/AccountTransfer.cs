@@ -5,7 +5,7 @@ using Ucms.Domain.Common;
 /// <summary>
 /// Kassadan kassaga (bank hisobidan naqd pul kassasiga) o'tkazma.
 /// </summary>
-public class AccountTransfer : AuditableEntity, IDeletable, IHasOrganization
+public class AccountTransfer : CancellableEntity, IDeletable, IHasOrganization
 {
     public Guid OrganizationId { get; set; }
 

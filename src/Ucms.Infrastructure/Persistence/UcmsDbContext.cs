@@ -89,6 +89,7 @@ public class UcmsDbContext(
     public override DbSet<User> Users { get; set; }
     public override DbSet<Role> Roles { get; set; }
     public override DbSet<UserRole> UserRoles { get; set; }
+    public override DbSet<RoleClaim> RoleClaims { get; set; }
 
     // ── Auth ───────────────────────────────────────────────────────────────
     public DbSet<RefreshToken> RefreshTokens { get; set; }
@@ -104,7 +105,10 @@ public class UcmsDbContext(
         return await Database.BeginTransactionAsync(ct);
     }
 
-    public void ClearChangeTracker() => ChangeTracker.Clear();
+    public void ClearChangeTracker()
+    {
+        ChangeTracker.Clear();
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

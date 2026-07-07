@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Ucms.Application.Abstractions.Auth;
+using Ucms.Domain.Constants;
 using Ucms.Domain.Entities.Identity;
 
 public class TokenService(IConfiguration config) : ITokenService
@@ -17,7 +18,7 @@ public class TokenService(IConfiguration config) : ITokenService
     private readonly int    _accessMin = int.TryParse(config["Jwt:AccessTokenExpirationMinutes"] ?? "60", out var accessMin) ? accessMin : 60;
     private readonly int    _refreshDays = int.TryParse(config["Jwt:RefreshTokenExpirationDays"] ?? "7", out var refreshDays) ? refreshDays : 7;
 
-    public string GenerateAccessToken(User user, IList<string> roles, string? orgType = null)
+    public string GenerateAccessToken(User user, IList<string> roles, string? orgType = null, IList<string>? permissions = null)
     {
         var claims = new List<Claim>
         {
@@ -40,6 +41,13 @@ public class TokenService(IConfiguration config) : ITokenService
 
         foreach (var role in roles)
             claims.Add(new Claim(ClaimTypes.Role, role));
+
+        // Permission claimlarini qo'shish (role claimlaridan olinadi)
+        if (permissions is { Count: > 0 })
+        {
+            foreach (var perm in permissions.Distinct())
+                claims.Add(new Claim(Permissions.ClaimType, perm));
+        }
 
         var key   = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

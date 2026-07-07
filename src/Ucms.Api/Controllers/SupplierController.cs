@@ -11,6 +11,7 @@ using Ucms.Application.Features.Suppliers.Queries;
 [Route("api/suppliers")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "refs.view")]
 public class SupplierController(
     GetFilteredSuppliers.Handler getFiltered,
     GetSupplierById.Handler getById,

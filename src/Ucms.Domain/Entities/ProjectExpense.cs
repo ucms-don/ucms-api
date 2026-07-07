@@ -6,7 +6,7 @@ using Ucms.Domain.Common;
 /// Loyiha xarajati — materiallar, transport, boshqa chiqimlar
 /// Расход по проекту — материалы, транспорт, прочие затраты
 /// </summary>
-public class ProjectExpense : AuditableEntity, IDeletable
+public class ProjectExpense : CancellableEntity, IDeletable
 {
     /// <summary>
     /// Tashkilot ID

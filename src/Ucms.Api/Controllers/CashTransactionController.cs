@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.CashTransactions.Commands;
 using Ucms.Application.Features.CashTransactions.Queries;
+using Ucms.Domain.Constants;
 using Ucms.Domain.Enums;
 
 /// <summary>
@@ -14,13 +15,15 @@ using Ucms.Domain.Enums;
 [Route("api/cash-transactions")]
 [Tags("CashTransaction")]
 [Authorize]
+[Authorize(Policy = "finance.view")]
 public class CashTransactionController(
     GetCashTransactions.Handler    getAll,
     GetCashTransactionById.Handler getById,
     GetPartnerBalances.Handler     getPartnerBalances,
     CreateCashTransaction.Handler  create,
     UpdateCashTransaction.Handler  update,
-    DeleteCashTransaction.Handler  delete) : ControllerBase
+    DeleteCashTransaction.Handler  delete,
+    CancelCashTransaction.Handler  cancel) : ControllerBase
 {
     public record CreateCashTransactionRequest(
         Guid CashAccountId, CashDirection Direction, CashTransactionType TransactionType,
@@ -54,7 +57,8 @@ public class CashTransactionController(
     {
         var (data, forbidden) = await getAll.HandleAsync(
             new(cashAccountId, partnerType, partnerId, projectId, direction, transactionType, dateFrom, dateTo, page, size), ct);
-        if (forbidden) return Forbid();
+        if (forbidden)
+            return Forbid();
         return Ok(data);
     }
 
@@ -71,7 +75,8 @@ public class CashTransactionController(
         CancellationToken ct = default)
     {
         var (data, forbidden) = await getPartnerBalances.HandleAsync(new(partnerType, partnerId), ct);
-        if (forbidden) return Forbid();
+        if (forbidden)
+            return Forbid();
         return Ok(data);
     }
 
@@ -85,7 +90,8 @@ public class CashTransactionController(
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
         var (data, forbidden) = await getById.HandleAsync(new(id), ct);
-        if (forbidden) return Forbid();
+        if (forbidden)
+            return Forbid();
         return data is null ? NotFound() : Ok(data);
     }
 
@@ -104,11 +110,16 @@ public class CashTransactionController(
             new(req.CashAccountId, req.Direction, req.TransactionType, req.PartnerType, req.PartnerId, req.PartnerName,
                 req.Amount, req.Date, req.ProjectId, req.Note), ct);
 
-        if (forbidden) return Forbid();
-        if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
-        if (projectNotFound) return BadRequest(new { message = "Loyiha topilmadi. / Проект не найден." });
-        if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
-        if (result is null) return BadRequest(new { message = "Xatolik yuz berdi. / Произошла ошибка." });
+        if (forbidden)
+            return Forbid();
+        if (cashAccountNotFound)
+            return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
+        if (projectNotFound)
+            return BadRequest(new { message = "Loyiha topilmadi. / Проект не найден." });
+        if (insufficientBalance)
+            return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
+        if (result is null)
+            return BadRequest(new { message = "Xatolik yuz berdi. / Произошла ошибка." });
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -127,27 +138,31 @@ public class CashTransactionController(
             new(id, req.CashAccountId, req.Direction, req.TransactionType, req.PartnerType, req.PartnerId, req.PartnerName,
                 req.Amount, req.Date, req.ProjectId, req.Note), ct);
 
-        if (notFound)  return NotFound();
-        if (forbidden) return Forbid();
-        if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
-        if (projectNotFound) return BadRequest(new { message = "Loyiha topilmadi. / Проект не найден." });
-        if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
+        if (notFound)
+            return NotFound();
+        if (forbidden)
+            return Forbid();
+        if (cashAccountNotFound)
+            return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
+        if (projectNotFound)
+            return BadRequest(new { message = "Loyiha topilmadi. / Проект не найден." });
+        if (insufficientBalance)
+            return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
         return NoContent();
     }
 
-    /// <summary>
-    /// Pul harakatini o'chirish. Admin yoki Manager uchun.
-    /// Удалить денежную операцию. Для Admin или Manager.
-    /// </summary>
-    [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin,Manager")]
+    /// <summary>Pul harakatini bekor qilish. Kassa balansi tiklanadi.</summary>
+    [HttpPost("{id:guid}/cancel")]
+    [Authorize(Policy = Permissions.Finance.Cancel)]
     [ProducesResponseType(204)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    [ProducesResponseType(409)]
+    public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
     {
-        var (notFound, forbidden) = await delete.HandleAsync(new(id), ct);
-        if (notFound)  return NotFound();
-        if (forbidden) return Forbid();
+        var (notFound, forbidden, alreadyCancelled) = await cancel.HandleAsync(new(id), ct);
+        if (notFound)         return NotFound(new { message = "Pul harakati topilmadi." });
+        if (forbidden)        return Forbid();
+        if (alreadyCancelled) return Conflict(new { message = "Pul harakati allaqachon bekor qilingan." });
         return NoContent();
     }
 }

@@ -15,6 +15,7 @@ using Ucms.Domain.Enums;
 [Route("api/projects")]
 [Tags("Project")]
 [Authorize]
+[Authorize(Policy = "projects.view")]
 public class ProjectController(
     GetProjects.Handler    getAll,
     GetProjectById.Handler getById,

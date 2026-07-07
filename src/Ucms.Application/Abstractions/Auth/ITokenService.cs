@@ -9,7 +9,8 @@ public interface ITokenService
     /// Foydalanuvchi uchun JWT access token yaratadi
     /// </summary>
     /// <param name="orgType">Tashkilot turi: "Owner" yoki "Tenant". null = tashkilotsiz foydalanuvchi.</param>
-    string GenerateAccessToken(User user, IList<string> roles, string? orgType = null);
+    /// <param name="permissions">Foydalanuvchi rollaridan olingan permission claimlari.</param>
+    string GenerateAccessToken(User user, IList<string> roles, string? orgType = null, IList<string>? permissions = null);
 
     /// <summary>
     /// Tasodifiy refresh token yaratadi

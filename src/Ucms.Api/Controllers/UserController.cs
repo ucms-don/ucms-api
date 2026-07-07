@@ -13,6 +13,7 @@ using Ucms.Application.Features.Users.Queries;
 [Route("api/users")]
 [Tags("User")]
 [Authorize]
+[Authorize(Policy = "personnel.view")]
 public class UserController(
     GetUsers.Handler        getAll,
     GetUserById.Handler     getById,

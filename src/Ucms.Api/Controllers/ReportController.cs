@@ -8,6 +8,7 @@ using Ucms.Application.Features.Reports.Queries;
 [Route("api/reports")]
 [ApiController]
 [Authorize]
+[Authorize(Policy = "finance.view")]
 public class ReportController(
     GetProductBalanceReport.Handler getReport,
     GetProductBalanceExcel.Handler getExcel) : ControllerBase

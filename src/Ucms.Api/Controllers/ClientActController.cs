@@ -15,6 +15,7 @@ using Ucms.Domain.Enums;
 [Route("api/projects/{projectId:guid}/acts")]
 [Tags("ClientAct")]
 [Authorize]
+[Authorize(Policy = "projects.view")]
 public class ClientActController(
     GetClientActs.Handler       getAll,
     GetClientActById.Handler    getById,

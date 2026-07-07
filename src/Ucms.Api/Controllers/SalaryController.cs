@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.Salaries.Commands;
 using Ucms.Application.Features.Salaries.Queries;
+using Ucms.Domain.Constants;
 
 /// <summary>
 /// Xodimlar maoshlarini boshqarish.
@@ -13,12 +14,14 @@ using Ucms.Application.Features.Salaries.Queries;
 [Route("api/salaries")]
 [Tags("Salary")]
 [Authorize]
+[Authorize(Policy = "personnel.view")]
 public class SalaryController(
     GetSalaries.Handler    getAll,
     GetSalaryById.Handler  getById,
     CreateSalary.Handler   create,
     UpdateSalary.Handler   update,
-    DeleteSalary.Handler   delete) : ControllerBase
+    DeleteSalary.Handler   delete,
+    CancelSalary.Handler   cancel) : ControllerBase
 {
     public record CreateSalaryRequest(
         Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid CashAccountId);
@@ -112,6 +115,21 @@ public class SalaryController(
         var (notFound, forbidden) = await delete.HandleAsync(new(id), ct);
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
+        return NoContent();
+    }
+
+    /// <summary>Maosh yozuvini bekor qilish. Kassa balansi tiklanadi.</summary>
+    [HttpPost("{id:guid}/cancel")]
+    [Authorize(Policy = Permissions.Finance.Cancel)]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(404)]
+    [ProducesResponseType(409)]
+    public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
+    {
+        var (notFound, forbidden, alreadyCancelled) = await cancel.HandleAsync(new(id), ct);
+        if (notFound)         return NotFound(new { message = "Maosh yozuvi topilmadi." });
+        if (forbidden)        return Forbid();
+        if (alreadyCancelled) return Conflict(new { message = "Maosh yozuvi allaqachon bekor qilingan." });
         return NoContent();
     }
 }
