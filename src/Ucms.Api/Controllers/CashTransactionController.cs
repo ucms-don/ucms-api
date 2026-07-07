@@ -100,14 +100,15 @@ public class CashTransactionController(
     [ProducesResponseType(403)]
     public async Task<IActionResult> Create([FromBody] CreateCashTransactionRequest req, CancellationToken ct)
     {
-        var (result, cashAccountNotFound, projectNotFound, forbidden) = await create.HandleAsync(
+        var (result, cashAccountNotFound, projectNotFound, forbidden, insufficientBalance) = await create.HandleAsync(
             new(req.CashAccountId, req.Direction, req.TransactionType, req.PartnerType, req.PartnerId, req.PartnerName,
                 req.Amount, req.Date, req.ProjectId, req.Note), ct);
 
         if (forbidden) return Forbid();
         if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         if (projectNotFound) return BadRequest(new { message = "Loyiha topilmadi. / Проект не найден." });
-        if (result is null) return BadRequest(new { message = "Foydalanuvchiga tashkilot biriktirilmagan. / Пользователю не привязана организация." });
+        if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
+        if (result is null) return BadRequest(new { message = "Xatolik yuz berdi. / Произошла ошибка." });
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
@@ -122,7 +123,7 @@ public class CashTransactionController(
     [ProducesResponseType(404)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCashTransactionRequest req, CancellationToken ct)
     {
-        var (notFound, forbidden, cashAccountNotFound, projectNotFound) = await update.HandleAsync(
+        var (notFound, forbidden, cashAccountNotFound, projectNotFound, insufficientBalance) = await update.HandleAsync(
             new(id, req.CashAccountId, req.Direction, req.TransactionType, req.PartnerType, req.PartnerId, req.PartnerName,
                 req.Amount, req.Date, req.ProjectId, req.Note), ct);
 
@@ -130,6 +131,7 @@ public class CashTransactionController(
         if (forbidden) return Forbid();
         if (cashAccountNotFound) return BadRequest(new { message = "Kassa/hisob topilmadi. / Касса/счёт не найден." });
         if (projectNotFound) return BadRequest(new { message = "Loyiha topilmadi. / Проект не найден." });
+        if (insufficientBalance) return BadRequest(new { message = "Kassada mablag' yetarli emas. / Недостаточно средств на счёте." });
         return NoContent();
     }
 

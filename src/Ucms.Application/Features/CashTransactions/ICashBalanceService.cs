@@ -23,4 +23,5 @@ public interface ICashBalanceService
         CashDirection direction,
         bool allowOverdraft = false,
         CancellationToken ct = default);
+
 }

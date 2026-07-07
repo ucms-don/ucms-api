@@ -47,4 +47,5 @@ public class CashBalanceService(IUcmsDbContext db) : ICashBalanceService
             throw new InvalidOperationException($"apply_cash_balance_delta: {ex.MessageText}", ex);
         }
     }
+
 }

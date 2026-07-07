@@ -27,8 +27,7 @@ public static class GetCashAccountById
                 .Where(a => a.Id == q.Id)
                 .Select(a => new CashAccountDetailDto(
                     a.Id, a.Name, a.Type, a.Notes, a.IsActive,
-                    a.Transactions
-                        .Sum(t => t.Direction == CashDirection.In ? t.Amount : -t.Amount),
+                    a.Balance,
                     a.OrganizationId, a.CreatedAt, a.UpdatedAt,
                     a.Transactions
                         .OrderByDescending(t => t.Date)
