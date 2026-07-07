@@ -6,15 +6,12 @@ using Ucms.Domain.Entities;
 using Ucms.Domain.Enums;
 
 /// <summary>
-/// BrigadePayment/ClientPayment/Salary/ProjectExpense — eski (legacy) to'lov entity'larini
-/// CashAccount/CashTransaction tizimiga bog'lash uchun umumiy yordamchi (ADR-0001, Option A').
+/// BrigadePayment/ClientPayment/Salary/ProjectExpense/Sku — barcha moliyaviy write path uchun
+/// markaziy yordamchi. UpsertAsync va RemoveAsync ichida ICashBalanceService orqali
+/// apply_cash_balance_delta() SP chaqiriladi (FOR UPDATE lock bilan).
 ///
-/// Eski entity'larning o'ziga hech qanday ustun (CashAccountId va h.k.) qo'shilmaydi.
-/// Buning o'rniga CashTransaction'ning o'zida bitta umumiy Type-discriminator
-/// (<see cref="CashTransactionSourceType"/> SourceType) + nullable SourceId ishlatiladi —
-/// shu orqali har qanday eski yozuv (manba) o'ziga mos bitta CashTransaction bilan
-/// 1:1 bog'lanadi. Bu "hammasiga alohida-alohida ustun qo'shish" o'rniga bitta umumiy
-/// mexanizm orqali barcha 4 entity uchun ishlaydi.
+/// MUHIM: UpsertAsync va RemoveAsync ochiq DB tranzaksiyasi ichida chaqirilishi shart —
+/// SP ning FOR UPDATE lock tranzaksiya tugaganda ozod bo'ladi.
 /// </summary>
 public static class CashTransactionLinker
 {
@@ -23,43 +20,21 @@ public static class CashTransactionLinker
     /// </summary>
     public static Task<bool> CashAccountExistsAsync(
         IUcmsDbContext db, Guid cashAccountId, Guid organizationId, CancellationToken ct) =>
-        db.CashAccounts.AnyAsync(a => a.Id == cashAccountId && !a.IsDeleted && a.OrganizationId == organizationId, ct);
+        db.CashAccounts.AnyAsync(
+            a => a.Id == cashAccountId && a.OrganizationId == organizationId, ct);
 
     /// <summary>
-    /// Kassa/hisobning joriy balansini hisoblaydi. Agar <paramref name="excludeSourceType"/>/<paramref name="excludeSourceId"/>
-    /// berilsa, shu manbaga tegishli (masalan, yangilanayotgan yozuvning eski) CashTransaction balansga qo'shilmaydi —
-    /// shunday qilib Update paytida "eski tranzaksiya hali ham balansni band qilib turibdi" degan noto'g'ri hisoblashning oldi olinadi.
-    /// </summary>
-    public static async Task<decimal> GetAvailableBalanceAsync(
-        IUcmsDbContext db, Guid cashAccountId,
-        CashTransactionSourceType? excludeSourceType, Guid? excludeSourceId, CancellationToken ct)
-    {
-        var query = db.CashTransactions.Where(t => t.CashAccountId == cashAccountId && !t.IsDeleted);
-
-        if (excludeSourceType.HasValue && excludeSourceId.HasValue)
-            query = query.Where(t => !(t.SourceType == excludeSourceType.Value && t.SourceId == excludeSourceId.Value));
-
-        return await query.SumAsync(t => t.Direction == CashDirection.In ? t.Amount : -t.Amount, ct);
-    }
-
-    /// <summary>
-    /// Kassa/hisobda berilgan summa uchun yetarli mablag' bor-yo'qligini tekshiradi (faqat chiqim — Out — operatsiyalari uchun).
-    /// </summary>
-    public static async Task<bool> HasSufficientBalanceAsync(
-        IUcmsDbContext db, Guid cashAccountId, decimal amount,
-        CashTransactionSourceType? excludeSourceType, Guid? excludeSourceId, CancellationToken ct)
-    {
-        var available = await GetAvailableBalanceAsync(db, cashAccountId, excludeSourceType, excludeSourceId, ct);
-        return available >= amount;
-    }
-
-    /// <summary>
-    /// (SourceType, SourceId) bo'yicha bog'langan CashTransaction'ni topadi, topilsa yangilaydi,
-    /// topilmasa yangi yaratadi. SaveChangesAsync chaqirilmaydi — bu chaqiruvchi handler'ning
-    /// o'z SaveChangesAsync'i bilan bitta tranzaksiyada saqlanishi uchun.
+    /// (SourceType, SourceId) bo'yicha bog'langan CashTransaction'ni topadi va yangilaydi,
+    /// topilmasa yangi yaratadi. Har ikki holatda ham ICashBalanceService orqali balans yangilanadi.
+    ///
+    /// Hisob o'zgargan holat (existingAccount != newAccount):
+    ///   eski hisobning deltasi teskari yo'nalishda qaytariladi, yangi hisobga to'liq delta qo'llaniladi.
+    /// Hisob bir xil holat:
+    ///   faqat net delta (yangi - eski) qo'llaniladi.
     /// </summary>
     public static async Task UpsertAsync(
         IUcmsDbContext db,
+        ICashBalanceService balanceService,
         CashTransactionSourceType sourceType, Guid sourceId,
         Guid organizationId, Guid cashAccountId,
         CashDirection direction, CashTransactionType transactionType,
@@ -70,10 +45,15 @@ public static class CashTransactionLinker
         var now = DateTimeOffset.UtcNow;
 
         var existing = await db.CashTransactions
-            .FirstOrDefaultAsync(t => t.SourceType == sourceType && t.SourceId == sourceId && !t.IsDeleted, ct);
+            .AsTracking()
+            .FirstOrDefaultAsync(
+                t => t.SourceType == sourceType && t.SourceId == sourceId, ct);
 
         if (existing is null)
         {
+            // Yangi transaksiya — to'liq delta qo'llaniladi
+            await balanceService.ApplyDeltaAsync(cashAccountId, amount, direction, ct: ct);
+
             await db.CashTransactions.AddAsync(new CashTransaction
             {
                 Id              = Guid.NewGuid(),
@@ -96,6 +76,33 @@ public static class CashTransactionLinker
         }
         else
         {
+            if (existing.CashAccountId == cashAccountId)
+            {
+                // Bir xil hisob: faqat net delta qo'llaniladi
+                var oldSigned = existing.Direction == CashDirection.In
+                    ?  existing.Amount
+                    : -existing.Amount;
+                var newSigned = direction == CashDirection.In ? amount : -amount;
+                var netSigned = newSigned - oldSigned;
+
+                if (netSigned != 0)
+                {
+                    var netAmount    = Math.Abs(netSigned);
+                    var netDirection = netSigned > 0 ? CashDirection.In : CashDirection.Out;
+                    await balanceService.ApplyDeltaAsync(cashAccountId, netAmount, netDirection, ct: ct);
+                }
+            }
+            else
+            {
+                // Hisob o'zgardi: eski deltani qaytarib, yangi deltani qo'llamiz
+                var reverseDir = existing.Direction == CashDirection.In
+                    ? CashDirection.Out
+                    : CashDirection.In;
+                await balanceService.ApplyDeltaAsync(
+                    existing.CashAccountId, existing.Amount, reverseDir, allowOverdraft: true, ct: ct);
+                await balanceService.ApplyDeltaAsync(cashAccountId, amount, direction, ct: ct);
+            }
+
             existing.CashAccountId   = cashAccountId;
             existing.Direction       = direction;
             existing.TransactionType = transactionType;
@@ -107,25 +114,30 @@ public static class CashTransactionLinker
             existing.Note            = note;
             existing.UpdatedAt       = now;
             existing.UpdatedBy       = userId;
-            db.CashTransactions.Update(existing);
         }
     }
 
     /// <summary>
-    /// (SourceType, SourceId) bo'yicha bog'langan CashTransaction mavjud bo'lsa, soft-delete qiladi.
-    /// Manba (legacy yozuv) o'chirilganda yoki undan CashAccountId olib tashlanganda chaqiriladi.
+    /// (SourceType, SourceId) bo'yicha bog'langan CashTransaction mavjud bo'lsa, soft-delete qiladi
+    /// va hisobga deltani teskari yo'nalishda qaytaradi (allowOverdraft: true).
     /// </summary>
     public static async Task RemoveAsync(
-        IUcmsDbContext db, CashTransactionSourceType sourceType, Guid sourceId, Guid userId, CancellationToken ct)
+        IUcmsDbContext db,
+        ICashBalanceService balanceService,
+        CashTransactionSourceType sourceType, Guid sourceId,
+        Guid userId, CancellationToken ct)
     {
         var existing = await db.CashTransactions
-            .FirstOrDefaultAsync(t => t.SourceType == sourceType && t.SourceId == sourceId && !t.IsDeleted, ct);
+            .FirstOrDefaultAsync(
+                t => t.SourceType == sourceType && t.SourceId == sourceId, ct);
 
         if (existing is null) return;
 
+        // Eski deltani qaytarish (overdraft ruxsat beriladi — tuzatish operatsiyasi)
+        var reverseDir = existing.Direction == CashDirection.In ? CashDirection.Out : CashDirection.In;
+        await balanceService.ApplyDeltaAsync(
+            existing.CashAccountId, existing.Amount, reverseDir, allowOverdraft: true, ct: ct);
+
         existing.IsDeleted = true;
         existing.UpdatedAt = DateTimeOffset.UtcNow;
-        existing.UpdatedBy = userId;
-        db.CashTransactions.Update(existing);
-    }
-}
+ 

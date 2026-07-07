@@ -18,7 +18,7 @@ public static class GetSalaryById
         public async Task<(SalaryDetailDto? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var salary = await db.Salaries
-                .Where(s => s.Id == q.Id && !s.IsDeleted)
+                .Where(s => s.Id == q.Id)
                 .Select(s => new SalaryDetailDto(
                     s.Id, s.EmployeeId, s.Employee!.Name, s.Employee.Position,
                     s.Month, s.Amount, s.Notes,

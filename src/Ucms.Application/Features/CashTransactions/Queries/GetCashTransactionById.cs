@@ -22,7 +22,7 @@ public static class GetCashTransactionById
         public async Task<(CashTransactionDetailDto? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var transaction = await db.CashTransactions
-                .Where(t => t.Id == q.Id && !t.IsDeleted)
+                .Where(t => t.Id == q.Id)
                 .Select(t => new CashTransactionDetailDto(
                     t.Id, t.CashAccountId, t.CashAccount!.Name,
                     t.Direction, t.TransactionType, t.PartnerType, t.PartnerId, t.PartnerName,

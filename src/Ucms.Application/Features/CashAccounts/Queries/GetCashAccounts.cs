@@ -19,11 +19,11 @@ public static class GetCashAccounts
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            if (!ctx.OrganizationId.HasValue) 
+            if (!ctx.OrganizationId.HasValue)
                 return (null, true);
 
-            var query = db.CashAccounts.Where(a => !a.IsDeleted
-            && a.OrganizationId == ctx.OrganizationId!.Value);
+            var query = db.CashAccounts.Where(a =>
+                a.OrganizationId == ctx.OrganizationId!.Value);
 
             if (q.IsActive.HasValue)
                 query = query.Where(a => a.IsActive == q.IsActive.Value);
@@ -31,12 +31,13 @@ public static class GetCashAccounts
             if (q.Type.HasValue)
                 query = query.Where(a => a.Type == q.Type.Value);
 
+            // Balance endi CashAccount jadvalida to'g'ridan-to'g'ri saqlanadi (denormalizatsiya).
+            // apply_cash_balance_delta() SP har bir write da sinxron yangilaydi.
             var items = await query
                 .OrderBy(a => a.Name)
                 .Select(a => new Item(
                     a.Id, a.Name, a.Type, a.Notes, a.IsActive,
-                    a.Transactions.Where(t => !t.IsDeleted)
-                        .Sum(t => t.Direction == CashDirection.In ? t.Amount : -t.Amount),
+                    a.Balance,
                     a.CreatedAt))
                 .ToListAsync(ct);
 

@@ -5,7 +5,8 @@ using Ucms.Domain.Enums;
 
 /// <summary>
 /// Tashkilotga tegishli kassa yoki bank hisobi.
-/// Balans saqlanmaydi — har doim CashTransaction'lardan real vaqtda hisoblanadi.
+/// Balans denormalizatsiya qilingan: har bir moliyaviy yozuvda apply_cash_balance_delta()
+/// SP orqali FOR UPDATE lock bilan sinxron yangilanadi.
 /// </summary>
 public class CashAccount : AuditableEntity, IDeletable, IHasOrganization
 {
@@ -28,6 +29,11 @@ public class CashAccount : AuditableEntity, IDeletable, IHasOrganization
     /// Izoh
     /// </summary>
     public string? Notes { get; set; }
+
+    /// <summary>
+    /// Joriy balans (denormalizatsiya). Faqat apply_cash_balance_delta() SP orqali o'zgartiriladi.
+    /// </summary>
+    public decimal Balance { get; set; } = 0;
 
     /// <summary>
     /// Faol yoki yo'q

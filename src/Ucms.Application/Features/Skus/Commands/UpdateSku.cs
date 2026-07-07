@@ -5,6 +5,7 @@ using Ucms.Application.Abstractions;
 using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Enums;
+using Ucms.Domain.Exceptions;
 
 public static class UpdateSku
 {
@@ -14,55 +15,77 @@ public static class UpdateSku
         decimal Price, decimal Amount, DateTimeOffset ExpirationDate, SkuStatus Status,
         Guid? CashAccountId);
 
-    public sealed class Handler(IUcmsDbContext db, IWorkContext workContext)
+    public sealed class Handler(IUcmsDbContext db, IWorkContext workContext, ICashBalanceService balanceService)
     {
         public async Task<(bool Found, string? Error)> HandleAsync(Command cmd, CancellationToken ct)
         {
-            var sku = await db.Skus.AsTracking().FirstOrDefaultAsync(f => f.Id == cmd.Id, ct);
+            var sku = await db.Skus.FirstOrDefaultAsync(f => f.Id == cmd.Id, ct);
             if (sku is null) return (false, null);
 
             var orgId  = workContext.TenantId!.Value;
             var userId = workContext.UserId ?? Guid.Empty;
-            var totalCost = cmd.Price * cmd.Amount;
-            var product = await db.Products.FirstOrDefaultAsync(p => p.Id == cmd.ProductId, ct);
 
-            // Kassa/bank ko'rsatilgan bo'lsa, bog'langan chiqim (yetkazib beruvchiga to'lov)
-            // yangi Narx × Miqdor bo'yicha qayta sinxronlanadi. Balansni tekshirishda shu Sku'ning
-            // eski tranzaksiyasi hisobga olinmaydi (exclude). Kassa tozalansa (null) — to'lov bekor qilinadi.
             if (cmd.CashAccountId.HasValue)
             {
                 if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId.Value, orgId, ct))
                     return (true, "Tanlangan kassa/bank hisobi topilmadi. / Касса/счёт не найден.");
-
-                if (!await CashTransactionLinker.HasSufficientBalanceAsync(
-                        db, cmd.CashAccountId.Value, totalCost,
-                        CashTransactionSourceType.SkuPurchase, sku.Id, ct))
-                    return (true, "Kassada mablag' yetarli emas. / Недостаточно средств на счёте.");
             }
 
-            sku.SerialNumber = cmd.SerialNumber; sku.Price = cmd.Price; sku.Amount = cmd.Amount;
-            sku.ExpirationDate = cmd.ExpirationDate; sku.ProductId = cmd.ProductId;
-            sku.ManufacturerId = cmd.ManufacturerId; sku.MeasurementUnitId = cmd.MeasurementUnitId;
-            sku.SupplierId = cmd.SupplierId; sku.Status = cmd.Status;
+            var productName = await db.Products
+                .Where(p => p.Id == cmd.ProductId)
+                .Select(p => (string?)p.Name)
+                .FirstOrDefaultAsync(ct);
 
-            if (cmd.CashAccountId.HasValue)
+            var totalCost = cmd.Price * cmd.Amount;
+
+            try
             {
-                await CashTransactionLinker.UpsertAsync(
-                    db, CashTransactionSourceType.SkuPurchase, sku.Id,
-                    orgId, cmd.CashAccountId.Value,
-                    CashDirection.Out, CashTransactionType.SupplierPayment,
-                    FinancePartnerType.Supplier, cmd.SupplierId,
-                    totalCost, DateTimeOffset.UtcNow, null, $"Sklad: {product?.Name} ({cmd.SerialNumber})",
-                    userId, ct);
+                await db.CreateExecutionStrategy().ExecuteAsync(async () =>
+                {
+                    db.ClearChangeTracker();
+                    await using var tx = await db.BeginTransactionAsync(ct);
+
+                    var s = await db.Skus.AsTracking().FirstOrDefaultAsync(f => f.Id == cmd.Id, ct);
+                    if (s is null) return;
+
+                    s.SerialNumber      = cmd.SerialNumber;
+                    s.Price             = cmd.Price;
+                    s.Amount            = cmd.Amount;
+                    s.ExpirationDate    = cmd.ExpirationDate;
+                    s.ProductId         = cmd.ProductId;
+                    s.ManufacturerId    = cmd.ManufacturerId;
+                    s.MeasurementUnitId = cmd.MeasurementUnitId;
+                    s.SupplierId        = cmd.SupplierId;
+                    s.Status            = cmd.Status;
+
+                    if (cmd.CashAccountId.HasValue)
+                    {
+                        await CashTransactionLinker.UpsertAsync(
+                            db, balanceService,
+                            CashTransactionSourceType.SkuPurchase, cmd.Id,
+                            orgId, cmd.CashAccountId.Value,
+                            CashDirection.Out, CashTransactionType.SupplierPayment,
+                            FinancePartnerType.Supplier, cmd.SupplierId,
+                            totalCost, DateTimeOffset.UtcNow, null,
+                            $"Sklad: {productName} ({cmd.SerialNumber})",
+                            userId, ct);
+                    }
+                    else
+                    {
+                        // Hisob tozalangan — bog'langan to'lovni bekor qilamiz
+                        await CashTransactionLinker.RemoveAsync(
+                            db, balanceService, CashTransactionSourceType.SkuPurchase, cmd.Id, userId, ct);
+                    }
+
+                    await db.SaveChangesAsync(ct);
+                    await tx.CommitAsync(ct);
+                });
             }
-            else
+            catch (InsufficientBalanceException ex)
             {
-                // Hisob tozalangan bo'lsa, bog'langan to'lovni bekor qilamiz (balans qaytadi).
-                await CashTransactionLinker.RemoveAsync(
-                    db, CashTransactionSourceType.SkuPurchase, sku.Id, userId, ct);
+                return (true, ex.Message);
             }
 
-            await db.SaveChangesAsync(ct);
             return (true, null);
         }
     }

@@ -5,19 +5,17 @@ using Ucms.Application.Abstractions;
 using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Enums;
+using Ucms.Domain.Exceptions;
 
 public static class UpdateBrigadePayment
 {
     public record Command(
-        Guid Id,
-        DateTimeOffset Date,
-        decimal Amount,
-        PaymentMethod PaymentMethod,
-        string? Note);
+        Guid Id, DateTimeOffset Date, decimal Amount, PaymentMethod PaymentMethod, string? Note);
 
-    public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
+    public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx, ICashBalanceService balanceService)
     {
-        public async Task<(bool NotFound, bool Forbidden, bool InsufficientBalance)> HandleAsync(Command cmd, CancellationToken ct)
+        public async Task<(bool NotFound, bool Forbidden, bool InsufficientBalance)>
+            HandleAsync(Command cmd, CancellationToken ct)
         {
             var payment = await db.BrigadePayments
                 .Include(p => p.Project)
@@ -28,38 +26,57 @@ public static class UpdateBrigadePayment
             var orgId = payment.Project?.OrganizationId ?? Guid.Empty;
             if (!ctx.IsOwner && ctx.OrganizationId != orgId) return (false, true, false);
 
-            // Check balance for the new amount (excluding current transaction so it doesn't double-count)
+            // CashAccountId va Partner bilgilerini mavjud CashTransaction dan olamiz
             var cashTx = await db.CashTransactions
-                .FirstOrDefaultAsync(t => t.SourceType == CashTransactionSourceType.BrigadePayment
-                                       && t.SourceId == cmd.Id && !t.IsDeleted, ct);
+                .FirstOrDefaultAsync(t =>
+                    t.SourceType == CashTransactionSourceType.BrigadePayment
+                    && t.SourceId == cmd.Id, ct);
 
-            if (cashTx is not null)
+            var userId     = ctx.UserId ?? Guid.Empty;
+            var brigadeId  = payment.BrigadeId;
+            var projectId  = payment.ProjectId;
+
+            try
             {
-                if (!await CashTransactionLinker.HasSufficientBalanceAsync(
-                        db, cashTx.CashAccountId, cmd.Amount,
-                        CashTransactionSourceType.BrigadePayment, cmd.Id, ct))
-                    return (false, false, true);
+                await db.CreateExecutionStrategy().ExecuteAsync(async () =>
+                {
+                    db.ClearChangeTracker();
+                    await using var tx = await db.BeginTransactionAsync(ct);
 
-                // Update linked cash transaction
-                var now    = DateTimeOffset.UtcNow;
-                var userId = ctx.UserId ?? Guid.Empty;
-                cashTx.Amount    = cmd.Amount;
-                cashTx.Date      = cmd.Date;
-                cashTx.Note      = cmd.Note;
-                cashTx.UpdatedAt = now;
-                cashTx.UpdatedBy = userId;
-                db.CashTransactions.Update(cashTx);
+                    var p = await db.BrigadePayments
+                        .Include(x => x.Project)
+                        .FirstOrDefaultAsync(x => x.Id == cmd.Id, ct);
+                    if (p is null) return;
+
+                    p.Date          = cmd.Date;
+                    p.Amount        = cmd.Amount;
+                    p.PaymentMethod = cmd.PaymentMethod;
+                    p.Note          = cmd.Note;
+                    p.UpdatedAt     = DateTimeOffset.UtcNow;
+                    p.UpdatedBy     = userId;
+                    db.BrigadePayments.Update(p);
+
+                    if (cashTx is not null)
+                    {
+                        await CashTransactionLinker.UpsertAsync(
+                            db, balanceService,
+                            CashTransactionSourceType.BrigadePayment, cmd.Id,
+                            orgId, cashTx.CashAccountId,
+                            CashDirection.Out, CashTransactionType.BrigadePayment,
+                            FinancePartnerType.Brigade, brigadeId,
+                            cmd.Amount, cmd.Date, projectId, cmd.Note,
+                            userId, ct);
+                    }
+
+                    await db.SaveChangesAsync(ct);
+                    await tx.CommitAsync(ct);
+                });
+            }
+            catch (InsufficientBalanceException)
+            {
+                return (false, false, true);
             }
 
-            payment.Date          = cmd.Date;
-            payment.Amount        = cmd.Amount;
-            payment.PaymentMethod = cmd.PaymentMethod;
-            payment.Note          = cmd.Note;
-            payment.UpdatedAt     = DateTimeOffset.UtcNow;
-            payment.UpdatedBy     = ctx.UserId ?? Guid.Empty;
-            db.BrigadePayments.Update(payment);
-
-            await db.SaveChangesAsync(ct);
             return (false, false, false);
         }
     }

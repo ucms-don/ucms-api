@@ -16,7 +16,7 @@ public static class GetProjectById
         {
             var locale = ctx.Locale;
             var project = await db.Projects
-                .Where(p => p.Id == q.Id && !p.IsDeleted)
+                .Where(p => p.Id == q.Id)
                 .Select(p => new ProjectDetailDto(
                     p.Id,
                     p.Name,

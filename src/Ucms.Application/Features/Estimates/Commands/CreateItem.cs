@@ -20,7 +20,7 @@ public static class CreateItem
         public async Task<(Result? Data, bool Forbidden, string? Error)> HandleAsync(Command cmd, CancellationToken ct)
         {
             var orgId = await db.Projects
-                .Where(p => p.Id == cmd.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == cmd.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 
@@ -34,13 +34,13 @@ public static class CreateItem
                 return (null, false, "Bo'lim ushbu smetaga tegishli emas");
 
             var unitExists = await db.MeasurementUnits
-                .AnyAsync(u => u.Id == cmd.MeasurementUnitId && !u.IsDeleted, ct);
+                .AnyAsync(u => u.Id == cmd.MeasurementUnitId, ct);
 
             if (!unitExists)
                 return (null, false, "O'lchov birligi topilmadi");
 
             var workTypeExists = await db.WorkTypes
-                .AnyAsync(w => w.Id == cmd.WorkTypeId && !w.IsDeleted, ct);
+                .AnyAsync(w => w.Id == cmd.WorkTypeId, ct);
 
             if (!workTypeExists)
                 return (null, false, "Ish turi topilmadi");

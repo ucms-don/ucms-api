@@ -21,11 +21,11 @@ public static class GetCustomerById
         public async Task<(CustomerDetailDto? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var customer = await db.Customers
-                .Where(c => c.Id == q.Id && !c.IsDeleted)
+                .Where(c => c.Id == q.Id)
                 .Select(c => new CustomerDetailDto(
                     c.Id, c.Name, c.Phone, c.TaxId, c.Address, c.Notes,
                     c.IsActive, c.OrganizationId, c.CreatedAt, c.UpdatedAt,
-                    c.Projects.Where(p => !p.IsDeleted)
+                    c.Projects
                         .Select(p => new ProjectSummary(p.Id, p.Name, p.ContractNumber, p.ContractValue))
                         .ToList(),
                     c.DirectorName, c.DirectorPosition, c.DirectorPhone))

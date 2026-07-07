@@ -21,7 +21,7 @@ public static class GetCustomers
         {
             if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
 
-            var query = db.Customers.Where(c => !c.IsDeleted);
+            var query = db.Customers;
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(c => c.OrganizationId == ctx.OrganizationId.Value);
@@ -42,7 +42,7 @@ public static class GetCustomers
                 .Skip((q.Page - 1) * q.Size).Take(q.Size)
                 .Select(c => new Item(
                     c.Id, c.Name, c.Phone, c.TaxId, c.Address,
-                    c.IsActive, c.Projects.Count(p => !p.IsDeleted), c.CreatedAt,
+                    c.IsActive, c.Projects.Count(), c.CreatedAt,
                     c.DirectorName, c.DirectorPosition, c.DirectorPhone))
                 .ToListAsync(ct);
 

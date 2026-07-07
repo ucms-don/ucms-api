@@ -18,7 +18,7 @@ public static class GetEmployeeById
         public async Task<(EmployeeDetailDto? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var employee = await db.Employees
-                .Where(e => e.Id == q.Id && !e.IsDeleted)
+                .Where(e => e.Id == q.Id)
                 .Select(e => new EmployeeDetailDto(
                     e.Id, e.Name, e.Position, e.Phone, e.Notes,
                     e.IsActive, e.BrigadeId, e.Brigade != null ? e.Brigade.Name : null,

@@ -10,23 +10,37 @@ public static class DeleteSku
 {
     public record Command(Guid Id);
 
-    public sealed class Handler(IUcmsDbContext db, IWorkContext workContext)
+    public sealed class Handler(IUcmsDbContext db, IWorkContext workContext, ICashBalanceService balanceService)
     {
         public async Task<(bool NotFound, string? Error)> HandleAsync(Command cmd, CancellationToken ct)
         {
-            var sku = await db.Skus.AsTracking().FirstOrDefaultAsync(a => a.Id == cmd.Id, ct);
+            var sku = await db.Skus.FirstOrDefaultAsync(a => a.Id == cmd.Id, ct);
             if (sku is null) return (true, null);
 
-            if (db.IncomeItems.Any(a => a.SkuId == cmd.Id) ||
-                db.OutcomeItems.Any(a => a.SkuId == cmd.Id) ||
-                db.StockSkus.Any(a => a.SkuId == cmd.Id))
+            if (await db.IncomeItems.AnyAsync(a => a.SkuId == cmd.Id, ct) ||
+                await db.OutcomeItems.AnyAsync(a => a.SkuId == cmd.Id, ct) ||
+                await db.StockSkus.AnyAsync(a => a.SkuId == cmd.Id, ct))
                 return (false, "SKU boshqa jadvallarda ishlatilmoqda");
 
-            sku.IsDeleted = true;
-            // Skladdan o'chirilganda shu materialga to'lov sifatida yaratilgan chiqimni ham bekor qilamiz.
-            await CashTransactionLinker.RemoveAsync(
-                db, CashTransactionSourceType.SkuPurchase, sku.Id, workContext.UserId ?? Guid.Empty, ct);
-            await db.SaveChangesAsync(ct);
+            var userId = workContext.UserId ?? Guid.Empty;
+
+            await db.CreateExecutionStrategy().ExecuteAsync(async () =>
+            {
+                db.ClearChangeTracker();
+                await using var tx = await db.BeginTransactionAsync(ct);
+
+                var s = await db.Skus.AsTracking().FirstOrDefaultAsync(x => x.Id == cmd.Id, ct);
+                if (s is null) return;
+
+                s.IsDeleted = true;
+
+                await CashTransactionLinker.RemoveAsync(
+                    db, balanceService, CashTransactionSourceType.SkuPurchase, cmd.Id, userId, ct);
+
+                await db.SaveChangesAsync(ct);
+                await tx.CommitAsync(ct);
+            });
+
             return (false, null);
         }
     }

@@ -23,14 +23,14 @@ public static class UpdateCashTransaction
             if (cmd.CashAccountId != transaction.CashAccountId)
             {
                 var accountExists = await db.CashAccounts
-                    .AnyAsync(a => a.Id == cmd.CashAccountId && !a.IsDeleted && a.OrganizationId == transaction.OrganizationId, ct);
+                    .AnyAsync(a => a.Id == cmd.CashAccountId && a.OrganizationId == transaction.OrganizationId, ct);
                 if (!accountExists) return (false, false, true, false);
             }
 
             if (cmd.ProjectId.HasValue)
             {
                 var projectExists = await db.Projects
-                    .AnyAsync(p => p.Id == cmd.ProjectId.Value && !p.IsDeleted && p.OrganizationId == transaction.OrganizationId, ct);
+                    .AnyAsync(p => p.Id == cmd.ProjectId.Value && p.OrganizationId == transaction.OrganizationId, ct);
                 if (!projectExists) return (false, false, false, true);
             }
 

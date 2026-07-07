@@ -24,13 +24,13 @@ public static class GetCashAccountById
         public async Task<(CashAccountDetailDto? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var account = await db.CashAccounts
-                .Where(a => a.Id == q.Id && !a.IsDeleted)
+                .Where(a => a.Id == q.Id)
                 .Select(a => new CashAccountDetailDto(
                     a.Id, a.Name, a.Type, a.Notes, a.IsActive,
-                    a.Transactions.Where(t => !t.IsDeleted)
+                    a.Transactions
                         .Sum(t => t.Direction == CashDirection.In ? t.Amount : -t.Amount),
                     a.OrganizationId, a.CreatedAt, a.UpdatedAt,
-                    a.Transactions.Where(t => !t.IsDeleted)
+                    a.Transactions
                         .OrderByDescending(t => t.Date)
                         .Take(20)
                         .Select(t => new RecentTransaction(

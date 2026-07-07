@@ -13,7 +13,7 @@ public static class DeleteSection
         public async Task<(bool NotFound, bool Forbidden)> HandleAsync(Command cmd, CancellationToken ct)
         {
             var orgId = await db.Projects
-                .Where(p => p.Id == cmd.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == cmd.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 

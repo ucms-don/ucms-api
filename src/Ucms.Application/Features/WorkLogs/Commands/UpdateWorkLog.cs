@@ -22,7 +22,7 @@ public static class UpdateWorkLog
             if (workLog is null) return (true, false, null);
 
             var orgId = await db.Projects
-                .Where(p => p.Id == cmd.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == cmd.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 

@@ -13,7 +13,7 @@ public static class GetBrigadePayments
         public async Task<(object? Data, bool ProjectNotFound, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var orgId = await db.Projects
-                .Where(p => p.Id == q.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == q.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 

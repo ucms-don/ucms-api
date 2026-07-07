@@ -19,14 +19,14 @@ public static class GetProjectExpenses
         public async Task<(Result? Data, bool ProjectNotFound, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var orgId = await db.Projects
-                .Where(p => p.Id == q.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == q.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 
             if (orgId is null) return (null, true, false);
             if (!ctx.IsOwner && ctx.OrganizationId != orgId) return (null, false, true);
 
-            var query = db.ProjectExpenses.Where(e => e.ProjectId == q.ProjectId && !e.IsDeleted);
+            var query = db.ProjectExpenses.Where(e => e.ProjectId == q.ProjectId);
 
             if (!string.IsNullOrEmpty(q.Category))
                 query = query.Where(e => e.Category == q.Category);

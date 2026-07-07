@@ -21,13 +21,13 @@ public static class GetBrigadeById
         public async Task<(BrigadeDetailDto? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var brigade = await db.Brigades
-                .Where(b => b.Id == q.Id && !b.IsDeleted)
+                .Where(b => b.Id == q.Id)
                 .Select(b => new BrigadeDetailDto(
                     b.Id, b.Name, b.ForemanName, b.Phone,
                     b.IsActive, b.IsActive ? "active" : "archived", b.Notes,
                     b.OrganizationId, b.CreatedAt, b.UpdatedAt,
                     b.Employees
-                        .Where(e => !e.IsDeleted)
+                        
                         .OrderBy(e => e.Name)
                         .Select(e => new BrigadeEmployeeDto(e.Id, e.Name, e.Position, e.Phone, e.IsActive))
                         .ToList()))

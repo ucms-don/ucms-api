@@ -14,7 +14,7 @@ public static class GetProjectDetail
         public async Task<(object? Data, bool NotFound, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var project = await db.Projects
-                .Where(p => p.Id == q.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == q.ProjectId)
                 .Select(p => new { p.Name, p.Status, p.OrganizationId })
                 .FirstOrDefaultAsync(ct);
 

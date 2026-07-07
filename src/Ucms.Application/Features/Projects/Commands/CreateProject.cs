@@ -26,7 +26,7 @@ public static class CreateProject
             if (cmd.CustomerId.HasValue)
             {
                 var customerExists = await db.Customers
-                    .AnyAsync(c => c.Id == cmd.CustomerId.Value && !c.IsDeleted && c.OrganizationId == orgId.Value, ct);
+                    .AnyAsync(c => c.Id == cmd.CustomerId.Value && c.OrganizationId == orgId.Value, ct);
                 if (!customerExists) return null;
             }
 

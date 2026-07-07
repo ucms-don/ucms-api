@@ -24,7 +24,7 @@ public static class GetAllBrigadePayments
             if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
 
             var query = db.BrigadePayments
-                .Where(p => !p.Project!.IsDeleted);
+                ;
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(p => p.Project!.OrganizationId == ctx.OrganizationId.Value);

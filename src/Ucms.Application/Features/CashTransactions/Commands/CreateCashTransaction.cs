@@ -22,7 +22,7 @@ public static class CreateCashTransaction
             var orgId = ctx.IsOwner ? null : ctx.OrganizationId;
 
             var account = await db.CashAccounts
-                .Where(a => a.Id == cmd.CashAccountId && !a.IsDeleted)
+                .Where(a => a.Id == cmd.CashAccountId)
                 .Select(a => new { a.Id, a.OrganizationId })
                 .FirstOrDefaultAsync(ct);
 
@@ -32,7 +32,7 @@ public static class CreateCashTransaction
             if (cmd.ProjectId.HasValue)
             {
                 var projectExists = await db.Projects
-                    .AnyAsync(p => p.Id == cmd.ProjectId.Value && !p.IsDeleted && p.OrganizationId == account.OrganizationId, ct);
+                    .AnyAsync(p => p.Id == cmd.ProjectId.Value && p.OrganizationId == account.OrganizationId, ct);
                 if (!projectExists) return (null, false, true, false);
             }
 

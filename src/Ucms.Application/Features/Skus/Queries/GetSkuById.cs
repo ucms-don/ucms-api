@@ -20,7 +20,7 @@ public static class GetSkuById
             var model = mapper.Map<SkuModel>(sku);
             model.CashAccountId = await db.CashTransactions
                 .Where(t => t.SourceType == CashTransactionSourceType.SkuPurchase
-                    && t.SourceId == sku.Id && !t.IsDeleted)
+                    && t.SourceId == sku.Id)
                 .Select(t => (Guid?)t.CashAccountId)
                 .FirstOrDefaultAsync(ct);
             return model;

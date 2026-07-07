@@ -17,7 +17,7 @@ public static class GetDashboard
             var orgId  = ctx.OrganizationId;
             var locale = ctx.Locale;
 
-            var projectsQuery = db.Projects.Where(p => !p.IsDeleted);
+            var projectsQuery = db.Projects;
             if (orgId.HasValue) projectsQuery = projectsQuery.Where(p => p.OrganizationId == orgId.Value);
 
             var ps = await projectsQuery
@@ -39,7 +39,7 @@ public static class GetDashboard
                 ps?.Completed  ?? 0,
                 ps?.Suspended  ?? 0);
 
-            var brigadesQuery = db.Brigades.Where(b => !b.IsDeleted);
+            var brigadesQuery = db.Brigades;
             if (orgId.HasValue) brigadesQuery = brigadesQuery.Where(b => b.OrganizationId == orgId.Value);
 
             var bs = await brigadesQuery

@@ -15,7 +15,7 @@ public static class GetProfile
             if (ctx.UserId is null) return null;
 
             return await db.Users
-                .Where(u => u.Id == ctx.UserId && !u.IsDeleted)
+                .Where(u => u.Id == ctx.UserId)
                 .Select(u => (object)new
                 {
                     u.Id, u.UserName, u.FullName, u.Email, u.PhoneNumber,

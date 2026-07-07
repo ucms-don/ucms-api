@@ -25,7 +25,7 @@ public static class GetProjects
             var orgId = ctx.IsOwner ? (Guid?)null : ctx.OrganizationId;
             if (orgId is null && !ctx.IsOwner) return (null, true);
 
-            var query = db.Projects.Where(p => !p.IsDeleted);
+            var query = db.Projects;
             if (orgId.HasValue) query = query.Where(p => p.OrganizationId == orgId.Value);
 
             // Status filtri — enum yoki UI string orqali

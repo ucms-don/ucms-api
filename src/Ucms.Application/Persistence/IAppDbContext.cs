@@ -89,4 +89,11 @@ public interface IUcmsDbContext
     public IExecutionStrategy CreateExecutionStrategy();
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
     public DatabaseFacade Database { get; }
+
+    /// <summary>
+    /// Change tracker'dagi barcha tracked entity'larni tozalaydi.
+    /// CreateExecutionStrategy().ExecuteAsync() ichida retry bo'lganda stale state ni oldini olish uchun
+    /// har bir urinish boshida chaqiriladi.
+    /// </summary>
+    public void ClearChangeTracker();
 }

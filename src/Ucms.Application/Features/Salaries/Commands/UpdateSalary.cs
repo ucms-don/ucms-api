@@ -5,54 +5,70 @@ using Ucms.Application.Abstractions;
 using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Enums;
+using Ucms.Domain.Exceptions;
 
 public static class UpdateSalary
 {
     public record Command(Guid Id, Guid EmployeeId, string Month, decimal Amount, string? Notes, Guid CashAccountId);
 
-    public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
+    public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx, ICashBalanceService balanceService)
     {
-        public async Task<(bool NotFound, bool Forbidden, string? Error, bool CashAccountNotFound, bool InsufficientBalance)> HandleAsync(Command cmd, CancellationToken ct)
+        public async Task<(bool NotFound, bool Forbidden, string? Error, bool CashAccountNotFound, bool InsufficientBalance)>
+            HandleAsync(Command cmd, CancellationToken ct)
         {
             var salary = await db.Salaries.FindAsync([cmd.Id], ct);
             if (salary is null || salary.IsDeleted) return (true, false, null, false, false);
             if (!ctx.IsOwner && ctx.OrganizationId != salary.OrganizationId) return (false, true, null, false, false);
 
-            // Yangi xodim tekshirish (agar o'zgartirilsa)
             if (salary.EmployeeId != cmd.EmployeeId)
             {
-                var exists = await db.Employees
-                    .AnyAsync(e => e.Id == cmd.EmployeeId && !e.IsDeleted, ct);
+                var exists = await db.Employees.AnyAsync(e => e.Id == cmd.EmployeeId, ct);
                 if (!exists) return (false, false, "Xodim topilmadi", false, false);
             }
 
             if (!await CashTransactionLinker.CashAccountExistsAsync(db, cmd.CashAccountId, salary.OrganizationId, ct))
                 return (false, false, null, true, false);
 
-            if (!await CashTransactionLinker.HasSufficientBalanceAsync(
-                    db, cmd.CashAccountId, cmd.Amount, CashTransactionSourceType.Salary, salary.Id, ct))
-                return (false, false, null, false, true);
-
-            salary.EmployeeId = cmd.EmployeeId;
-            salary.Month      = cmd.Month;
-            salary.Amount     = cmd.Amount;
-            salary.Notes      = cmd.Notes;
-            salary.UpdatedAt  = DateTimeOffset.UtcNow;
-            salary.UpdatedBy  = ctx.UserId ?? Guid.Empty;
-
-            db.Salaries.Update(salary);
-
             var userId = ctx.UserId ?? Guid.Empty;
-            var date = DateTimeOffset.TryParse(cmd.Month + "-01", out var parsed) ? parsed : DateTimeOffset.UtcNow;
-            await CashTransactionLinker.UpsertAsync(
-                db, CashTransactionSourceType.Salary, salary.Id,
-                salary.OrganizationId, cmd.CashAccountId,
-                CashDirection.Out, CashTransactionType.SalaryPayment,
-                FinancePartnerType.Employee, cmd.EmployeeId,
-                cmd.Amount, date, null, cmd.Notes,
-                userId, ct);
+            var orgId  = salary.OrganizationId;
+            var date   = DateTimeOffset.TryParse(cmd.Month + "-01", out var parsed) ? parsed : DateTimeOffset.UtcNow;
 
-            await db.SaveChangesAsync(ct);
+            try
+            {
+                await db.CreateExecutionStrategy().ExecuteAsync(async () =>
+                {
+                    db.ClearChangeTracker();
+                    await using var tx = await db.BeginTransactionAsync(ct);
+
+                    var s = await db.Salaries.FindAsync([cmd.Id], ct);
+                    if (s is null || s.IsDeleted) return;
+
+                    s.EmployeeId = cmd.EmployeeId;
+                    s.Month      = cmd.Month;
+                    s.Amount     = cmd.Amount;
+                    s.Notes      = cmd.Notes;
+                    s.UpdatedAt  = DateTimeOffset.UtcNow;
+                    s.UpdatedBy  = userId;
+                    db.Salaries.Update(s);
+
+                    await CashTransactionLinker.UpsertAsync(
+                        db, balanceService,
+                        CashTransactionSourceType.Salary, cmd.Id,
+                        orgId, cmd.CashAccountId,
+                        CashDirection.Out, CashTransactionType.SalaryPayment,
+                        FinancePartnerType.Employee, cmd.EmployeeId,
+                        cmd.Amount, date, null, cmd.Notes,
+                        userId, ct);
+
+                    await db.SaveChangesAsync(ct);
+                    await tx.CommitAsync(ct);
+                });
+            }
+            catch (InsufficientBalanceException)
+            {
+                return (false, false, null, false, true);
+            }
+
             return (false, false, null, false, false);
         }
     }
