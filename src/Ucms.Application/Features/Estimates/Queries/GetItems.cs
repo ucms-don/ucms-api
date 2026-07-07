@@ -13,7 +13,7 @@ public static class GetItems
         public async Task<(List<object>? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var orgId = await db.Projects
-                .Where(p => p.Id == q.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == q.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 

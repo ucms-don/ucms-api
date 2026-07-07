@@ -84,12 +84,14 @@ public static class ExceptionHandlerExtensions
     {
         return exception switch
         {
-            NotFoundException => HttpStatusCode.NotFound,
-            AccessDeniedException => HttpStatusCode.Forbidden,
-            ApplicationException => HttpStatusCode.BadRequest,
-            ValidationException => HttpStatusCode.BadRequest,
-            AlreadyExistException => HttpStatusCode.Conflict,
-            _ => HttpStatusCode.InternalServerError
+            InsufficientBalanceException  => HttpStatusCode.BadRequest,
+            CashAccountNotFoundException  => HttpStatusCode.NotFound,
+            NotFoundException             => HttpStatusCode.NotFound,
+            AccessDeniedException         => HttpStatusCode.Forbidden,
+            ApplicationException          => HttpStatusCode.BadRequest,
+            ValidationException           => HttpStatusCode.BadRequest,
+            AlreadyExistException         => HttpStatusCode.Conflict,
+            _                             => HttpStatusCode.InternalServerError
         };
     }
 

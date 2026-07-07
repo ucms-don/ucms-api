@@ -20,12 +20,12 @@ public static class GetOrganizationById
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var org = await db.Organizations
-                .Where(o => o.Id == q.Id && !o.IsDeleted)
+                .Where(o => o.Id == q.Id)
                 .Select(o => new Result(
                     o.Id, o.Name, o.TaxId, o.Address, o.Phone, o.Email,
                     o.Type, o.IsTest, o.CreatedAt, o.UpdatedAt,
-                    o.Projects.Count(p => !p.IsDeleted),
-                    o.Brigades.Count(b => !b.IsDeleted)))
+                    o.Projects.Count(),
+                    o.Brigades.Count()))
                 .FirstOrDefaultAsync(ct);
 
             if (org is null) return (null, false);

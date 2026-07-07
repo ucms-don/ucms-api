@@ -1,5 +1,6 @@
 namespace Ucms.Application.Features.Salaries.Commands;
 
+using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
 using Ucms.Application.Features.CashTransactions;
 using Ucms.Application.Persistence;
@@ -9,7 +10,7 @@ public static class DeleteSalary
 {
     public record Command(Guid Id);
 
-    public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
+    public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx, ICashBalanceService balanceService)
     {
         public async Task<(bool NotFound, bool Forbidden)> HandleAsync(Command cmd, CancellationToken ct)
         {
@@ -17,15 +18,28 @@ public static class DeleteSalary
             if (salary is null || salary.IsDeleted) return (true, false);
             if (!ctx.IsOwner && ctx.OrganizationId != salary.OrganizationId) return (false, true);
 
-            salary.IsDeleted = true;
-            salary.UpdatedAt = DateTimeOffset.UtcNow;
-            salary.UpdatedBy = ctx.UserId ?? Guid.Empty;
+            var userId = ctx.UserId ?? Guid.Empty;
 
-            db.Salaries.Update(salary);
+            await db.CreateExecutionStrategy().ExecuteAsync(async () =>
+            {
+                db.ClearChangeTracker();
+                await using var tx = await db.BeginTransactionAsync(ct);
 
-            await CashTransactionLinker.RemoveAsync(db, CashTransactionSourceType.Salary, salary.Id, salary.UpdatedBy, ct);
+                var s = await db.Salaries.FindAsync([cmd.Id], ct);
+                if (s is null || s.IsDeleted) return;
 
-            await db.SaveChangesAsync(ct);
+                s.IsDeleted = true;
+                s.UpdatedAt = DateTimeOffset.UtcNow;
+                s.UpdatedBy = userId;
+                db.Salaries.Update(s);
+
+                await CashTransactionLinker.RemoveAsync(
+                    db, balanceService, CashTransactionSourceType.Salary, cmd.Id, ct);
+
+                await db.SaveChangesAsync(ct);
+                await tx.CommitAsync(ct);
+            });
+
             return (false, false);
         }
     }

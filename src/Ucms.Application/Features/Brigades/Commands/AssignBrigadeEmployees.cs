@@ -23,7 +23,7 @@ public static class AssignBrigadeEmployees
 
             var employees = await db.Employees
                 .AsTracking()
-                .Where(e => cmd.EmployeeIds.Contains(e.Id) && !e.IsDeleted
+                .Where(e => cmd.EmployeeIds.Contains(e.Id)
                          && e.OrganizationId == brigade.OrganizationId)
                 .ToListAsync(ct);
 

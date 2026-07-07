@@ -15,7 +15,7 @@ public static class CreateEstimate
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Command cmd, CancellationToken ct)
         {
             var orgId = await db.Projects
-                .Where(p => p.Id == cmd.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == cmd.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 

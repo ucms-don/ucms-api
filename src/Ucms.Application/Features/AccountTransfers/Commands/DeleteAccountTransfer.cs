@@ -10,7 +10,7 @@ public static class DeleteAccountTransfer
 {
     public record Command(Guid Id);
 
-    public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx)
+    public sealed class Handler(IUcmsDbContext db, ICurrentContext ctx, ICashBalanceService balanceService)
     {
         public async Task<(bool NotFound, bool Forbidden)> HandleAsync(Command cmd, CancellationToken ct)
         {
@@ -23,19 +23,27 @@ public static class DeleteAccountTransfer
 
             var userId = ctx.UserId ?? Guid.Empty;
 
-            transfer.IsDeleted  = true;
-            transfer.UpdatedAt  = DateTimeOffset.UtcNow;
-            transfer.UpdatedBy  = userId;
+            await db.CreateExecutionStrategy().ExecuteAsync(async () =>
+            {
+                db.ClearChangeTracker();
+                await using var tx = await db.BeginTransactionAsync(ct);
 
-            db.AccountTransfers.Update(transfer);
+                var t = await db.AccountTransfers.FindAsync([cmd.Id], ct);
+                if (t is null) return;
+                t.IsDeleted = true;
+                t.UpdatedAt = DateTimeOffset.UtcNow;
+                t.UpdatedBy = userId;
+                db.AccountTransfers.Update(t);
 
-            // Bog'langan CashTransaction'larni soft-delete qilish
-            await CashTransactionLinker.RemoveAsync(
-                db, CashTransactionSourceType.AccountTransferOut, cmd.Id, userId, ct);
-            await CashTransactionLinker.RemoveAsync(
-                db, CashTransactionSourceType.AccountTransferIn, cmd.Id, userId, ct);
+                await CashTransactionLinker.RemoveAsync(
+                    db, balanceService, CashTransactionSourceType.AccountTransferOut, cmd.Id, ct);
+                await CashTransactionLinker.RemoveAsync(
+                    db, balanceService, CashTransactionSourceType.AccountTransferIn, cmd.Id, ct);
 
-            await db.SaveChangesAsync(ct);
+                await db.SaveChangesAsync(ct);
+                await tx.CommitAsync(ct);
+            });
+
             return (false, false);
         }
     }

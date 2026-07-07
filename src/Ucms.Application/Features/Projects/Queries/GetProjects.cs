@@ -22,11 +22,14 @@ public static class GetProjects
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            var orgId = ctx.IsOwner ? (Guid?)null : ctx.OrganizationId;
+            var orgId = ctx.IsOwner ? null : ctx.OrganizationId;
             if (orgId is null && !ctx.IsOwner) return (null, true);
 
-            var query = db.Projects.Where(p => !p.IsDeleted);
-            if (orgId.HasValue) query = query.Where(p => p.OrganizationId == orgId.Value);
+            var query = db.Projects
+                .AsQueryable();
+
+            if (orgId.HasValue) query = query
+                    .Where(p => p.OrganizationId == orgId.Value);
 
             // Status filtri — enum yoki UI string orqali
             if (q.Status.HasValue)

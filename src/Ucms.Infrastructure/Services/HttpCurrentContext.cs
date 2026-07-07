@@ -54,7 +54,7 @@ public class HttpCurrentContext(IHttpContextAccessor httpContextAccessor) : ICur
         get
         {
             var header = httpContextAccessor.HttpContext?
-                .Request.Headers["Accept-Language"].ToString() ?? string.Empty;
+                .Request.Headers.AcceptLanguage.ToString() ?? string.Empty;
 
             // "ru-RU,ru;q=0.9,..." -> birinchi tag, primary subtag
             var primary = header.Split(',', StringSplitOptions.RemoveEmptyEntries)

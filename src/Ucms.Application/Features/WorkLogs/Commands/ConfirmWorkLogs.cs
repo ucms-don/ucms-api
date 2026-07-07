@@ -14,7 +14,7 @@ public static class ConfirmWorkLogs
         public async Task<(int Confirmed, bool ProjectNotFound, bool Forbidden)> HandleAsync(Command cmd, CancellationToken ct)
         {
             var orgId = await db.Projects
-                .Where(p => p.Id == cmd.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == cmd.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 

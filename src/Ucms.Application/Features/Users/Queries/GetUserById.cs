@@ -13,7 +13,7 @@ public static class GetUserById
         public async Task<(object? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var user = await db.Users
-                .Where(u => u.Id == q.Id && !u.IsDeleted)
+                .Where(u => u.Id == q.Id)
                 .Select(u => new
                 {
                     u.Id, u.UserName, u.FullName, u.Email, u.PhoneNumber,

@@ -28,7 +28,8 @@ public static class GetCashTransactions
         {
             if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
 
-            var query = db.CashTransactions.Where(t => !t.IsDeleted);
+            var query = db.CashTransactions
+                .AsQueryable();
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(t => t.OrganizationId == ctx.OrganizationId.Value);

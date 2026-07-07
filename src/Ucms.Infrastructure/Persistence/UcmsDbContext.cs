@@ -104,6 +104,8 @@ public class UcmsDbContext(
         return await Database.BeginTransactionAsync(ct);
     }
 
+    public void ClearChangeTracker() => ChangeTracker.Clear();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -149,6 +151,9 @@ public class UcmsDbContext(
 
         // ── Global query filterlar ─────────────────────────────────────────
         ApplyGlobalFilters(builder);
+
+        // ── IDeletable entitylar uchun IsDeleted indexlari ─────────────────
+        ApplySoftDeleteIndexes(builder);
     }
 
     // ── SaveChanges ────────────────────────────────────────────────────────
@@ -191,6 +196,24 @@ public class UcmsDbContext(
                     .MakeGenericMethod(clrType)
                     .Invoke(null, [modelBuilder]);
             }
+        }
+    }
+
+    /// <summary>
+    /// IDeletable barcha entity turlar uchun IsDeleted ustuniga index qo'shadi.
+    /// Partial index emas — EF Core Npgsql bu sintaksisni migrationda to'g'ri chiqaradi.
+    /// </summary>
+    private static void ApplySoftDeleteIndexes(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (!typeof(IDeletable).IsAssignableFrom(entityType.ClrType))
+                continue;
+
+            var tableName = entityType.GetTableName() ?? entityType.ClrType.Name;
+            modelBuilder.Entity(entityType.ClrType)
+                .HasIndex("IsDeleted")
+                .HasDatabaseName($"IX_{tableName}_IsDeleted");
         }
     }
 

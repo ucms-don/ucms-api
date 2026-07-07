@@ -55,7 +55,7 @@ public static class GetFilteredSkus
             {
                 var links = await db.CashTransactions
                     .Where(t => t.SourceType == CashTransactionSourceType.SkuPurchase
-                        && !t.IsDeleted && t.SourceId != null && ids.Contains(t.SourceId.Value))
+                        && t.SourceId != null && ids.Contains(t.SourceId.Value))
                     .Select(t => new { SkuId = t.SourceId!.Value, t.CashAccountId })
                     .ToListAsync(ct);
                 var map = links.ToDictionary(x => x.SkuId, x => x.CashAccountId);

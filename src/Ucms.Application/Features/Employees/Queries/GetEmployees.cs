@@ -17,7 +17,8 @@ public static class GetEmployees
     {
         public async Task<List<Item>> HandleAsync(Query q, CancellationToken ct)
         {
-            var query = db.Employees.Where(e => !e.IsDeleted);
+            var query = db.Employees
+                .AsQueryable();
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(e => e.OrganizationId == ctx.OrganizationId.Value);

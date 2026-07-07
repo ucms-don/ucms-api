@@ -46,7 +46,8 @@ public static class GetAllWorkLogs
             if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
             var locale = ctx.Locale;
 
-            var query = db.WorkLogs.Where(w => !w.Project!.IsDeleted);
+            var query = db.WorkLogs
+                .AsQueryable();
 
             if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
                 query = query.Where(w => w.Project!.OrganizationId == ctx.OrganizationId.Value);

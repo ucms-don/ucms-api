@@ -18,7 +18,7 @@ public static class GetProjectExpenseById
         public async Task<(ExpenseDetailDto? Data, bool NotFound, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var expense = await db.ProjectExpenses
-                .Where(e => e.Id == q.Id && e.ProjectId == q.ProjectId && !e.IsDeleted)
+                .Where(e => e.Id == q.Id && e.ProjectId == q.ProjectId)
                 .Select(e => new ExpenseDetailDto(
                     e.Id, e.ProjectId, e.Date, e.Category, e.Amount,
                     e.Description, e.PaymentMethod, e.Note,

@@ -26,7 +26,7 @@ public static class GetProjectEstimateItems
         public async Task<(List<ItemOption>? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
             var orgId = await db.Projects
-                .Where(p => p.Id == q.ProjectId && !p.IsDeleted)
+                .Where(p => p.Id == q.ProjectId)
                 .Select(p => (Guid?)p.OrganizationId)
                 .FirstOrDefaultAsync(ct);
 
@@ -35,7 +35,7 @@ public static class GetProjectEstimateItems
 
             var locale = ctx.Locale;
             var items = await db.EstimateItems
-                .Where(i => i.Section!.Estimate!.ProjectId == q.ProjectId && !i.Section.Estimate.IsDeleted)
+                .Where(i => i.Section!.Estimate!.ProjectId == q.ProjectId)
                 .OrderBy(i => i.Section!.Estimate!.Order)
                 .ThenBy(i => i.Section!.Order)
                 .ThenBy(i => i.Order)

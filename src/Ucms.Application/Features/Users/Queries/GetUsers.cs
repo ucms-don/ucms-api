@@ -18,7 +18,8 @@ public static class GetUsers
         {
             var targetOrgId = ctx.IsOwner ? q.OrganizationId : ctx.OrganizationId;
 
-            var query = db.Users.Where(u => !u.IsDeleted);
+            var query = db.Users
+                .AsQueryable();
 
             if (targetOrgId.HasValue)
                 query = query.Where(u => u.OrganizationId == targetOrgId.Value);

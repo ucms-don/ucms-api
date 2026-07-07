@@ -78,6 +78,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("FromAccountId");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_AccountTransfers_IsDeleted");
+
                     b.HasIndex("OrganizationId");
 
                     b.HasIndex("ToAccountId");
@@ -131,6 +134,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Brigades_IsDeleted");
 
                     b.HasIndex("OrganizationId");
 
@@ -192,6 +198,9 @@ namespace Ucms.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("numeric");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -228,6 +237,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_CashAccounts_IsDeleted");
 
                     b.HasIndex("OrganizationId");
 
@@ -301,6 +313,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasIndex("CashAccountId");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_CashTransactions_IsDeleted");
 
                     b.HasIndex("OrganizationId");
 
@@ -508,6 +523,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Customers_IsDeleted");
+
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("Customers");
@@ -567,6 +585,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("BrigadeId");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Employees_IsDeleted");
+
                     b.HasIndex("OrganizationId");
 
                     b.HasIndex("UserId")
@@ -615,6 +636,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Estimates_IsDeleted");
+
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Estimates");
@@ -642,10 +666,6 @@ namespace Ucms.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
-                    b.Property<decimal>("VatRate")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("numeric(5,2)");
-
                     b.Property<Guid>("MeasurementUnitId")
                         .HasColumnType("uuid");
 
@@ -657,6 +677,10 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.Property<int?>("SurfaceType")
                         .HasColumnType("integer");
+
+                    b.Property<decimal>("VatRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
 
                     b.Property<decimal>("Volume")
                         .HasPrecision(28, 12)
@@ -880,6 +904,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasIndex("EmployeeId")
                         .IsUnique();
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Users_IsDeleted");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -1018,6 +1045,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Incomes_IsDeleted");
+
                     b.HasIndex("StockId");
 
                     b.ToTable("Incomes");
@@ -1049,6 +1079,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasIndex("Id");
 
                     b.HasIndex("IncomeId");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_IncomeItems_IsDeleted");
 
                     b.HasIndex("MeasurementUnitId");
 
@@ -1089,6 +1122,9 @@ namespace Ucms.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("IncomeStockId");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_IncomeOutcomes_IsDeleted");
 
                     b.HasIndex("OutcomeId")
                         .IsUnique();
@@ -1132,6 +1168,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Manufacturers_IsDeleted");
 
                     b.ToTable("Manufacturers");
                 });
@@ -1177,6 +1216,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_MeasurementUnits_IsDeleted");
 
                     b.ToTable("MeasurementUnits");
                 });
@@ -1237,6 +1279,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Organizations_IsDeleted");
+
                     b.ToTable("Organizations");
                 });
 
@@ -1261,6 +1306,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_OrganizationMeasurementUnits_IsDeleted");
 
                     b.HasIndex("MeasurementUnitId");
 
@@ -1340,6 +1388,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Outcomes_IsDeleted");
+
                     b.HasIndex("StockId");
 
                     b.ToTable("Outcomes");
@@ -1372,6 +1423,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_OutcomeItems_IsDeleted");
 
                     b.HasIndex("MeasurementUnitId");
 
@@ -1421,6 +1475,9 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Products_IsDeleted");
 
                     b.ToTable("Products");
                 });
@@ -1490,6 +1547,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Projects_IsDeleted");
+
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("Projects");
@@ -1553,6 +1613,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Date");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_ProjectExpenses_IsDeleted");
+
                     b.HasIndex("OrganizationId");
 
                     b.HasIndex("ProjectId");
@@ -1606,6 +1669,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("EmployeeId");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Salaries_IsDeleted");
+
                     b.HasIndex("Month");
 
                     b.HasIndex("OrganizationId");
@@ -1625,10 +1691,6 @@ namespace Ucms.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("ExpirationDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTimeOffset>("PurchaseDate")
-                        .HasDefaultValueSql("now()")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -1644,6 +1706,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset>("PurchaseDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("SerialNumber")
                         .IsRequired()
                         .HasColumnType("text");
@@ -1655,6 +1720,9 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Skus_IsDeleted");
 
                     b.HasIndex("ManufacturerId");
 
@@ -1715,6 +1783,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Stocks_IsDeleted");
+
                     b.HasIndex("ParentId");
 
                     b.ToTable("Stocks");
@@ -1757,6 +1828,9 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("numeric");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_StockBalanceRegisters_IsDeleted");
 
                     b.HasIndex("MeasurementUnitId");
 
@@ -1815,6 +1889,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_StockDemands_IsDeleted");
+
                     b.HasIndex("OutcomeId");
 
                     b.HasIndex("RecipientId");
@@ -1856,6 +1933,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.HasIndex("Id");
 
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_StockDemandItems_IsDeleted");
+
                     b.HasIndex("MeasurementUnitId");
 
                     b.HasIndex("ProductId");
@@ -1892,6 +1972,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_StockSkus_IsDeleted");
 
                     b.HasIndex("MeasurementUnitId");
 
@@ -1937,6 +2020,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Suppliers_IsDeleted");
 
                     b.ToTable("Suppliers");
                 });
@@ -2057,6 +2143,9 @@ namespace Ucms.Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_WorkTypes_IsDeleted");
 
                     b.HasIndex("MeasurementUnitId");
 

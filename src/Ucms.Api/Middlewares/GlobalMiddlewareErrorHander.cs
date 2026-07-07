@@ -46,6 +46,10 @@ public class GlobalMiddlewareErrorHander(RequestDelegate next, ILogger<GlobalMid
 
     private static bool IsCriticalException(Exception ex)
     {
-        return ex is not AlreadyExistException and not AccessDeniedException and not NotFoundException;
+        return ex is not AlreadyExistException
+                  and not AccessDeniedException
+                  and not NotFoundException
+                  and not InsufficientBalanceException
+                  and not CashAccountNotFoundException;
     }
 }

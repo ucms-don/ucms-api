@@ -24,7 +24,7 @@ public static class UpdateProject
             if (cmd.CustomerId.HasValue)
             {
                 var customerExists = await db.Customers
-                    .AnyAsync(c => c.Id == cmd.CustomerId.Value && !c.IsDeleted && c.OrganizationId == project.OrganizationId, ct);
+                    .AnyAsync(c => c.Id == cmd.CustomerId.Value && c.OrganizationId == project.OrganizationId, ct);
                 if (!customerExists) return (false, false, true);
             }
 
