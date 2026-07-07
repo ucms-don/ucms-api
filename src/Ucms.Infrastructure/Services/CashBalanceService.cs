@@ -28,7 +28,7 @@ public class CashBalanceService(IUcmsDbContext db) : ICashBalanceService
 
             var newBalance = await db.Database
                 .SqlQuery<decimal>(
-                    $"SELECT apply_cash_balance_delta({accountId}, {amount}, {dir}, {allowOverdraft})")
+                    $"SELECT apply_cash_balance_delta({accountId}, {amount}, {dir}, {allowOverdraft}) AS \"Value\"")
                 .FirstAsync(ct);
 
             return newBalance;
