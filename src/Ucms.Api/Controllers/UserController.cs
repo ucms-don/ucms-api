@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.Users.Commands;
 using Ucms.Application.Features.Users.Queries;
+using Ucms.Domain.Constants;
 
 /// <summary>
 /// Foydalanuvchilarni boshqarish.
@@ -15,14 +16,15 @@ using Ucms.Application.Features.Users.Queries;
 [Authorize]
 [Authorize(Policy = "personnel.view")]
 public class UserController(
-    GetUsers.Handler        getAll,
-    GetUserById.Handler     getById,
-    CreateUser.Handler      create,
-    UpdateUser.Handler      update,
-    SetUserRoles.Handler    setRoles,
-    ToggleUserActive.Handler toggleActive,
-    DeleteUser.Handler      delete,
-    GetRoles.Handler        getRoles) : ControllerBase
+    GetUsers.Handler          getAll,
+    GetUserById.Handler       getById,
+    CreateUser.Handler        create,
+    UpdateUser.Handler        update,
+    SetUserRoles.Handler      setRoles,
+    ResetUserPassword.Handler resetPassword,
+    ToggleUserActive.Handler  toggleActive,
+    DeleteUser.Handler        delete,
+    GetRoles.Handler          getRoles) : ControllerBase
 {
     public record CreateUserRequest(
         string UserName, string Email, string Password,
@@ -31,6 +33,8 @@ public class UserController(
     public record UpdateUserRequest(string? FullName, string? PhoneNumber, string? Email);
 
     public record SetRolesRequest(List<string> Roles);
+
+    public record ResetPasswordRequest(string NewPassword);
 
     /// <summary>
     /// Foydalanuvchilar ro'yxati (filtr va sahifalash bilan).
@@ -115,6 +119,24 @@ public class UserController(
         if (notFound)  return NotFound();
         if (forbidden) return Forbid();
         return Ok(new { roles = req.Roles });
+    }
+
+    /// <summary>
+    /// Foydalanuvchi parolini tiklash. Admin yoki Manager uchun.
+    /// Сброс пароля пользователя. Для Admin или Manager.
+    /// </summary>
+    [HttpPatch("{id:guid}/reset-password")]
+    [Authorize(Roles = "Admin,Manager")]
+    [ProducesResponseType(204)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> ResetPassword(Guid id, [FromBody] ResetPasswordRequest req, CancellationToken ct)
+    {
+        var (notFound, forbidden, errors) = await resetPassword.HandleAsync(new(id, req.NewPassword), ct);
+        if (notFound)           return NotFound();
+        if (forbidden)          return Forbid();
+        if (errors is not null) return BadRequest(new { errors });
+        return NoContent();
     }
 
     /// <summary>
