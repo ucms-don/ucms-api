@@ -32,6 +32,12 @@ namespace Ucms.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledBy")
+                        .HasColumnType("uuid");
+
                     b.Property<decimal>("Commission")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
@@ -47,6 +53,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.Property<Guid>("FromAccountId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -70,16 +79,6 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsCancelled")
-                        .HasDefaultValue(false)
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CancelledBy")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -166,6 +165,12 @@ namespace Ucms.Infrastructure.Migrations
                     b.Property<Guid>("BrigadeId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledBy")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -174,6 +179,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset>("Date")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Note")
                         .HasMaxLength(1024)
@@ -189,16 +197,6 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsCancelled")
-                        .HasDefaultValue(false)
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CancelledBy")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -276,6 +274,12 @@ namespace Ucms.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledBy")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("CashAccountId")
                         .HasColumnType("uuid");
 
@@ -290,6 +294,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.Property<int>("Direction")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -326,16 +333,6 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsCancelled")
-                        .HasDefaultValue(false)
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CancelledBy")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -453,6 +450,12 @@ namespace Ucms.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledBy")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -461,6 +464,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.Property<DateTimeOffset>("Date")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Note")
                         .HasMaxLength(1024)
@@ -476,16 +482,6 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsCancelled")
-                        .HasDefaultValue(false)
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CancelledBy")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -1605,6 +1601,12 @@ namespace Ucms.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledBy")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(128)
@@ -1622,6 +1624,9 @@ namespace Ucms.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1647,16 +1652,6 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsCancelled")
-                        .HasDefaultValue(false)
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CancelledBy")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
@@ -1685,6 +1680,12 @@ namespace Ucms.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
 
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledBy")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1693,6 +1694,9 @@ namespace Ucms.Infrastructure.Migrations
 
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uuid");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -1713,16 +1717,6 @@ namespace Ucms.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UpdatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("IsCancelled")
-                        .HasDefaultValue(false)
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTimeOffset?>("CancelledAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CancelledBy")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");

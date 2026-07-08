@@ -467,7 +467,10 @@ namespace Ucms.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
+                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CancelledBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -787,7 +790,10 @@ namespace Ucms.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
+                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CancelledBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -855,7 +861,10 @@ namespace Ucms.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
+                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CancelledBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -896,7 +905,10 @@ namespace Ucms.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
+                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CancelledBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -992,7 +1004,10 @@ namespace Ucms.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
+                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CancelledBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1179,7 +1194,10 @@ namespace Ucms.Infrastructure.Migrations
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false)
+                    UpdatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsCancelled = table.Column<bool>(type: "boolean", nullable: false),
+                    CancelledAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CancelledBy = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
