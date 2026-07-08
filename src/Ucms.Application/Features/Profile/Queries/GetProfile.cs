@@ -53,7 +53,7 @@ public static class GetProfile
                 user.Organization,
                 user.Roles,
                 Permissions = permissions,
-                ctx.IsAdmin,
+                IsAdmin = user.Roles.Contains("Admin") || ctx.IsOwner,
             };
         }
     }
