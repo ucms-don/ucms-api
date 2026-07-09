@@ -7,6 +7,7 @@ using QueryForge.Models;
 using Ucms.Application.Features.Stocks.Commands;
 using Ucms.Application.Features.Stocks.DTOs;
 using Ucms.Application.Features.Stocks.Queries;
+using Ucms.Application.Services;
 using Ucms.Domain.Enums;
 
 [Route("api/stock")]
@@ -24,7 +25,8 @@ public class StockController(
     CreateStock.Handler create,
     UpdateStock.Handler update,
     DeleteStock.Handler delete,
-    DeleteStocks.Handler deleteRange) : ControllerBase
+    DeleteStocks.Handler deleteRange,
+    IStockCodeGenerator codeGenerator) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(List<StockModel>), 200)]
@@ -75,6 +77,14 @@ public class StockController(
     public async Task<IActionResult> FindStocks(string query, CancellationToken ct = default)
         {
             return Ok(await findStocks.HandleAsync(new(query), ct));
+        }
+
+    [HttpGet("generate-code")]
+    [ProducesResponseType(typeof(string), 200)]
+    public async Task<IActionResult> GenerateCode(CancellationToken ct = default)
+        {
+            var code = await codeGenerator.GenerateAsync(ct);
+            return Ok(code);
         }
 
     public record CreateStockRequest(string Name, string NameRu, string? NameEn, string? NameKa,

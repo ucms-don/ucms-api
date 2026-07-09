@@ -7,6 +7,7 @@ using QueryForge.Models;
 using Ucms.Application.Features.Skus.Commands;
 using Ucms.Application.Features.Skus.DTOs;
 using Ucms.Application.Features.Skus.Queries;
+using Ucms.Application.Services;
 using Ucms.Domain.Enums;
 
 [Route("api/sku")]
@@ -25,7 +26,8 @@ public class SkuController(
     CreateSku.Handler create,
     UpdateSku.Handler update,
     DeleteSku.Handler delete,
-    DeleteSkus.Handler deleteRange) : ControllerBase
+    DeleteSkus.Handler deleteRange,
+    ISkuSerialNumberGenerator serialGenerator) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(List<SkuModel>), 200)]
@@ -85,6 +87,14 @@ public class SkuController(
     public async Task<IActionResult> CheckForUsed(Guid id, CancellationToken ct = default)
         {
             return Ok(await checkUsed.HandleAsync(new(id), ct));
+        }
+
+    [HttpGet("generate-serial")]
+    [ProducesResponseType(typeof(string), 200)]
+    public async Task<IActionResult> GenerateSerial([FromQuery] Guid productId, CancellationToken ct = default)
+        {
+            var serial = await serialGenerator.GenerateAsync(productId, ct);
+            return Ok(serial);
         }
 
     public record CreateSkuRequest(string? SerialNumber, Guid ProductId, Guid? ManufacturerId, Guid MeasurementUnitId,

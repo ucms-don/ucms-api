@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ucms.Application.Features.WorkTypes.Commands;
 using Ucms.Application.Features.WorkTypes.Queries;
+using Ucms.Application.Services;
 
 /// <summary>
 /// Ish turlarini boshqarish (smeta pozitsiyalari uchun sprvashnik).
@@ -19,7 +20,8 @@ public class WorkTypeController(
     GetWorkTypeById.Handler getById,
     CreateWorkType.Handler  create,
     UpdateWorkType.Handler  update,
-    DeleteWorkType.Handler  deleteOne) : ControllerBase
+    DeleteWorkType.Handler  deleteOne,
+    IWorkTypeCodeGenerator  codeGenerator) : ControllerBase
 {
     public record CreateWorkTypeRequest(string Name, string NameRu, string? NameEn, string? NameKa,
         Guid? MeasurementUnitId, string? Code);
@@ -48,6 +50,18 @@ public class WorkTypeController(
     {
         var result = await getById.HandleAsync(new(id), ct);
         return result is null ? NotFound() : Ok(result);
+    }
+
+    /// <summary>
+    /// Ish turi uchun noyob kod generatsiya qiladi (WT-000001 formatida).
+    /// Генерирует уникальный код для вида работы (формат WT-000001).
+    /// </summary>
+    [HttpGet("generate-code")]
+    [ProducesResponseType(typeof(string), 200)]
+    public async Task<IActionResult> GenerateCode(CancellationToken ct)
+    {
+        var code = await codeGenerator.GenerateAsync(ct);
+        return Ok(code);
     }
 
     /// <summary>

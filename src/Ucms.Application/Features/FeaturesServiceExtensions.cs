@@ -27,6 +27,7 @@ public static class FeaturesServiceExtensions
         services.AddScoped<IProductBalanceReportService, ProductBalanceReportService>();
         services.AddScoped<ISkuSerialNumberGenerator, SkuSerialNumberGenerator>();
         services.AddScoped<IWorkTypeCodeGenerator, WorkTypeCodeGenerator>();
+        services.AddScoped<IStockCodeGenerator, StockCodeGenerator>();
 
         return services;
     }
