@@ -6,7 +6,7 @@ using Ucms.Domain.Enums;
 /// <summary>
 /// Qurilish loyihasi
 /// </summary>
-public class Project : AuditableEntity, IDeletable
+public class Project : AuditableEntity, IDeletable, IHasOrganization
 {
     /// <summary>
     /// Tashkilot ID

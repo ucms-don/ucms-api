@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.Employees.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Persistence;
 
 public static class GetEmployees
@@ -18,11 +19,9 @@ public static class GetEmployees
     {
         public async Task<List<Item>> HandleAsync(Query q, CancellationToken ct)
         {
-            var query = db.Employees
-                .AsQueryable();
-
-            if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
-                query = query.Where(e => e.OrganizationId == ctx.OrganizationId.Value);
+            var query = ctx.OrganizationId.HasValue
+                ? db.Employees.IncludeChilds(ctx.OrganizationId.Value)
+                : db.Employees.AsQueryable();
 
             if (q.IsActive.HasValue)
                 query = query.Where(e => e.IsActive == q.IsActive.Value);

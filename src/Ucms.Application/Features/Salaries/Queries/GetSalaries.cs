@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.Salaries.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Persistence;
 
 public static class GetSalaries
@@ -19,13 +20,9 @@ public static class GetSalaries
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
-
-            var query = db.Salaries
-                .AsQueryable();
-
-            if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
-                query = query.Where(s => s.OrganizationId == ctx.OrganizationId.Value);
+            var query = ctx.OrganizationId.HasValue
+                ? db.Salaries.IncludeChilds(ctx.OrganizationId.Value)
+                : db.Salaries.AsQueryable();
 
             if (!string.IsNullOrEmpty(q.Month))
                 query = query.Where(s => s.Month == q.Month);

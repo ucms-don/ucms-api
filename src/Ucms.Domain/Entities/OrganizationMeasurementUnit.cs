@@ -6,7 +6,7 @@ using Ucms.Domain.Enums;
 /// <summary>
 /// Стандартная единица измерения организации
 /// </summary>
-public class OrganizationMeasurementUnit : Entity, IDeletable
+public class OrganizationMeasurementUnit : Entity, IDeletable, IHasOrganization
 {
     /// <summary>
     /// Тип единицы измерение

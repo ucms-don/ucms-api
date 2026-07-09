@@ -13,6 +13,8 @@
     <PackageReference Include="MassTransit" />
     <PackageReference Include="MassTransit.Abstractions" />
     <PackageReference Include="QueryForge" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
   <ItemGroup>

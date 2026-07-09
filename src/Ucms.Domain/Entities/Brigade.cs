@@ -5,7 +5,7 @@ using Ucms.Domain.Common;
 /// <summary>
 /// Ishchi brigada
 /// </summary>
-public class Brigade : AuditableEntity, IDeletable
+public class Brigade : AuditableEntity, IDeletable, IHasOrganization
 {
     /// <summary>
     /// Tashkilot ID

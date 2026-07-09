@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.Brigades.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Persistence;
 
 public static class GetBrigades
@@ -17,11 +18,9 @@ public static class GetBrigades
     {
         public async Task<List<Item>> HandleAsync(Query q, CancellationToken ct)
         {
-            var query = db.Brigades
-                .AsQueryable();
-
-            if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
-                query = query.Where(b => b.OrganizationId == ctx.OrganizationId.Value);
+            var query = ctx.OrganizationId.HasValue
+                ? db.Brigades.IncludeChilds(ctx.OrganizationId.Value)
+                : db.Brigades.AsQueryable();
 
             // IsActive filtri — bool yoki UI string "active"/"archived"
             if (q.IsActive.HasValue)

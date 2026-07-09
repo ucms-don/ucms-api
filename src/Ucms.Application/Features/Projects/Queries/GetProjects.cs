@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.Projects.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Enums;
 
@@ -22,14 +23,9 @@ public static class GetProjects
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            var orgId = ctx.IsOwner ? null : ctx.OrganizationId;
-            if (orgId is null && !ctx.IsOwner) return (null, true);
-
-            var query = db.Projects
-                .AsQueryable();
-
-            if (orgId.HasValue) query = query
-                    .Where(p => p.OrganizationId == orgId.Value);
+            var query = ctx.OrganizationId.HasValue
+                ? db.Projects.IncludeChilds(ctx.OrganizationId.Value)
+                : db.Projects.AsQueryable();
 
             // Status filtri — enum yoki UI string orqali
             if (q.Status.HasValue)

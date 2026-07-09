@@ -6,7 +6,7 @@ using Ucms.Domain.Common;
 /// Xodim maoshi yozuvi
 /// Запись о зарплате сотрудника
 /// </summary>
-public class Salary : CancellableEntity, IDeletable
+public class Salary : CancellableEntity, IDeletable, IHasOrganization
 {
     /// <summary>
     /// Tashkilot ID

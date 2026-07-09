@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.Dashboard.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Features.Dashboard.DTOs;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Enums;
@@ -14,15 +15,11 @@ public static class GetDashboard
     {
         public async Task<DashboardDto> HandleAsync(Query _, CancellationToken ct)
         {
-            var orgId  = ctx.OrganizationId;
             var locale = ctx.Locale;
 
-            var projectsQuery = db.Projects
-                .AsQueryable();
-
-            if (orgId.HasValue)
-                projectsQuery = projectsQuery
-                    .Where(p => p.OrganizationId == orgId.Value);
+            var projectsQuery = ctx.OrganizationId.HasValue
+                ? db.Projects.IncludeChilds(ctx.OrganizationId.Value)
+                : db.Projects.AsQueryable();
 
             var ps = await projectsQuery
                 .GroupBy(_ => true)
@@ -43,10 +40,9 @@ public static class GetDashboard
                 ps?.Completed  ?? 0,
                 ps?.Suspended  ?? 0);
 
-            var brigadesQuery = db.Brigades
-                .AsQueryable();
-
-            if (orgId.HasValue) brigadesQuery = brigadesQuery.Where(b => b.OrganizationId == orgId.Value);
+            var brigadesQuery = ctx.OrganizationId.HasValue
+                ? db.Brigades.IncludeChilds(ctx.OrganizationId.Value)
+                : db.Brigades.AsQueryable();
 
             var bs = await brigadesQuery
                 .GroupBy(_ => true)
@@ -86,7 +82,7 @@ public static class GetDashboard
                 BrigadeDebt:    workedTotal - brigadePaid);
 
             var recentWorkLogs = await db.WorkLogs
-                .Where(w => !orgId.HasValue || activeProjectIds.Contains(w.ProjectId))
+                .Where(w => !ctx.OrganizationId.HasValue || activeProjectIds.Contains(w.ProjectId))
                 .OrderByDescending(w => w.CreatedAt)
                 .Take(5)
                 .Select(w => new DashboardWorkLogDto(
@@ -103,7 +99,7 @@ public static class GetDashboard
                 .ToListAsync(ct);
 
             var recentPayments = await db.ClientPayments
-                .Where(p => !orgId.HasValue || activeProjectIds.Contains(p.ProjectId))
+                .Where(p => !ctx.OrganizationId.HasValue || activeProjectIds.Contains(p.ProjectId))
                 .OrderByDescending(p => p.CreatedAt)
                 .Take(5)
                 .Select(p => new DashboardPaymentDto(

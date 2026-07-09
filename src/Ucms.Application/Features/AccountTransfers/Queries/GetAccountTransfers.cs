@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.AccountTransfers.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Persistence;
 
 public static class GetAccountTransfers
@@ -33,13 +34,9 @@ public static class GetAccountTransfers
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            if (!ctx.IsOwner && !ctx.OrganizationId.HasValue)
-                return (null, true);
-
-            var query = db.AccountTransfers.AsQueryable();
-
-            if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
-                query = query.Where(t => t.OrganizationId == ctx.OrganizationId.Value);
+            var query = ctx.OrganizationId.HasValue
+                ? db.AccountTransfers.IncludeChilds(ctx.OrganizationId.Value)
+                : db.AccountTransfers.AsQueryable();
 
             if (q.FromAccountId.HasValue)
                 query = query.Where(t => t.FromAccountId == q.FromAccountId.Value);

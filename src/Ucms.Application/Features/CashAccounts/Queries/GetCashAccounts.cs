@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.CashAccounts.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Enums;
 
@@ -19,11 +20,9 @@ public static class GetCashAccounts
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            if (!ctx.OrganizationId.HasValue)
-                return (null, true);
-
-            var query = db.CashAccounts.Where(a =>
-                a.OrganizationId == ctx.OrganizationId!.Value);
+            var query = ctx.OrganizationId.HasValue
+                ? db.CashAccounts.IncludeChilds(ctx.OrganizationId.Value)
+                : db.CashAccounts.AsQueryable();
 
             if (q.IsActive.HasValue)
                 query = query.Where(a => a.IsActive == q.IsActive.Value);

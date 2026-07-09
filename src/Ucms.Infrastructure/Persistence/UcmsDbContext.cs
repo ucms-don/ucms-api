@@ -175,31 +175,18 @@ public class UcmsDbContext(
     /// </summary>
     private void ApplyGlobalFilters(ModelBuilder modelBuilder)
     {
+        // Barcha IDeletable entitylar uchun faqat soft-delete filtri.
+        // Tashkilot filtri DbSetExtensions.IncludeChilds() orqali handlerda qo'llanadi.
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             var clrType = entityType.ClrType;
-            var hasOrg = typeof(IHasOrganization).IsAssignableFrom(clrType);
-            var isDeletable = typeof(IDeletable).IsAssignableFrom(clrType);
-
-            if (!isDeletable)
+            if (!typeof(IDeletable).IsAssignableFrom(clrType))
                 continue;
 
-            if (hasOrg)
-            {
-                // Organization + soft-delete filtri
-                GetType()
-                    .GetMethod(nameof(SetOrgAndDeleteFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
-                    .MakeGenericMethod(clrType)
-                    .Invoke(this, [modelBuilder]);
-            }
-            else
-            {
-                // Faqat soft-delete filtri
-                typeof(UcmsDbContext)
-                    .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)!
-                    .MakeGenericMethod(clrType)
-                    .Invoke(null, [modelBuilder]);
-            }
+            typeof(UcmsDbContext)
+                .GetMethod(nameof(SetSoftDeleteFilter), BindingFlags.NonPublic | BindingFlags.Static)!
+                .MakeGenericMethod(clrType)
+                .Invoke(null, [modelBuilder]);
         }
     }
 
@@ -219,17 +206,6 @@ public class UcmsDbContext(
                 .HasIndex("IsDeleted")
                 .HasDatabaseName($"IX_{tableName}_IsDeleted");
         }
-    }
-
-    private void SetOrgAndDeleteFilter<T>(ModelBuilder modelBuilder)
-        where T : class, IDeletable, IHasOrganization
-    {
-        // Owner foydalanuvchilar barcha tashkilotlar ma'lumotlarini ko'radi
-        modelBuilder.Entity<T>().HasQueryFilter(e =>
-                !e.IsDeleted &&
-                (context.IsOwner ||
-                 context.OrganizationId == null ||
-                 e.OrganizationId == context.OrganizationId));
     }
 
     private static void SetSoftDeleteFilter<T>(ModelBuilder modelBuilder)

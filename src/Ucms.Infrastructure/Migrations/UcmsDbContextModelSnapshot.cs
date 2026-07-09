@@ -97,7 +97,19 @@ namespace Ucms.Infrastructure.Migrations
                     b.ToTable("AccountTransfers");
                 });
 
-            modelBuilder.Entity("Ucms.Domain.Entities.Brigade", b =>
+            modelBuilder.Entity("Ucms.Domain.Entities.Organization", b =>
+                {
+                    b.HasOne("Ucms.Domain.Entities.Organization", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Children");
+
+                    b.Navigation("Parent");
+                });
+
+                        modelBuilder.Entity("Ucms.Domain.Entities.Brigade", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1311,12 +1323,18 @@ namespace Ucms.Infrastructure.Migrations
                     b.Property<Guid>("UpdatedBy")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Id");
 
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_Organizations_IsDeleted");
+
+                    b.HasIndex("ParentId")
+                        .HasDatabaseName("IX_Organizations_ParentId");
 
                     b.ToTable("Organizations");
                 });
@@ -2233,7 +2251,19 @@ namespace Ucms.Infrastructure.Migrations
                     b.Navigation("ToAccount");
                 });
 
-            modelBuilder.Entity("Ucms.Domain.Entities.Brigade", b =>
+            modelBuilder.Entity("Ucms.Domain.Entities.Organization", b =>
+                {
+                    b.HasOne("Ucms.Domain.Entities.Organization", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Children");
+
+                    b.Navigation("Parent");
+                });
+
+                        modelBuilder.Entity("Ucms.Domain.Entities.Brigade", b =>
                 {
                     b.HasOne("Ucms.Domain.Entities.Organization", "Organization")
                         .WithMany("Brigades")
@@ -2866,7 +2896,19 @@ namespace Ucms.Infrastructure.Migrations
                     b.Navigation("MeasurementUnit");
                 });
 
-            modelBuilder.Entity("Ucms.Domain.Entities.Brigade", b =>
+            modelBuilder.Entity("Ucms.Domain.Entities.Organization", b =>
+                {
+                    b.HasOne("Ucms.Domain.Entities.Organization", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Children");
+
+                    b.Navigation("Parent");
+                });
+
+                        modelBuilder.Entity("Ucms.Domain.Entities.Brigade", b =>
                 {
                     b.Navigation("Employees");
 

@@ -6,7 +6,7 @@ using Ucms.Domain.Common;
 /// Tashkilot xodimi
 /// Сотрудник организации
 /// </summary>
-public class Employee : AuditableEntity, IDeletable
+public class Employee : AuditableEntity, IDeletable, IHasOrganization
 {
     /// <summary>
     /// Tashkilot ID

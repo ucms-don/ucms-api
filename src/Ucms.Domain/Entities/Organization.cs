@@ -44,10 +44,17 @@ public class Organization : AuditableEntity, IDeletable
     public bool IsTest { get; set; }
 
     /// <summary>
+    /// Ota-tashkilot ID (ierarxiya uchun, null = ildiz)
+    /// </summary>
+    public Guid? ParentId { get; set; }
+
+    /// <summary>
     /// O'chirilgan yoki yo'q
     /// </summary>
     public bool IsDeleted { get; set; }
 
-    public virtual ICollection<Project> Projects { get; set; } = [];
-    public virtual ICollection<Brigade> Brigades { get; set; } = [];
+    public virtual Organization?             Parent   { get; set; }
+    public virtual ICollection<Organization> Children { get; set; } = [];
+    public virtual ICollection<Project>      Projects { get; set; } = [];
+    public virtual ICollection<Brigade>      Brigades { get; set; } = [];
 }

@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.Customers.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Persistence;
 
 public static class GetCustomers
@@ -19,13 +20,9 @@ public static class GetCustomers
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
-
-            var query = db.Customers
-                .AsQueryable();
-
-            if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
-                query = query.Where(c => c.OrganizationId == ctx.OrganizationId.Value);
+            var query = ctx.OrganizationId.HasValue
+                ? db.Customers.IncludeChilds(ctx.OrganizationId.Value)
+                : db.Customers.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(q.Search))
                 query = query.Where(c =>

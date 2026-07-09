@@ -6,7 +6,7 @@ using Ucms.Domain.Enums;
 /// <summary>
 /// Склад
 /// </summary>
-public class Stock : LocalizableEntity, IDeletable
+public class Stock : LocalizableEntity, IDeletable, IHasOrganization
 {
     /// <summary>
     /// Идентификатор организации (с Organization Service)

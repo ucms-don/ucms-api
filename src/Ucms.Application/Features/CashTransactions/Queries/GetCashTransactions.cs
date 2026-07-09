@@ -2,6 +2,7 @@ namespace Ucms.Application.Features.CashTransactions.Queries;
 
 using Microsoft.EntityFrameworkCore;
 using Ucms.Application.Abstractions;
+using Ucms.Application.Extensions;
 using Ucms.Application.Persistence;
 using Ucms.Domain.Enums;
 
@@ -26,13 +27,9 @@ public static class GetCashTransactions
     {
         public async Task<(Result? Data, bool Forbidden)> HandleAsync(Query q, CancellationToken ct)
         {
-            if (!ctx.IsOwner && !ctx.OrganizationId.HasValue) return (null, true);
-
-            var query = db.CashTransactions
-                .AsQueryable();
-
-            if (!ctx.IsOwner && ctx.OrganizationId.HasValue)
-                query = query.Where(t => t.OrganizationId == ctx.OrganizationId.Value);
+            var query = ctx.OrganizationId.HasValue
+                ? db.CashTransactions.IncludeChilds(ctx.OrganizationId.Value)
+                : db.CashTransactions.AsQueryable();
 
             if (q.CashAccountId.HasValue)
                 query = query.Where(t => t.CashAccountId == q.CashAccountId.Value);
