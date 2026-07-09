@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Ucms.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddOrganizationParentId : Migration
+    public partial class AddedParentIdToOrganization : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,8 +27,7 @@ namespace Ucms.Infrastructure.Migrations
                 table: "Organizations",
                 column: "ParentId",
                 principalTable: "Organizations",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
+                principalColumn: "Id");
         }
 
         /// <inheritdoc />
