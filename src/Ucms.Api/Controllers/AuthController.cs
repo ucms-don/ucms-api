@@ -37,7 +37,7 @@ public class AuthController(
         var user = await userManager.FindByNameAsync(req.UserName)
                 ?? await userManager.FindByEmailAsync(req.UserName);
 
-        if (user is null || !await userManager.CheckPasswordAsync(user, req.Password))
+        if (user is null || user.IsDeleted || !await userManager.CheckPasswordAsync(user, req.Password))
             return Unauthorized(new { message = "Login yoki parol noto'g'ri. / Неверный логин или пароль." });
 
         if (await userManager.IsLockedOutAsync(user))
